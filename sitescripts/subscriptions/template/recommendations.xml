@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE subscriptions SYSTEM "chrome://adblockplus/locale/subscriptionSelection.dtd">
+
+<subscriptions>
+  {% for subscription in subscriptions|subscriptionSort -%}
+  {% if subscription.recommendation -%}
+  {% set title, url, complete = subscription.recommendation -%}
+  {% set homepage = subscription.homepage or subscription.forum or subscription.blog or subscription.faq or subscription.contact -%}
+  <subscription title="{{title}} ({{subscription.specialization}})"
+                url="{{url}}"
+                homepage="{{homepage}}"
+                prefixes="{{subscription.languages}}"
+                author="{{subscription.maintainer}}"/>
+  {% endif -%}
+  {% endfor -%}
+  <subscription title="&other.label;…"
+                url=""
+                homepage=""
+                prefixes=""
+                author=""/>
+</subscriptions>

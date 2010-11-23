@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import email.header
+import email.header, urllib
 from time import gmtime, strftime
 from jinja2.utils import Markup
 from urlparse import urlparse
@@ -65,6 +65,27 @@ def formatfiltercount(value):
   except Exception:
     return 'unknown'
 
+def urlencode(value):
+  return urllib.quote(value.encode('utf-8'), '')
+
+def subscriptionSort(value, prioritizeRecommended=True):
+  value = value[:]  # create a copy of the list
+  if prioritizeRecommended:
+    value.sort(lambda a, b: (
+      cmp(a.type, b.type) or
+      cmp(a.deprecated, b.deprecated) or
+      cmp(b.catchall, a.catchall) or
+      cmp(b.recommendation != None, a.recommendation != None) or
+      cmp(a.name.lower(), b.name.lower())
+    ))
+  else:
+    value.sort(lambda a, b: (
+      cmp(a.type, b.type) or
+      cmp(a.deprecated, b.deprecated) or
+      cmp(a.name.lower(), b.name.lower())
+    ))
+  return value
+
 def formatmime(text):
   return email.header.Header(text).encode()
 
@@ -85,6 +106,8 @@ filters = {
   'url': formaturl,
   'keepnewlines': formatnewlines,
   'filtercount': formatfiltercount,
+  'urlencode': urlencode,
+  'subscriptionSort': subscriptionSort,
   'mime': formatmime,
   'ljust': ljust,
   'rjust': rjust,

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+{%- macro processSubscription(subscription) %}
+  {% set homepage = subscription.homepage or subscription.forum or subscription.blog or subscription.faq or subscription.contact -%}
+  <subscription title="{{subscription.name}} ({{subscription.specialization}})" homepage="{{homepage}}" type="{{subscription.type}}"
+    {%- if subscription.languages %} prefixes="{{subscription.languages}}"{% endif -%}
+    {%- if subscription.deprecated %} deprecated="true"{% endif -%}
+  >
+    <variants>
+      {%- for title, url, complete in subscription.variants %}
+      <variant title="{{title}}" url="{{url}}"
+        {%- if complete %} complete="true"{% endif -%}
+      />
+      {%- endfor %}
+    </variants>
+    {%- if subscription.supplemented %}
+    <supplements>
+      {%- for supplement in subscription.supplemented|subscriptionSort(False) -%}
+        {{ processSubscription(supplement) }}
+      {%- endfor %}
+    </supplements>
+    {%- endif %}
+  </subscription>
+{%- endmacro %}
+
+<subscriptions>
+  {%- for subscription in subscriptions|subscriptionSort(False) -%}
+    {%- if not subscription.supplements -%}
+      {{ processSubscription(subscription) }}
+    {%- endif -%}
+  {%- endfor %}
+</subscriptions>

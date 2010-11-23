@@ -9,6 +9,12 @@ repository=%(root)s/hg/subscriptionlist
 statusTemplate=subscriptions/template/status.html
 statusPage=%(root)s/www/subscriptionStatus.html
 reportTemplate=subscriptions/template/report.mail
+recommendationsTemplate=subscriptions/template/recommendations.xml
+recommendationsFile=%(root)s/www/recommendations.xml
+subscriptionsXMLTemplate=subscriptions/template/subscriptions.xml
+subscriptionsXMLFile=%(root)s/www/subscriptions.xml
+subscriptionListTemplate=subscriptions/template/subscriptionList.html
+subscriptionListFile=%(root)s/www/subscriptions.html
 
 [reports]
 urlRoot=https://reports.adblockplus.org/
