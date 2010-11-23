@@ -7,24 +7,24 @@
   </head>
   <body>
     <table id="overview">
-      <tr>
+      <tr id="statusRow">
         <td class="label">Status:</td>
         <td id="statusCell">{% if status %}{{status|keepnewlines}}{% else %}unknown{% endif %}</td>
       </tr>
-      <tr>
+      <tr id="mainURLRow">
         <td class="label">Website:</td>
         <td>{{main_url|url}}{% if opener %}<br />Opened by {{opener|url}}{% endif %}</td>
       </tr>
-      <tr>
+      <tr id="typeRow">
         <td class="label">Issue type:</td>
         <td>{{ {'false positive': 'False positive', 'false negative': 'Ad not blocked', 'other': 'Other'}.get(type, 'unknown') }}</td>
       </tr>
-      <tr>
+      <tr id="timeRow">
         <td class="label">Time:</td>
         <td>{{time|formattime}}</td>
       </tr>
       {% if knownIssues -%}
-      <tr>
+      <tr id="knownIssuesRow">
         <td class="label">Known issues:</td>
         <td>
           {%- for url in knownIssues -%}
@@ -32,16 +32,16 @@
           {%- endfor -%}
         </td>
       </tr>
-      {% endif %}
-      <tr>
+      {% endif -%}
+      <tr id="abpInfoRow">
         <td class="label">Adblock Plus:</td>
         <td>{{abp_version}} (build {{abp_build}}), {{abp_locale}}</td>
       </tr>
-      <tr title="{{app_ua}}">
+      <tr title="{{app_ua}}" id="appInfoRow">
         <td class="label">Application:</td>
         <td>{{app_vendor}} {{app_name}} {{app_version}}, {{platform_name}} {{platform_version}} build {{platform_build}}</td>
       </tr>
-      <tr>
+      <tr id="configRow">
         <td class="label">Configuration:</td>
         <td>
           Enabled: {{ {True: 'yes', False: 'no'}.get(option_enabled, 'unknown') }},
@@ -51,13 +51,13 @@
         </td>
       </tr>
       {% if comment -%}
-      <tr>
+      <tr id="commentRow">
         <td class="label">Comment:</td>
         <td>{{comment|keepnewlines}}</td>
       </tr>
       {% endif -%}
       {% if email -%}
-      <tr>
+      <tr id="emailRow">
         <td class="label">Email:</td>
         <td id="emailCell">{{email}}</td>
       </tr>
