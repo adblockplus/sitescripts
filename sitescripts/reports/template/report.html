@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" selectedTab="all">
+  <head>
+    <title>Issue report for {{siteName}}</title>
+    <link rel="stylesheet" href="/reports.css" type="text/css" />
+    <script type="text/javascript" src="/reports.js"></script>
+  </head>
+  <body>
+    <table id="overview">
+      <tr>
+        <td class="label">Status:</td>
+        <td id="statusCell">{% if status %}{{status|keepnewlines}}{% else %}unknown{% endif %}</td>
+      </tr>
+      <tr>
+        <td class="label">Website:</td>
+        <td>{{main_url|url}}{% if opener %}<br />Opened by {{opener|url}}{% endif %}</td>
+      </tr>
+      <tr>
+        <td class="label">Issue type:</td>
+        <td>{{ {'false positive': 'False positive', 'false negative': 'Ad not blocked', 'other': 'Other'}.get(type, 'unknown') }}</td>
+      </tr>
+      <tr>
+        <td class="label">Time:</td>
+        <td>{{time|formattime}}</td>
+      </tr>
+      {% if knownIssues -%}
+      <tr>
+        <td class="label">Known issues:</td>
+        <td>
+          {%- for url in knownIssues -%}
+            {{url|url}}<br />
+          {%- endfor -%}
+        </td>
+      </tr>
+      {% endif %}
+      <tr>
+        <td class="label">Adblock Plus:</td>
+        <td>{{abp_version}} (build {{abp_build}}), {{abp_locale}}</td>
+      </tr>
+      <tr title="{{app_ua}}">
+        <td class="label">Application:</td>
+        <td>{{app_vendor}} {{app_name}} {{app_version}}, {{platform_name}} {{platform_version}} build {{platform_build}}</td>
+      </tr>
+      <tr>
+        <td class="label">Configuration:</td>
+        <td>
+          Enabled: {{ {True: 'yes', False: 'no'}.get(option_enabled, 'unknown') }},
+          Tabs on Flash and Java: {{ {True: 'yes', False: 'no'}.get(option_objecttabs, 'unknown') }},
+          Collapse blocked elements: {{ {True: 'yes', False: 'no'}.get(option_collapse, 'unknown') }},
+          Private browsing: {{ {True: 'yes', False: 'no'}.get(option_privateBrowsing, 'unknown') }}
+        </td>
+      </tr>
+      {% if comment -%}
+      <tr>
+        <td class="label">Comment:</td>
+        <td>{{comment|keepnewlines}}</td>
+      </tr>
+      {% endif -%}
+      {% if email -%}
+      <tr>
+        <td class="label">Email:</td>
+        <td id="emailCell">{{email}}</td>
+      </tr>
+      {% endif -%}
+    </table>
+
+    <ul class="tabStrip">
+      {% if requests -%}
+      <li class="tab" id="requestsTab" onclick="selectTab('requests');">Requests</li>
+      {% endif %}
+      {% if filters -%}
+      <li class="tab" id="filtersTab" onclick="selectTab('filters');">Filters</li>
+      {% endif %}
+      {% if subscriptions -%}
+      <li class="tab" id="subscriptionsTab" onclick="selectTab('subscriptions');">Subscriptions</li>
+      {% endif %}
+      {% if screenshot -%}
+      <li class="tab" id="screenshotTab" onclick="selectTab('screenshot');">Screenshot</li>
+      {% endif %}
+      {% if extensions -%}
+      <li class="tab" id="extensionsTab" onclick="selectTab('extensions');">Extensions</li>
+      {% endif %}
+      {% if errors -%}
+      <li class="tab" id="errorsTab" onclick="selectTab('errors');">Errors</li>
+      {% endif %}
+      {% if warnings -%}
+      <li class="tab" id="warningsTab" onclick="selectTab('warnings');">Processing warnings</li>
+      {% endif %}
+      <li class="tab" id="allTab" onclick="selectTab('all');">Show All</li>
+    </ul>
+
+    <script type="text/javascript">
+      initialSelect();
+    </script>
+
+    <div class="tabsBody">
+      {% if requests -%}
+      <div id="requestsBox">
+        <p class="header">Recorded requests:</p>
+        <table id="requests" class="sortable">
+          <thead>
+            <tr>
+              <th class="requestAddress">Address</th>
+              <th class="requestFilter">Filter applied</th>
+              <th class="requestType">Type</th>
+              <th class="requestDocDomain">Document source</th>
+              <th class="requestThirdParty">Third party</th>
+              <th class="requestSize">Size</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request in requests -%}
+            <tr
+              {%- if request.filter and request.filter.startswith('@@') %} class="whitelisted"
+              {%- elif request.filter and request.filter.count('#') %} class="hidden"
+              {%- elif request.filter %} class="blocked"
+              {%- endif %}>
+              <td class="requestAddress">
+                {%- if request.location -%}
+                  {{request.location|url}}
+                {%- endif -%}
+              </td>
+              <td class="requestFilter">{{request.filter}}</td>
+              <td class="requestType">{{request.type.lower()}}</td>
+              <td class="requestDocDomain">{{request.docDomain}}</td>
+              <td class="requestThirdParty">{{ {True: 'yes', False: 'no'}.get(request.thirdParty, 'unknown') }}</td>
+              <td class="requestSize">{{request.size}}</td>
+            </tr>
+            {% endfor -%}
+          </tbody>
+        </table>
+      </div>
+      {%- endif %}
+  
+      {% if filters -%}
+      <div id="filtersBox">
+        <p class="header">Filters applied:</p>
+        <table id="filters" class="sortable">
+          <thead>
+            <tr>
+              <th class="filterText">Filter</th>
+              <th class="filterSubscriptions">Source</th>
+              <th class="filterHitCount">Hit count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for filter in filters -%}
+            <tr>
+              <td class="filterText">{{filter.text}}</td>
+              <td class="filterSubscriptions">
+                {% for subscription in filter.subscriptions -%}
+                {{subscription|url}}<br />
+                {% endfor -%}
+              </td>
+              <td class="filterHitCount">{{filter.hitCount}}</td>
+            </tr>
+            {% endfor -%}
+          </tbody>
+        </table>
+      </div>
+      {%- endif %}
+  
+      {% if subscriptions -%}
+      <div id="subscriptionsBox">
+        <p class="header">Active filter subscriptions:</p>
+        <table id="subscriptions" class="sortable">
+          <thead>
+            <tr>
+              <th class="subscriptionLocation">Address or identifier</th>
+              <th class="subscriptionDisabledFilters">Disabled filters</th>
+              <th class="subscriptionLastDownloadAttempt">Last download attempt</th>
+              <th class="subscriptionLastDownloadSuccess">Last successful download</th>
+              <th class="subscriptionExpiration">Next download</th>
+              <th class="subscriptionAutoDownload">Updated automatically</th>
+              <th class="subscriptionDownloadStatus">Status of last download</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for subscription in subscriptions -%}
+            <tr>
+              <td class="subscriptionLocation">{{subscription.id|url}}</td>
+              <td class="subscriptionDisabledFilters">{{subscription.disabledFilters|filtercount}}</td>
+              <td class="subscriptionLastDownloadAttempt">{{subscription.lastDownloadAttempt|timerelative(time)}}</td>
+              <td class="subscriptionLastDownloadSuccess">{{subscription.lastDownloadSuccess|timerelative(time)}}</td>
+              <td class="subscriptionExpiration">{{subscription.softExpiration|timerelative(time)}} - {{subscription.hardExpiration|timerelative(time)}}</td>
+              <td class="subscriptionAutoDownload">{{ {True: 'yes', False: 'no'}.get(subscription.autoDownloadEnabled, 'unknown') }}</td>
+              <td class="subscriptionDownloadStatus">{{ {
+                          'synchronize_invalid_url': 'Failed, not a valid address',
+                          'synchronize_connection_error': 'Failed, download failure',
+                          'synchronize_invalid_data': 'Failed, not a valid filters list',
+                          'synchronize_checksum_mismatch': 'Failed, checksum mismatch',
+                          'synchronize_ok': 'Success'}.get(subscription.downloadStatus, 'unknown') }}</td>
+            </tr>
+            {% endfor -%}
+          </tbody>
+        </table>
+      </div>
+      {%- endif %}
+  
+      {% if screenshot -%}
+      <div id="screenshotBox">
+        <p class="header">Page screenshot:</p>
+        <p><img src="{{screenshot}}"/></p>
+      </div>
+      {%- endif %}
+  
+      {% if extensions -%}
+      <div id="extensionsBox">
+        <p class="header">Active extensions:</p>
+        <table id="extensions" class="sortable">
+          <thead>
+            <tr>
+              <th class="extensionName">Name</th>
+              <th class="extensionVersion">Version</th>
+              <th class="extensionType">Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for extension in extensions -%}
+            <tr>
+              <td class="extensionName" title="{{extension.id}}">{{extension.name}}</td>
+              <td class="extensionVersion">{{extension.version}}</td>
+              <td class="extensionType">{{extension.type}}</td>
+            </tr>
+            {% endfor -%}
+          </tbody>
+        </table>
+      </div>
+      {%- endif %}
+  
+      {% if errors -%}
+      <div id="errorsBox">
+        <p class="header">Error messages related to Adblock Plus:</p>
+        <table id="errors" class="sortable">
+          <thead>
+            <tr>
+              <th class="errorType">Type</th>
+              <th class="errorMessage">Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for error in errors -%}
+            <tr>
+              <td class="errorType">{{ {'warning': 'Warning', 'error': 'Error'}.get(error.type, 'unknown') }}</td>
+              <td class="errorMessage">
+                <p>{{error.text|keepnewlines}}</p>
+                {% if error.sourceLine -%}
+                <pre>{{error.sourceLine}}<br /><span class="errorColumn">{{'^'.rjust(error.column|int(0) + 1, '-')}}</span>
+                </pre>
+                {% endif -%}
+                <p>In {{error.file|url}} line {{error.line}}</p>
+              </td>
+            </tr>
+            {% endfor -%}
+          </tbody>
+        </table>
+      </div>
+      {%- endif %}
+  
+      {% if warnings -%}
+      <div id="warningsBox">
+        <p class="header">Issues processing this report:</p>
+        <table id="warnings" class="sortable">
+          <thead>
+            <tr>
+              <th class="warningMessage">Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for key in warnings.iterkeys()|sort -%}
+            <tr>
+              <td class="warningMessage">{{warnings[key]}}</td>
+            </tr>
+            {% endfor -%}
+          </tbody>
+        </table>
+      </div>
+      {%- endif %}
+    </div>
+  </body>
+</html>

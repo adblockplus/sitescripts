@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Subscriptions status</title>
+  </head>
+  <body>
+    <table border="1">
+      {% for subscription in subscriptions -%}
+        <tr>
+          <td>{{subscription.name}}</td>
+          <td>
+            {% for link in subscription.links -%}
+              {% if link.result == True -%}
+                <a style="color: green;" title="OK"
+              {% elif link.result == False and link.siteResult -%}
+                <a style="color: red;" title="Connection error (downforeveryoneorjustme.com disagrees)"
+              {% elif link.result == False and not link.siteResult -%}
+                <a style="color: red;" title="Connection error (downforeveryoneorjustme.com agrees)"
+              {% else -%}
+                <a style="color: red;" title="HTTP error {{link.result}}"
+              {% endif -%}
+              {{' '}}href="{{link.url}}">{{link.title}}</a><br />
+            {% endfor -%}
+          </td>
+        </tr>
+      {% endfor -%}
+    </table>
+  </body>
+</html>

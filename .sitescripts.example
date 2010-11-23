@@ -1,0 +1,30 @@
+[DEFAULT]
+root=/server/root/path
+mailer=/usr/sbin/sendmail
+mailerDebug=no
+secret=somerandomstringhere
+
+[subscriptions]
+repository=%(root)s/hg/subscriptionlist
+statusTemplate=subscriptions/template/status.html
+statusPage=%(root)s/www/subscriptionStatus.html
+reportTemplate=subscriptions/template/report.mail
+
+[reports]
+urlRoot=https://reports.adblockplus.org/
+dataPath=%(root)s/reports/data
+webTemplate=reports/template/report.html
+digestTemplate=reports/template/digest.mail
+notificationTemplate=reports/template/updateNotification.mail
+defaultSubscriptionName=Adblock Plus
+defaultSubscriptionRecipient=Somebody <user@example.com>
+errorTemplate=reports/template/error.html
+submitResponseTemplate=reports/template/submitSuccess.html
+
+[openid]
+serverUrl=https://adblockplus.org/openid
+user=Somebody
+
+[logs]
+dataPath=%(root)s/logs
+fileName=log.%%i.gz

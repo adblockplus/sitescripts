@@ -1,0 +1,36 @@
+To: {{email}}
+From: donotreply@adblockplus.org
+Subject: Adblock Plus issue reports for {{subscription.name|mime}}
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+
+The following reports have been received for your filter list "{{subscription.name}}"
+through the Adblock Plus issue reporter. Some information will be displayed before
+the report link:
+* Issue type: "fp" means false positive, "ma" means missed ad
+* Whether any filters from your subscription had matches: "+" if yes, "-" if no
+* Number of filter subscriptions the user is subscribed to
+
+{% for group in groups -%}
+{{group.name}}:
+{% for report in group.reports -%}
+{{ {'false positive': 'fp', 'false negative': 'ma', 'other': 'ot'}.get(report.type, 'uk') -}}
+{{' ' -}}
+{{ {True: '+'}.get(subscription in report.matchSubscriptions, '-') -}}
+{{' ' -}}
+{{report.numSubscriptions|ljust(3) -}}
+{{' ' -}}
+{% if group.dumpAll -%}
+  {{report.site|ltruncate(20,end='…')|ljust(21) -}}
+  {{' ' -}}
+{% endif -%}
+{{report.comment|truncate(20,killwords=True,end='…')|ljust(21) -}}
+{{' ' -}}
+{{report.url}}
+{% endfor %}
+{% endfor -%}
+
+--------------------------------------------------------------------------------
+This mail was sent automatically. If you want to change the email address that
+should receive future mails or switch to a daily/weekly digest please contact
+subscriptionlist@adblockplus.org.

@@ -1,0 +1,21 @@
+To: subscriptionlist@adblockplus.org
+From: trev@adblockplus.org
+Subject: Subscription download failures: fallback URL requests
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+
+redirects:
+=========================================
+{% for line in redirects -%}
+{{line}}
+{% endfor %}
+gone:
+=========================================
+{% for line in gone -%}
+{{line}}
+{% endfor %}
+Unaccounted:
+=========================================
+{% for line in unaccounted -%}
+{{line}}
+{% endfor %}

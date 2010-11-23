@@ -1,0 +1,12 @@
+To: {{email}}
+From: donotreply@adblockplus.org
+Subject: Adblock Plus issue report - status update
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+
+You recently submitted the issue report {{url}}. The status of this report has been updated, the new status is:
+
+{{status}}
+
+--------------------------------------------------------------------------------
+This mail was sent automatically, do not reply. If you have questions, please consult the Adblock Plus forum: https://adblockplus.org/forum/

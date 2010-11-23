@@ -1,0 +1,11 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Report submission</title>
+</head>
+<body>
+  <p>%CONFIRMATION% <a id="link" href="{{url}}">{{url}}</a></p>
+  {% if knownIssues -%}
+  <p>%KNOWNISSUE% {% for issue in knownIssues %}<br /><a href="{{issue}}">{{issue}}</a>{% endfor %}</p>
+  {%- endif %}
+</body>
+</html>
