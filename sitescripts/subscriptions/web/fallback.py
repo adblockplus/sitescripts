@@ -2,8 +2,9 @@
 
 from time import time
 from urlparse import urlparse, parse_qs
-import subprocess, sys, os, re
+import sys, os, re
 from sitescripts.utils import get_config, cached, setupStderr
+import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def handleSubscriptionFallbackRequest(environ, start_response):
   setupStderr(environ['wsgi.errors'])
@@ -26,17 +27,10 @@ def handleSubscriptionFallbackRequest(environ, start_response):
 
 @cached(600)
 def getData():
-  repoPath = os.path.abspath(get_config().get('subscriptions', 'repository'))
   processed = set()
 
-  (redirectData, errors) = subprocess.Popen(['hg', '-R', repoPath, 'cat', '-r', 'tip', os.path.join(repoPath, 'redirects')], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-  if errors:
-    print >>sys.stderr, errors
+  (redirectData, goneData) = subscriptionParser.getFallbackData()
   redirects = processData(redirectData, processed, {})
-
-  (goneData, errors) = subprocess.Popen(['hg', '-R', repoPath, 'cat', '-r', 'tip', os.path.join(repoPath, 'gone')], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-  if errors:
-    print >>sys.stderr, errors
   gone = processData(goneData, processed, set())
 
   return (redirects, gone)

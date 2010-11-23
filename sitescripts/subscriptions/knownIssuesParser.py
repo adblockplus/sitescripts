@@ -116,7 +116,7 @@ def extractMatches(rules, rulesets, lang):
 def getRules():
   repoPath = os.path.abspath(get_config().get('subscriptions', 'repository'))
 
-  (data, errors) = subprocess.Popen(['hg', '-R', repoPath, 'cat', '-r', 'tip', os.path.join(repoPath, 'knownIssues')], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+  (data, errors) = subprocess.Popen(['hg', '-R', repoPath, 'cat', '-r', 'default', os.path.join(repoPath, 'knownIssues')], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
   if errors:
     print >>sys.stderr, errors
 

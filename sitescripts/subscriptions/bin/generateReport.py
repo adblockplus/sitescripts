@@ -1,11 +1,10 @@
 # coding: utf-8
 
-import subprocess, sys, os, re, codecs
+import sys, os, re, codecs
 from urlparse import parse_qsl
-from tempfile import mkdtemp
-from shutil import rmtree
 from gzip import GzipFile
 from sitescripts.utils import get_config, setupStderr, sendMail
+import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def countSubscriptionRequests(logPath, counts):
   regexp = re.compile(r'"GET \/getSubscription\?([^" ]*) ')
@@ -23,11 +22,10 @@ def countSubscriptionRequests(logPath, counts):
           break
   f.close()
 
-def processFile(dir, fileName, counts):
+def processFile(data, counts):
   result = []
 
-  f = codecs.open(os.path.join(dir, fileName), 'rb', encoding='utf-8')
-  for line in f:
+  for line in re.sub(r'\r', '', data).split('\n'):
     line = line.strip()
 
     if line == '' or line[0] == '[':
@@ -39,30 +37,21 @@ def processFile(dir, fileName, counts):
         del counts[line]
       result.append('%5i %s' % (count, line))
 
-  f.close()
   return result
 
-def loadSubscriptions(repo, counts):
+def loadSubscriptions(counts):
   global interval
 
-  tempDir = mkdtemp()
-  checkoutDir = os.path.join(tempDir, 'subscriptionlist')
-
-  (dummy, errors) = subprocess.Popen(['hg', 'clone', repo, checkoutDir], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-  if errors:
-    print >>sys.stderr, errors
-
-  sys.path.append(checkoutDir)
-  import subscriptionParser
-  subscriptions = subscriptionParser.parseDir(checkoutDir)
+  subscriptions = subscriptionParser.readSubscriptions()
 
   knownURLs = {}
   for subscription in subscriptions.values():
     for title, url, complete in subscription.variants:
       knownURLs[url] = True
 
-  redirects = processFile(checkoutDir, 'redirects', counts)
-  gone = processFile(checkoutDir, 'gone', counts)
+  (redirectData, goneData) = subscriptionParser.getFallbackData()
+  redirects = processFile(redirectData, counts)
+  gone = processFile(goneData, counts)
 
   unaccounted = filter(lambda url: counts[url] >= 10, counts.keys())
   unaccounted.sort(key=lambda url: counts[url], reverse=True)
@@ -72,8 +61,6 @@ def loadSubscriptions(repo, counts):
     if url in knownURLs:
       mark = ''
     unaccounted[i] = '%5i %s%s' % (counts[url], url, mark)
-
-  rmtree(tempDir, True)
 
   return (redirects, gone, unaccounted)
 
@@ -85,8 +72,7 @@ if __name__ == '__main__':
     logPath = os.path.join(get_config().get('logs', 'dataPath'), get_config().get('logs', 'fileName') % i)
     countSubscriptionRequests(logPath, counts)
 
-  repoPath = get_config().get('subscriptions', 'repository')
-  (redirects, gone, unaccounted) = loadSubscriptions(repoPath, counts)
+  (redirects, gone, unaccounted) = loadSubscriptions(counts)
 
   sendMail(get_config().get('subscriptions', 'reportTemplate'), {
     'redirects': redirects,

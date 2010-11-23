@@ -1,27 +1,16 @@
 # coding: utf-8
 
-import os, sys, re, subprocess, marshal
+import os, sys, re, marshal
 from time import time
-from tempfile import mkdtemp
-from shutil import rmtree
 from sitescripts.utils import get_config, setupStderr
 from sitescripts.templateFilters import formatmime
 from sitescripts.reports.utils import mailDigest, calculateReportSecret
+import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
-def loadSubscriptions(repo):
+def loadSubscriptions():
   global interval
 
-  tempDir = mkdtemp()
-  checkoutDir = os.path.join(tempDir, 'subscriptionlist')
-
-  (redirectData, errors) = subprocess.Popen(['hg', 'clone', repo, checkoutDir], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-  if errors:
-    print >>sys.stderr, errors
-
-  sys.path.append(checkoutDir)
-  import subscriptionParser
-  subscriptions = subscriptionParser.parseDir(checkoutDir)
-  rmtree(tempDir, True)
+  subscriptions = subscriptionParser.readSubscriptions()
 
   results = {}
   resultList = []
@@ -166,7 +155,7 @@ if __name__ == '__main__':
     startTime = currentTime - 24*60*60
 
   fakeSubscription = {'url': 'https://fake.adblockplus.org', 'name': get_config().get('reports', 'defaultSubscriptionName'), 'email': get_config().get('reports', 'defaultSubscriptionRecipient')}
-  (subscriptions, subscriptionList) = loadSubscriptions(get_config().get('subscriptions', 'repository'))
+  (subscriptions, subscriptionList) = loadSubscriptions()
   subscriptionList.append(fakeSubscription)
   reports = scanReports(get_config().get('reports', 'dataPath'))
   sendNotifications(reports)

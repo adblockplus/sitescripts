@@ -1,12 +1,11 @@
 # coding=utf-8
 
-import re, sys, os, subprocess
+import re, sys, os
 from urlparse import urlparse
-from tempfile import mkdtemp
-from shutil import rmtree
 import eventlet
 from eventlet.green import urllib2
 from sitescripts.utils import get_config, get_template, setupStderr
+import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def checkURL(url):
   try:
@@ -27,17 +26,8 @@ def checkSite(site):
   except:
     return (site, True)
 
-def checkSubscriptions(repo):
-  tempDir = mkdtemp()
-  checkoutDir = os.path.join(tempDir, 'subscriptionlist')
-
-  (dummy, errors) = subprocess.Popen(['hg', 'clone', repo, checkoutDir], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-  if errors:
-    print >>sys.stderr, errors
-
-  sys.path.append(checkoutDir)
-  import subscriptionParser
-  subscriptions = subscriptionParser.parseDir(checkoutDir).values()
+def checkSubscriptions():
+  subscriptions = subscriptionParser.readSubscriptions().values()
   subscriptions.sort(key=lambda s: s.name.lower())
 
   urls = {}
@@ -85,7 +75,7 @@ def checkSubscriptions(repo):
 if __name__ == '__main__':
   setupStderr()
 
-  subscriptions = checkSubscriptions(get_config().get('subscriptions', 'repository'))
+  subscriptions = checkSubscriptions()
   outputFile = get_config().get('subscriptions', 'statusPage')
   template = get_template(get_config().get('subscriptions', 'statusTemplate'))
   template.stream({'subscriptions': subscriptions}).dump(outputFile, encoding='utf-8')
