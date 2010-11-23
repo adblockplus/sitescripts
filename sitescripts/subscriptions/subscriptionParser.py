@@ -3,7 +3,8 @@
 import re, os, sys, codecs, subprocess, tarfile
 from urlparse import urlparse
 from StringIO import StringIO
-from sitescripts.utils import get_config
+from ConfigParser import SafeConfigParser
+from sitescripts.utils import get_config, cached
 
 def warn(message):
   print >> sys.stderr, message
@@ -65,38 +66,6 @@ class Subscription(object):
     self.parse(filePath, data)
 
   def parse(self, filePath, data):
-    languages = {
-      'ar': u'العربية',
-      'bg': u'български',
-      'cs': u'čeština',
-      'da': u'dansk',
-      'de': u'Deutsch',
-      'en': u'English',
-      'es': u'español',
-      'fi': u'suomi',
-      'fr': u'français',
-      'gr': u'ελληνικά',
-      'he': u'עברית',
-      'hi': u'भारतीय',
-      'hu': u'magyar',
-      'id': u'Bahasa Indonesia',
-      'is': u'íslenska',
-      'it': u'italiano',
-      'ja': u'日本語',
-      'ko': u'한국어',
-      'nl': u'Nederlands',
-      'no': u'norsk',
-      'pl': u'polski',
-      'pt': u'português',
-      'ro': u'românesc',
-      'ru': u'русский',
-      'sv': u'svensk',
-      'ta': u'தமிழ்',
-      'tr': u'Türkçe',
-      'uk': u'українська',
-      'vi': u'Việt',
-      'zh': u'汉语',
-    }
     mandatory = [['email'], ['specialization'], ['homepage', 'contact', 'forum', 'faq', 'blog']]
 
     self.name = re.sub(r'\.\w+$', r'', os.path.basename(filePath))
@@ -169,10 +138,11 @@ class Subscription(object):
           warn('Unknown attribute %s in %s' % (key, filePath))
 
       if key == 'languages':
+        settings = get_settings()
         languageNames = []
         for language in value.split(','):
-          if language in languages:
-            languageNames.append(languages[language])
+          if settings.has_option('languages', language):
+            languageNames.append(settings.get('languages', language))
           else:
             warn('Unknown language code %s in %s' % (language, filePath))
         self._data['languageSpecialization'] = ', '.join(languageNames)
@@ -219,6 +189,17 @@ def calculateSupplemented(lists):
         lists[supplements].supplemented.append(fileData)
       else:
         warn('Subscription %s supplements an unknown subscription %s' % (fileData.name, supplements))
+
+@cached(60)
+def get_settings():
+  repo = os.path.abspath(get_config().get('subscriptions', 'repository'))
+  (settingsData, errors) = subprocess.Popen(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'settings')], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+  if errors:
+    print >>sys.stderr, errors
+
+  settings = SafeConfigParser()
+  settings.readfp(codecs.getreader('utf8')(StringIO(settingsData)))
+  return settings
 
 def readSubscriptions():
   repo = os.path.abspath(get_config().get('subscriptions', 'repository'))
