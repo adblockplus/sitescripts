@@ -85,9 +85,7 @@ def processReport(xmlFile, dumpFile, htmlFile):
   target.close()
 
   saveReport(reportData, htmlFile)
-
-  if not len(reportData['warnings']):
-    os.remove(xmlFile)
+  os.remove(xmlFile)
 
 def processElementStart(name, attributes):
   global reportData, tagStack
