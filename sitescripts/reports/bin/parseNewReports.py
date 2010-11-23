@@ -118,11 +118,7 @@ def processElementStart(name, attributes):
       reportData['siteName'] = 'unknown'
 
     reportData['opener'] = attributes.get('opener', '')
-    parsed = urlparse(reportData['opener'])
-    if parsed.netloc:
-      reportData['openerSite'] = parsed.netloc
-    else:
-      reportData['openerSite'] = 'unknown'
+    reportData['referrer'] = attributes.get('referrer', '')
   elif name == 'request':
     reportData['requests'].append({\
           'location': attributes.get('location', ''),\

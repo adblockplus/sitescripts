@@ -13,7 +13,10 @@
       </tr>
       <tr id="mainURLRow">
         <td class="label">Website:</td>
-        <td>{{main_url|url}}{% if opener %}<br />Opened by {{opener|url}}{% endif %}</td>
+        <td>{{main_url|url}}
+          {%- if opener %}<br />Opened by {{opener|url}}{% endif -%}
+          {%- if referrer %}<br />Referrer: {{referrer|url}}{% endif -%}
+        </td>
       </tr>
       <tr id="typeRow">
         <td class="label">Issue type:</td>
