@@ -4,8 +4,10 @@ from time import time
 from urlparse import urlparse, parse_qs
 import sys, os, re
 from sitescripts.utils import get_config, cached, setupStderr
+from sitescripts.web import url_handler
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
+@url_handler('/getSubscription')
 def handleSubscriptionFallbackRequest(environ, start_response):
   setupStderr(environ['wsgi.errors'])
 

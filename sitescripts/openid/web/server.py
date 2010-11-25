@@ -6,10 +6,12 @@ from openid.server.server import Server, ProtocolError, EncodingError
 from openid.store.memstore import MemoryStore
 from openid.extensions.sreg import SRegRequest, SRegResponse
 from sitescripts.utils import get_config, setupStderr
+from sitescripts.web import url_handler
 
 openIDServer = Server(MemoryStore(), get_config().get('openid', 'serverUrl'))
 
-def handleOpenIDRequest(environ, start_response):
+@url_handler('/openid')
+def handleRequest(environ, start_response):
   setupStderr(environ['wsgi.errors'])
 
   params = {}

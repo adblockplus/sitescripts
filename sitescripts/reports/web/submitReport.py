@@ -3,6 +3,7 @@
 import re, os, sys
 from urlparse import parse_qs
 from sitescripts.utils import get_config, get_template, setupStderr
+from sitescripts.web import url_handler
 import sitescripts.subscriptions.knownIssuesParser as knownIssuesParser
 
 def dataIterator(source, file):
@@ -10,7 +11,8 @@ def dataIterator(source, file):
     file.write(line)
     yield line
 
-def handleReportRequest(environ, start_response):
+@url_handler('/submitReport')
+def handleRequest(environ, start_response):
   setupStderr(environ['wsgi.errors'])
 
   if not environ.get('HTTP_X_ADBLOCK_PLUS'):

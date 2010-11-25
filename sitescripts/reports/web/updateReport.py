@@ -3,9 +3,11 @@
 import re, os, sys, marshal, random
 from urlparse import parse_qsl
 from sitescripts.utils import get_config, get_template, setupStderr
+from sitescripts.web import url_handler
 from sitescripts.reports.utils import calculateReportSecret, saveReport, sendUpdateNotification
 
-def handleReportUpdateRequest(environ, start_response):
+@url_handler('/updateReport')
+def handleRequest(environ, start_response):
   setupStderr(environ['wsgi.errors'])
 
   if environ['REQUEST_METHOD'].upper() != 'POST' or not environ.get('CONTENT_TYPE', '').startswith('application/x-www-form-urlencoded'):
