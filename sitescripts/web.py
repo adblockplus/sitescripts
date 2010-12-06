@@ -17,3 +17,4 @@ import openid.web.server
 import subscriptions.web.fallback
 import reports.web.submitReport
 import reports.web.updateReport
+import abp.web.translationCheck

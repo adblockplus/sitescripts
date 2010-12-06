@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Available languages</title>
+</head>
+<body>
+  {%- if languages %}
+  <table border="1">
+    <tr>
+      <th>Language</th>
+      <th>Code</th>
+      <th>Status</th>
+    </tr>
+    {%- for language in languages %}
+    <tr>
+      <td><a href="?language={{language.code}}">{{language.name}}</a></td>
+      <td><a href="?language={{language.code}}">{{language.code}}</a></td>
+      <td>{{language.status}}</td>
+    </tr>
+    {%- endfor %}
+  </table>
+  {%- else %}
+  <b>No languages found</b>
+  {%- endif %}
+</body>
+</html>

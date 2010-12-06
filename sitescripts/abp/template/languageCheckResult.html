@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Language check results for {{language.name}} ({{language.code}})</title>
+</head>
+<body>
+  <p>Language check results for {{language.name}} ({{language.code}}):</p>
+  {%- if errors %}
+  <ul>
+  {%- for err in errors %}
+    <li style="background-color: {% if err.critical %}#FFE0E0{% else %}#FFFFE0{% endif %}">{{ err.text }}</li>
+  {%- endfor %}
+  </ul>
+  {%- else %}
+  <p>No issues found</p>
+  {%- endif %}
+</body>
+</html>

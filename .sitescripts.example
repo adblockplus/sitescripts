@@ -34,3 +34,12 @@ user=Somebody
 [logs]
 dataPath=%(root)s/logs
 fileName=log.%%i.gz
+
+[abp]
+repository=%(root)s/hg/adblockplus
+babelzilla_user=user
+babelzilla_password=password
+babelzilla_extension=4592
+errorTemplate=abp/template/error.html
+languagesTemplate=abp/template/languages.html
+languageCheckTemplate=abp/template/languageCheckResult.html
