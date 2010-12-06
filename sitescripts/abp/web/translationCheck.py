@@ -3,7 +3,7 @@
 import urllib, urllib2, cookielib, re, string, tempfile, os, subprocess, tarfile, shutil
 from BaseHTTPServer import BaseHTTPRequestHandler
 from StringIO import StringIO
-from sitescripts.utils import get_config, get_template, setupStderr
+from sitescripts.utils import get_config, get_template, setupStderr, cached
 from sitescripts.web import url_handler
 from urlparse import parse_qs
 
@@ -37,8 +37,7 @@ def handleRequest(environ, start_response):
   setupStderr(environ['wsgi.errors'])
 
   try:
-    connection = BabelzillaConnection(get_config().get('abp', 'babelzilla_user'),
-                                      get_config().get('abp', 'babelzilla_password'))
+    connection = get_connection()
     languages = loadLanguageList(connection, get_config().get('abp', 'babelzilla_extension'))
 
     params = parse_qs(environ.get('QUERY_STRING', ''))
@@ -56,6 +55,11 @@ def handleRequest(environ, start_response):
       return showLanguages(languages, start_response)
   except Exception, e:
     return showError(e, start_response)
+
+@cached(3600)
+def get_connection():
+  return BabelzillaConnection(get_config().get('abp', 'babelzilla_user'),
+                              get_config().get('abp', 'babelzilla_password'))
 
 def loadLanguageList(connection, extensionID):
   try:
@@ -125,7 +129,7 @@ def checkLanguage(language, data, repository):
     for line in popen.stdout:
       if not re.search(r"'abp:", line):
         continue
-      line = line.strip()
+      line = line.decode('utf-8').strip()
       line = re.sub(r"^[\w\-]+: ", '', line)
       line = re.sub(r"'abp:global", "'global.properties", line)
       line = re.sub(r"'abp:meta", "'meta.properties", line)
