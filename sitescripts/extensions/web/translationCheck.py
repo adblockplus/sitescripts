@@ -38,7 +38,7 @@ def handleRequest(environ, start_response):
 
   try:
     connection = get_connection()
-    languages = loadLanguageList(connection, get_config().get('abp', 'babelzilla_extension'))
+    languages = loadLanguageList(connection, get_config().get('extensions', 'abp_babelzilla_extension'))
 
     params = parse_qs(environ.get('QUERY_STRING', ''))
     langParam = params.get('language', [''])[0]
@@ -48,8 +48,8 @@ def handleRequest(environ, start_response):
         raise Exception('Unknown language')
 
       language = candidates[0]
-      data = downloadLanguage(connection, language, get_config().get('abp', 'babelzilla_extension'))
-      checkResult = checkLanguage(language, data, get_config().get('abp', 'repository'))
+      data = downloadLanguage(connection, language, get_config().get('extensions', 'abp_babelzilla_extension'))
+      checkResult = checkLanguage(language, data, get_config().get('extensions', 'abp_repository'))
       return showCheckResult(language, checkResult, start_response)
     else:
       return showLanguages(languages, start_response)
@@ -58,8 +58,8 @@ def handleRequest(environ, start_response):
 
 @cached(3600)
 def get_connection():
-  return BabelzillaConnection(get_config().get('abp', 'babelzilla_user'),
-                              get_config().get('abp', 'babelzilla_password'))
+  return BabelzillaConnection(get_config().get('extensions', 'babelzilla_user'),
+                              get_config().get('extensions', 'babelzilla_password'))
 
 def loadLanguageList(connection, extensionID):
   try:
@@ -151,17 +151,17 @@ def checkLanguage(language, data, repository):
     shutil.rmtree(tempdir)
 
 def showLanguages(languages, start_response):
-  template = get_template(get_config().get('abp', 'languagesTemplate'))
+  template = get_template(get_config().get('extensions', 'languagesTemplate'))
 
   start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
   return [template.render({'languages': languages}).encode('utf-8')]
 
 def showCheckResult(language, errors, start_response):
-  template = get_template(get_config().get('abp', 'languageCheckTemplate'))
+  template = get_template(get_config().get('extensions', 'languageCheckTemplate'))
   start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
   return [template.render({'errors': errors, 'language': language}).encode('utf-8')]
 
 def showError(message, start_response):
-  template = get_template(get_config().get('abp', 'errorTemplate'))
+  template = get_template(get_config().get('extensions', 'errorTemplate'))
   start_response('400 Processing Error', [('Content-Type', 'text/html; charset=utf-8')])
   return [template.render({'message': message}).encode('utf-8')]
