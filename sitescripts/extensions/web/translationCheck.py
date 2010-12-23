@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import urllib, urllib2, cookielib, re, string, tempfile, os, subprocess, tarfile, shutil
+import urllib, urllib2, cookielib, re, string, tempfile, os, subprocess, tarfile, shutil, traceback
 from BaseHTTPServer import BaseHTTPRequestHandler
 from StringIO import StringIO
 from sitescripts.utils import get_config, get_template, setupStderr, cached
@@ -54,6 +54,7 @@ def handleRequest(environ, start_response):
     else:
       return showLanguages(languages, start_response)
   except Exception, e:
+    traceback.print_exc()
     return showError(e, start_response)
 
 @cached(3600)
