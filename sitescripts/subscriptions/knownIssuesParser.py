@@ -36,7 +36,22 @@ class Ruleset:
     self._rules = []
     self.name = name
 
-  def addRule(self, rule):
+  def addRule(self, rules, key, value):
+    global supportedKeys
+
+    if not key in supportedKeys:
+      print >>sys.stderr, 'Unsupported key "%s"' % key
+      return
+
+    for rule in self._rules:
+      if rule.key == key:
+        rule.addPattern(value)
+        return
+
+    rule = Rule(key, value)
+    if not key in rules:
+      rules[key] = []
+    rules[key].append(rule)
     self._rules.append(rule)
 
   def checkValidity(self):
@@ -60,44 +75,45 @@ class Rule:
 
     self.matched = False
     self.key = key
+    self.patterns = []
+    self.addPattern(value)
+
+  def addPattern(self, value):
+    value = value.lower()
     if len(value) > 2 and value[0] == '/' and value[len(value) - 1] == '/':
-      self.pattern = re.compile(value[1:len(value)-1])
-      self.isRegExp = True
+      self.patterns.append(re.compile(value[1:len(value)-1]))
     else:
-      self.pattern = value
-      self.isRegExp = False
+      value = re.sub(r'\*+', r'*', value)     # Remove multiple wildcards
+      value = re.sub(r'^\*', r'', value)      # Remove leading wildcards
+      value = re.sub(r'\*$', r'', value)      # Remove trailing wildcards
+      value = re.sub(r'\^\|$', r'^', value)   # remove anchors following separator placeholder
+      value = re.sub(r'(\W)', r'\\\1', value) # escape special symbols
+      value = re.sub(r'\\\*', '.*', value)    # replace wildcards by .*
+      # process separator placeholders (all ANSI charaters but alphanumeric characters and _%.-)
+      value = re.sub(r'\\\^', r'(?:[\x00-\x24\x26-\x2C\x2F\x3A-\x40\x5B-\x5E\x60\x7B-\x80]|$)', value)
+      value = re.sub(r'^\\\|\\\|', r'^[\w\-]+:/+(?!/)(?:[^/]+\.)?', value) # process extended anchor at expression start
+      value = re.sub(r'^\\\|', r'^', value)   # process anchor at expression start
+      value = re.sub(r'\\\|$', r'$', value)   # process anchor at expression end
+      self.patterns.append(re.compile(value))
 
   def checkMatch(self, value):
     if self.matched:
       return
 
-    if self.isRegExp:
-      self.matched = re.search(self.pattern, value)
-    else:
-      self.matched = (self.pattern == value)
+    for pattern in self.patterns:
+      if re.search(pattern, value):
+        self.matched = True
+        break
 
 def resetMatches(rules):
   for ruleGroup in rules.itervalues():
-    for rule in ruleGroup.itervalues():
+    for rule in ruleGroup:
       rule.matched = False
-
-def getRule(rules, key, value):
-  global supportedKeys
-
-  if not key in supportedKeys:
-    print >>sys.stderr, 'Unsupported key "%s"' % key
-    return None
-
-  if not key in rules:
-    rules[key] = {}
-  if not value in rules[key]:
-    rules[key][value] = Rule(key, value)
-  return rules[key][value]
 
 def checkMatch(rules, key, value):
   value = value.lower()
   if key in rules:
-    for rule in rules[key].itervalues():
+    for rule in rules[key]:
       rule.checkMatch(value)
 
 def extractMatches(rules, rulesets, lang):
@@ -153,9 +169,7 @@ def getRules():
       if key == 'url':
         ruleset.url = value
       else:
-        rule = getRule(rules, key, value)
-        if rule:
-          ruleset.addRule(rule)
+        ruleset.addRule(rules, key, value)
   return (rules, rulesets)
 
 def findMatches(it, lang):
