@@ -22,6 +22,7 @@ supportedKeys = {
   'mainURL': ('window', 'url'),
   'frameURL': ('frame', 'url'),
   'openerURL': ('window', 'opener'),
+  'referrerURL': ('window', 'referrer'),
   'requestLocation': ('request', 'location'),
   'requestDomain': ('request', 'docDomain'),
   'filterText': ('filter', 'text'),
