@@ -1,0 +1,25 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>Development build listing for {{name}}</title></head>
+<body>
+
+%%warning%%
+
+<h2>Development build listing for {{name}}</h2>
+<hr />
+<table border="0" cellspacing="10">
+{%- for link in links %}
+<tr>
+  <td>
+    <a href="{{link.download}}">{{name}} {{link.version}}</a>
+    {%- if link.changelog %}
+      <a href="{{link.changelog}}"> (changelog)</a>
+    {%- endif %}
+  </td>
+  <td>{{link.mtime|formattime}}</td>
+  <td>{{link.size|filesizeformat}}</td>
+</tr>
+{%- endfor %}
+</table>
+<hr />
+</body>
+</html>

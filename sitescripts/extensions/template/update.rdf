@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:extension:{{build.extensionID}}">
+    <em:updates>
+      <Seq>
+        <li>
+          <Description>
+            <em:version>{{build.version}}</em:version>
+            {%- for app in build.compat %}
+            <em:targetApplication>
+              <Description>
+                <em:id>{{app.id}}</em:id>
+                <em:minVersion>{{app.minVersion}}</em:minVersion>
+                <em:maxVersion>{{app.maxVersion}}</em:maxVersion>
+                <em:updateLink>{{build.updateURL}}</em:updateLink>
+                <em:updateInfoURL>{{build.changelogURL}}</em:updateInfoURL>
+              </Description>
+            </em:targetApplication>
+            {%- endfor %}
+          </Description>
+        </li>
+      </Seq>
+    </em:updates>
+  </Description>
+</RDF>

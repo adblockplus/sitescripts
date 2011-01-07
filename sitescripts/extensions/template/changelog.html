@@ -1,0 +1,9 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+<h2>Changes compared to previous development build</h2>
+{%- for change in changes %}
+<h3>{{change.date}} {{change.author}} ({{change.revision}})</h3>
+<p>{{change.description}}</p>
+{%- endfor %}
+</body>
+</html>
