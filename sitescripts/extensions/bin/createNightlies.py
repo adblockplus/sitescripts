@@ -219,7 +219,7 @@ class NightlyBuild(object):
     """
       calculate the effective nightly build number
     """
-    if re.search(r'\d$', self.version):
+    if not re.search(r'[^\d\.]\d*$', self.version):
       parts = self.version.split('.')
       while len(parts) < 3:
         parts.append('0')
