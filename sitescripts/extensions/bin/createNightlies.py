@@ -259,10 +259,13 @@ class NightlyBuild(object):
     finally:
       os.chdir(currentPath)
 
+    linkPath = os.path.join(baseDir, '00latest.xpi')
     if hasattr(os, 'symlink'):
-      os.symlink(outputPath, os.path.join(baseDir, '00latest.xpi'))
+      if os.path.exists(linkPath):
+        os.remove(linkPath)
+      os.symlink(outputPath, linkPath)
     else:
-      shutil.copyfile(outputPath, os.path.join(baseDir, '00latest.xpi'))
+      shutil.copyfile(outputPath, linkPath)
 
   def retireBuilds(self):
     """
