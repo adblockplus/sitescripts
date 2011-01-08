@@ -8,7 +8,7 @@
 <hr />
 <table border="0" cellspacing="10">
 {%- for link in links %}
-<tr>
+<tr{%if loop.first%} style="font-weight: bold;"{%endif%}>
   <td>
     <a href="{{link.download}}">{{name}} {{link.version}}</a>
     {%- if link.changelog %}
