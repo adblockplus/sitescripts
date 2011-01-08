@@ -142,14 +142,11 @@ class NightlyBuild(object):
     """
 
     command = ['hg', 'log', '-R', self.tempdir, '-b', 'default',
-      '-r', '%s:%s' % (self.previousRevision, self.revision),
-      '-l', '1000', '-M',
-      '--template', '{date|isodate}\\0{author|person}\\0{node|short}\\0{desc}\\0\\0']
+      '-l', '50', '-M',
+      '--template', '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0']
     (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
 
-    # Ignore first change in the list - it is the revision of the previous
-    # development build
-    for change in result.split('\0\0')[1:]:
+    for change in result.split('\0\0'):
       if change:
         date, author, revision, description = change.split('\0')
         yield {'date': date, 'author': author, 'revision': revision, 'description': description}
