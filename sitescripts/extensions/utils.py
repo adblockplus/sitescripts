@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import re
+from sitescripts.utils import get_config
 
 def compareVersionParts(part1, part2):
   def convertInt(value, default):
@@ -64,3 +65,91 @@ def compareVersions(version1, version2):
     if result != None and result != 0:
       return result
   return 0
+
+class Configuration(object):
+  """
+    This class represents the configuration settings for a single repository.
+    Some of these properties come from the nightly config file and can be
+    changed (latestRevision), others come from the global config and are
+    read-only (repository, repositoryName, nightliesDirectory).
+  """
+
+  def _defineGlobalProperty(key):
+    """
+      Creates a property corresponding with a key in the config file
+    """
+    return property(lambda self: self.config.get('extensions', key))
+
+  def _defineLocalProperty(key):
+    """
+      Creates a property corresponding with a repository-specific key in the config file
+    """
+    return property(lambda self: self.config.get('extensions', self.repositoryName + '_' + key))
+
+  def _defineNightlyProperty(key):
+    """
+      Creates a property corresponding with a key in the nightly config file
+    """
+    return property(lambda self: self.nightlyConfig.get(self.repositoryName, key),
+                    lambda self, value: self.nightlyConfig.set(self.repositoryName, key, value))
+
+  config = None
+  nightlyConfig = None
+  repositoryName = None
+  repository = None
+
+  nightliesDirectory = _defineGlobalProperty('nightliesDirectory')
+  nightliesURL = _defineGlobalProperty('nightliesURL')
+  docsDirectory = _defineGlobalProperty('docsDirectory')
+  signtool = _defineGlobalProperty('signtool')
+  certname = _defineGlobalProperty('signtool_certname')
+  dbdir = _defineGlobalProperty('signtool_dbdir')
+  dbpass = _defineGlobalProperty('signtool_dbpass')
+
+  keyFile = _defineLocalProperty('key')
+
+  latestRevision = _defineNightlyProperty('latestRevision')
+
+  def __init__(self, config, nightlyConfig, repositoryName, repository):
+    """
+      Creates a new Configuration instance that is bound to a particular
+      repository.
+    """
+
+    self.repositoryName = repositoryName
+    self.repository = repository
+    self.config = config
+    self.nightlyConfig = nightlyConfig
+
+    if self.config.has_option('extensions', self.repositoryName + '_key'):
+      self.type = 'chrome'
+      self.packageSuffix = '.crx'
+    else:
+      self.type = 'gecko'
+      self.packageSuffix = '.xpi'
+
+    if self.nightlyConfig and not self.nightlyConfig.has_section(self.repositoryName):
+      self.nightlyConfig.add_section(self.repositoryName)
+
+  def __str__(self):
+    """
+      Provides a string representation of this configuration
+    """
+    return self.repositoryName
+
+  @staticmethod
+  def getRepositoryConfigurations(nightlyConfig = None):
+    """
+      Retrieves configuration settings for all repositories
+      from the configuration file, where existing repositories
+      are identified by an <id>_repository entry appearing
+      in the configuration file.
+      This static method will enumerate Configuration
+      objects representing the settings for each repository.
+    """
+    config = get_config()
+    for key, value in config.items("extensions"):
+      if key.endswith("_repository"):
+        repositoryName = re.sub(r'_repository$', '', key)
+        if repositoryName:
+          yield Configuration(config, nightlyConfig, repositoryName, value)
