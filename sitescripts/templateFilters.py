@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import email.header, urllib
+import re, email.header, urllib
 from time import gmtime, strftime
 from jinja2.utils import Markup
 from urlparse import urlparse
@@ -51,7 +51,7 @@ def formaturl(url, title=None):
     return url
 
 def formatnewlines(value):
-  value = Markup.escape(value);
+  value = Markup.escape(value)
   value = unicode(value).replace('\n', '<br />')
   return Markup(value)
 
@@ -64,6 +64,30 @@ def formatfiltercount(value):
       return 'none'
   except Exception:
     return 'unknown'
+
+def formatBugLinks(value):
+  def addLink(match):
+    linkApp = match.group(1)
+    if linkApp != None:
+      linkApp = linkApp.lower()
+    linkType = match.group(2).lower()
+    linkNum = int(match.group(3))
+    if linkType == 'topic':
+      link = 'https://adblockplus.org/forum/viewtopic.php?t=%i' % linkNum
+    elif linkApp == 'webkit':
+      link = 'https://bugs.webkit.org/show_bug.cgi?id=%i' % linkNum
+    elif linkApp != None:
+      link = 'http://code.google.com/p/chromium/issues/detail?id=%i' % linkNum
+    elif linkNum > 100000:
+      link = 'https://bugzilla.mozilla.org/show_bug.cgi?id=%i' % linkNum
+    else:
+      link = 'https://www.mozdev.org/bugs/show_bug.cgi?id=%i' % linkNum
+    return '<a href="%s">%s</a>' % (link, match.group(0))
+
+  regexp = re.compile(r'(?:\b(WebKit|Chrome|Chromium)\s+)?\b(bug|issue|topic)\s+(\d+)', re.I | re.U)
+  value = unicode(Markup.escape(value))
+  value = re.sub(regexp, addLink, value)
+  return Markup(value)
 
 def urlencode(value):
   return urllib.quote(value.encode('utf-8'), '')
@@ -106,6 +130,7 @@ filters = {
   'url': formaturl,
   'keepnewlines': formatnewlines,
   'filtercount': formatfiltercount,
+  'buglinks': formatBugLinks,
   'urlencode': urlencode,
   'subscriptionSort': subscriptionSort,
   'mime': formatmime,

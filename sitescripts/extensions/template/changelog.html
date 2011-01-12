@@ -3,7 +3,7 @@
 <h2>Recent changes:</h2>
 {%- for change in changes %}
 <h3>#{{change.revision}}: {{change.date}} {{change.author}}</h3>
-<p>{{change.description}}</p>
+<p>{{change.description|buglinks}}</p>
 {%- endfor %}
 </body>
 </html>
