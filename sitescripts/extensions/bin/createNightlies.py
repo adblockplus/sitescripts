@@ -10,7 +10,7 @@ Nightly builds generation script
 
 """
 
-import sys, os, os.path, subprocess, ConfigParser, traceback
+import sys, os, os.path, subprocess, ConfigParser, traceback, json, hashlib
 import tempfile, re, shutil, urlparse
 from datetime import datetime
 from sitescripts.utils import get_config, setupStderr, get_template
@@ -42,9 +42,15 @@ class Configuration(object):
   
   def _defineGlobalProperty(key):
     """
-      Creates a property corresponding with a key in the nightly config file
+      Creates a property corresponding with a key in the config file
     """
     return property(lambda self: self.config.get('extensions', key))
+
+  def _defineLocalProperty(key):
+    """
+      Creates a property corresponding with a repository-specific key in the config file
+    """
+    return property(lambda self: self.config.get('extensions', self.repositoryName + '_' + key))
 
   def _defineNightlyProperty(key):
     """
@@ -66,6 +72,8 @@ class Configuration(object):
   dbdir = _defineGlobalProperty('signtool_dbdir')
   dbpass = _defineGlobalProperty('signtool_dbpass')
 
+  keyFile = _defineLocalProperty('key')
+
   latestRevision = _defineNightlyProperty('latestRevision')
 
   def __init__(self, config, nightlyConfig, repositoryName, repository):
@@ -78,6 +86,14 @@ class Configuration(object):
     self.repository = repository
     self.config = config
     self.nightlyConfig = nightlyConfig
+
+    if self.config.has_option('extensions', self.repositoryName + '_key'):
+      self.type = 'chrome'
+      self.packageSuffix = '.crx'
+    else:
+      self.type = 'gecko'
+      self.packageSuffix = '.xpi'
+
     if not self.nightlyConfig.has_section(self.repositoryName):
       self.nightlyConfig.add_section(self.repositoryName)
 
@@ -167,6 +183,10 @@ class NightlyBuild(object):
     """
       write the signature file into the cloned repository
     """
+    if self.config.type != 'gecko':
+      # This step is only required for Mozilla extensions
+      return
+
     try:
       if self.config.signtool:
         signatureFilename = os.path.join(self.tempdir, ".signature")
@@ -220,11 +240,38 @@ class NightlyBuild(object):
         minVersion, maxVersion = parser.get('compat', key).split('/')
         self.compat.append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
 
+  def readChromeMetadata(self):
+    """
+      Read Chrome-specific metadata from manifest.json file. It will also
+      calculate extension ID from the private key.
+    """
+
+    # Calculate extension ID from public key
+    # (see http://supercollider.dk/2010/01/calculating-chrome-extension-id-from-your-private-key-233)
+    sys.path.append(self.tempdir)
+    build = __import__('build')
+    publicKey = build.getPublicKey(self.config.keyFile)
+    hash = hashlib.sha256()
+    hash.update(publicKey)
+    self.extensionID = hash.hexdigest()[0:32]
+    self.extensionID = ''.join(map(lambda c: chr(97 + int(c, 16)), self.extensionID))
+
+    # Now read manifest.json
+    manifestFile = open(os.path.join(self.tempdir, 'manifest.json'), 'rb')
+    manifest = json.load(manifestFile)
+    manifestFile.close()
+
+    self.version = manifest['version']
+    self.basename = os.path.basename(self.config.repository)
+    self.compat = []
+    if 'minimum_chrome_version' in manifest:
+      self.compat.append({'id': 'chrome', 'minVersion': manifest['minimum_chrome_version']})
+
   def calculateBuildNumber(self):
     """
       calculate the effective nightly build number
     """
-    if not re.search(r'[^\d\.]\d*$', self.version):
+    if self.config.type == 'gecko' and not re.search(r'[^\d\.]\d*$', self.version):
       parts = self.version.split('.')
       while len(parts) < 3:
         parts.append('0')
@@ -240,9 +287,14 @@ class NightlyBuild(object):
     baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
     if not os.path.exists(baseDir):
       os.makedirs(baseDir)
-    manifestPath = os.path.join(baseDir, "update.rdf")
+    if self.config.type != 'chrome':
+      manifestPath = os.path.join(baseDir, "update.rdf")
+      templateName = 'geckoUpdateManifest'
+    else:
+      manifestPath = os.path.join(baseDir, "updates.xml")
+      templateName = 'chromeUpdateManifest'
 
-    template = get_template(get_config().get('extensions', 'geckoUpdateManifest'))
+    template = get_template(get_config().get('extensions', templateName))
     template.stream({'build': self}).dump(manifestPath)
 
   def build(self):
@@ -252,19 +304,23 @@ class NightlyBuild(object):
     baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
     if not os.path.exists(baseDir):
       os.makedirs(baseDir)
-    outputFile = "%s-%s.xpi" % (self.basename, self.version)
+    outputFile = "%s-%s%s" % (self.basename, self.version, self.config.packageSuffix)
     outputPath = os.path.join(baseDir, outputFile)
     self.updateURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + outputFile + '?update')
 
-    currentPath = os.getcwd()
-    try:
-      os.chdir(self.tempdir)
-      buildCommand = ['perl', 'create_xpi.pl', outputPath, self.buildNumber]
+    if self.config.type != 'chrome':
+      currentPath = os.getcwd()
+      try:
+        os.chdir(self.tempdir)
+        buildCommand = ['perl', 'create_xpi.pl', outputPath, self.buildNumber]
+        subprocess.Popen(buildCommand, stdout=subprocess.PIPE).communicate()
+      finally:
+        os.chdir(currentPath)
+    else:
+      buildCommand = ['python', os.path.join(self.tempdir, 'build.py'), '-k', self.config.keyFile, outputPath]
       subprocess.Popen(buildCommand, stdout=subprocess.PIPE).communicate()
-    finally:
-      os.chdir(currentPath)
 
-    linkPath = os.path.join(baseDir, '00latest.xpi')
+    linkPath = os.path.join(baseDir, '00latest%s' % self.config.packageSuffix)
     if hasattr(os, 'symlink'):
       if os.path.exists(linkPath):
         os.remove(linkPath)
@@ -280,7 +336,7 @@ class NightlyBuild(object):
     baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
     versions = []
     prefix = self.basename + '-'
-    suffix = '.xpi'
+    suffix = self.config.packageSuffix
     for fileName in os.listdir(baseDir):
       if fileName.startswith(prefix) and fileName.endswith(suffix):
         versions.append(fileName[len(prefix):len(fileName) - len(suffix)])
@@ -288,7 +344,9 @@ class NightlyBuild(object):
     while len(versions) > MAX_BUILDS:
       version = versions.pop()
       os.remove(os.path.join(baseDir, prefix + version + suffix))
-      os.remove(os.path.join(baseDir, prefix + version + '.changelog.xhtml'))
+      changelogPath = os.path.join(baseDir, prefix + version + '.changelog.xhtml')
+      if os.path.exists(changelogPath):
+        os.remove(changelogPath)
     return versions
 
   def updateIndex(self, versions):
@@ -303,7 +361,7 @@ class NightlyBuild(object):
 
     links = []
     for version in versions:
-      packageFile = self.basename + '-' + version + '.xpi'
+      packageFile = self.basename + '-' + version + self.config.packageSuffix
       changelogFile = self.basename + '-' + version + '.changelog.xhtml'
       if not os.path.exists(os.path.join(baseDir, packageFile)):
         # Oops
@@ -346,7 +404,10 @@ class NightlyBuild(object):
       self.writeSignature()
 
       # get meta data from the repository
-      self.readMetadata()
+      if self.config.type != 'chrome':
+        self.readMetadata()
+      else:
+        self.readChromeMetadata()
 
       # generate the current build number
       self.calculateBuildNumber()
