@@ -193,6 +193,14 @@ class NightlyBuild(object):
     template = get_template(get_config().get('extensions', 'changelogTemplate'))
     template.stream({'changes': changes}).dump(changelogPath)
 
+    linkPath = os.path.join(baseDir, '00latest.changelog.xhtml')
+    if hasattr(os, 'symlink'):
+      if os.path.exists(linkPath):
+        os.remove(linkPath)
+      os.symlink(changelogPath, linkPath)
+    else:
+      shutil.copyfile(changelogPath, linkPath)
+
   def readMetadata(self):
     """
       read the metadata file from a cloned repository
