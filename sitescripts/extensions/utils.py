@@ -121,12 +121,17 @@ class Configuration(object):
     self.config = config
     self.nightlyConfig = nightlyConfig
 
-    if self.config.has_option('extensions', self.repositoryName + '_key'):
-      self.type = 'chrome'
-      self.packageSuffix = '.crx'
+    if self.config.has_option('extensions', self.repositoryName + '_type'):
+      self.type = self.config.get('extensions', self.repositoryName + '_type')
     else:
       self.type = 'gecko'
+
+    if self.type == 'gecko':
       self.packageSuffix = '.xpi'
+    elif self.type == 'chrome':
+      self.packageSuffix = '.crx'
+    elif self.type == 'kmeleon':
+      self.packageSuffix = '.zip'
 
     if self.nightlyConfig and not self.nightlyConfig.has_section(self.repositoryName):
       self.nightlyConfig.add_section(self.repositoryName)

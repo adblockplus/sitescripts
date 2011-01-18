@@ -309,38 +309,43 @@ class NightlyBuild(object):
       Run the nightly build process for one extension
     """
     try:
-      # clone the repository to the tempdir
-      self.cloneRepository()
-
-      # write the signature file to the tempdir
-      self.writeSignature()
-
-      # get meta data from the repository
-      if self.config.type != 'chrome':
-        self.readMetadata()
+      if self.config.type == 'kmeleon':
+        # We cannot build K-Meleon builds, simply list the builds already in
+        # the directory. Basename has to be deduced from the repository name.
+        self.basename = os.path.basename(self.config.repository)
       else:
-        self.readChromeMetadata()
+        # clone the repository to the tempdir
+        self.cloneRepository()
 
-      # generate the current build number
-      self.calculateBuildNumber()
+        # write the signature file to the tempdir
+        self.writeSignature()
 
-      # create development build
-      self.build()
+        # get meta data from the repository
+        if self.config.type != 'chrome':
+          self.readMetadata()
+        else:
+          self.readChromeMetadata()
 
-      # write out changelog
-      self.writeChangelog(self.getChanges())
+        # generate the current build number
+        self.calculateBuildNumber()
 
-      # write update.rdf file
-      self.writeUpdateManifest()
+        # create development build
+        self.build()
+
+        # write out changelog
+        self.writeChangelog(self.getChanges())
+
+        # write update.rdf file
+        self.writeUpdateManifest()
+
+        # update documentation
+        self.updateDocs()
 
       # retire old builds
       versions = self.retireBuilds()
 
       # update index page
       self.updateIndex(versions)
-
-      # update documentation
-      self.updateDocs()
 
       # update nightlies config
       self.config.latestRevision = self.revision
