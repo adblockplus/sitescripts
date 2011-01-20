@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import re
+from ConfigParser import NoOptionError
 from sitescripts.utils import get_config
 
 def compareVersionParts(part1, part2):
@@ -80,11 +81,19 @@ class Configuration(object):
     """
     return property(lambda self: self.config.get('extensions', key))
 
-  def _defineLocalProperty(key):
+  def _defineLocalProperty(key, default = None):
     """
       Creates a property corresponding with a repository-specific key in the config file
     """
-    return property(lambda self: self.config.get('extensions', self.repositoryName + '_' + key))
+    def getLocalProperty(self):
+      try:
+        return self.config.get('extensions', self.repositoryName + '_' + key)
+      except NoOptionError, e:
+        if default != None:
+          return default
+        else:
+          raise e
+    return property(getLocalProperty)
 
   def _defineNightlyProperty(key):
     """
@@ -107,6 +116,9 @@ class Configuration(object):
   dbpass = _defineGlobalProperty('signtool_dbpass')
 
   keyFile = _defineLocalProperty('key')
+  name = _defineLocalProperty('name')
+  galleryID = _defineLocalProperty('galleryID', '')
+  downloadPage = _defineLocalProperty('downloadPage')
 
   latestRevision = _defineNightlyProperty('latestRevision')
 

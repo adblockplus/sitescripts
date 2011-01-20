@@ -1,16 +1,34 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head><title>Development build listing for {{name}}</title></head>
+<head><title>Development build listing for {{config.name}}</title></head>
 <body>
 
-%%warning%%
+<p style="border: 1px solid black; background-color: #FEE; color: #000; margin-left: 5px; margin-right: 5px; padding: 5px;">
+  <strong>Warning</strong>: The files in this directory are development
+  builds and as such they have not been fully tested and might not work
+  properly.
+  {% if config.type == 'kmeleon' -%}
+  They will work <em>only</em> with K-Meleon 1.6 and they are not completely
+  functional yet.
+  {%- endif %}
+  Use them at your own risk, see <a href="/en/development-builds">development builds introduction</a> for more
+  information. Latest <em>stable {{config.name}} release</em> can be downloaded from
+  {% if config.type == 'gecko' and config.galleryID -%}
+    <a href="https://addons.mozilla.org/addon/{{config.galleryID}}/">addons.mozilla.org</a>
+  {%- elif config.type == 'chrome' and config.galleryID -%}
+    <a href="https://chrome.google.com/extensions/detail/{{config.galleryID}}">Google Chrome extension gallery</a>
+  {%- else %}
+    <a href="{{config.downloadPage}}">its installation page</a>
+  {%- endif -%}
+  .
+</p>
 
-<h2>Development build listing for {{name}}</h2>
+<h2>Development build listing for {{config.name}}</h2>
 <hr />
 <table border="0" cellspacing="10">
 {%- for link in links %}
 <tr{%if loop.first%} style="font-weight: bold;"{%endif%}>
   <td>
-    <a href="{{link.download}}">{{name}} {{link.version}}</a>
+    <a href="{{link.download}}">{{config.name}} {{link.version}}</a>
     {%- if link.changelog %}
       <a href="{{link.changelog}}"> (changelog)</a>
     {%- endif %}

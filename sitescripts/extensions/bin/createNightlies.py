@@ -289,7 +289,7 @@ class NightlyBuild(object):
         link['changelog'] = changelogFile
       links.append(link)
     template = get_template(get_config().get('extensions', 'nightlyIndexPage'))
-    template.stream({'name': self.basename, 'links': links}).dump(outputPath)
+    template.stream({'config': self.config, 'links': links}).dump(outputPath)
 
   def updateDocs(self):
     if not os.path.exists(os.path.join(self.tempdir, 'generateDocs.pl')):
