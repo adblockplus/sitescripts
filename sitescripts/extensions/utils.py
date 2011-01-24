@@ -109,6 +109,8 @@ class Configuration(object):
 
   nightliesDirectory = _defineGlobalProperty('nightliesDirectory')
   nightliesURL = _defineGlobalProperty('nightliesURL')
+  downloadsDirectory = _defineGlobalProperty('downloadsDirectory')
+  downloadsURL = _defineGlobalProperty('downloadsURL')
   docsDirectory = _defineGlobalProperty('docsDirectory')
   signtool = _defineGlobalProperty('signtool')
   certname = _defineGlobalProperty('signtool_certname')
