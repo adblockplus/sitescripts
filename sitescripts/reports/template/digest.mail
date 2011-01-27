@@ -16,7 +16,7 @@ the report link:
 {% for report in group.reports -%}
 {{ {'false positive': 'fp', 'false negative': 'ma', 'other': 'ot'}.get(report.type, 'uk') -}}
 {{' ' -}}
-{{ {True: '+'}.get(subscription in report.matchSubscriptions, '-') -}}
+{{ '+' if subscription in report.matchSubscriptions else '-' -}}
 {{' ' -}}
 {{report.numSubscriptions|ljust(3) -}}
 {{' ' -}}

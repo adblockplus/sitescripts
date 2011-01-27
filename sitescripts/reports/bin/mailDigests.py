@@ -40,26 +40,27 @@ def scanReports(dir, result = []):
       if reportData.get('time', 0) < startTime:
         continue
 
-      recipients = []
-
-      # Send type "other" to fake subscription - daily reports
-      if interval != 'week':
-        recipients.append(fakeSubscription)
-
-      if reportData.get('type', 'unknown') == 'false positive' or reportData.get('type', 'unknown') == 'false negative':
-        recipients = []
-        for subscription in reportData.get('subscriptions', []):
-          if subscription.get('id', 'unknown') in subscriptions:
-            recipients.append(subscriptions[subscription.get('id', 'unknown')])
-
-      if len(recipients) == 0:
-        continue
-
-      matchSubscriptions = []
+      matchSubscriptions = {}
       for filter in reportData.get('filters', []):
         for url in filter.get('subscriptions', []):
           if url in subscriptions:
-            matchSubscriptions.append(subscriptions[url])
+            matchSubscriptions[url] = subscriptions[url]
+
+      recipients = []
+      reportType = reportData.get('type', 'unknown')
+      if reportType == 'false positive' or reportType == 'false negative':
+        for subscription in reportData.get('subscriptions', []):
+          subscriptionID = subscription.get('id', 'unknown')
+          # Send false negatives to all subscription authors, false positives
+          # only to subscriptions with matching filters
+          if subscriptionID in subscriptions and (reportType == 'false negative' or subscriptionID in matchSubscriptions):
+            recipients.append(subscriptions[subscriptionID])
+      elif interval != 'week':
+        # Send type "other" to fake subscription - daily reports
+        recipients.append(fakeSubscription)
+
+      if len(recipients) == 0:
+        continue
 
       guid = re.sub(r'\.dump$', r'', file)
       report = {
@@ -70,7 +71,7 @@ def scanReports(dir, result = []):
         'comment': re.sub(r'[\x00-\x20]', r' ', reportData.get('comment', '')),
         'type': reportData.get('type', 'unknown'),
         'numSubscriptions': len(reportData.get('subscriptions', [])),
-        'matchSubscriptions': matchSubscriptions,
+        'matchSubscriptions': matchSubscriptions.values(),
       }
       result.append(report)
   return result
