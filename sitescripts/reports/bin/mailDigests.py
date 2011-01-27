@@ -8,7 +8,7 @@ from sitescripts.reports.utils import mailDigest, calculateReportSecret
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def loadSubscriptions():
-  global interval
+  global interval, weekDay
 
   subscriptions = subscriptionParser.readSubscriptions()
 
@@ -18,6 +18,8 @@ def loadSubscriptions():
     if subscription.digest == 'daily' and interval == 'week':
       continue
     if subscription.digest == 'weekly' and interval == 'day':
+      continue
+    if interval == 'week' and subscription.digestDay != weekDay:
       continue
 
     for [title, url, complete] in subscription.variants:
@@ -147,6 +149,10 @@ if __name__ == '__main__':
   interval = sys.argv[1]
   if not (interval in ['all', 'week', 'day']):
     raise Exception('Invalid interval')
+
+  if interval == 'week' and len(sys.argv) < 3:
+    raise Exception('No weekday specified')
+  weekDay = int(sys.argv[2]) if interval == 'week' else -1
 
   currentTime = time()
   startTime = 0

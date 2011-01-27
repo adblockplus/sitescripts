@@ -39,6 +39,7 @@ class Subscription(object):
   blog = defineProperty("blog", True)
   changelog = defineProperty("changelog", True)
   digest = defineProperty("digest", True)
+  digestDay = defineProperty("digestDay", True)
 
   def __init__(self, filePath, data):
     self._data = {
@@ -62,11 +63,21 @@ class Subscription(object):
       'blog': None,
       'changelog': None,
       'digest': 'weekly',
+      'digestDay': 'wed',
     }
     self.parse(filePath, data)
 
   def parse(self, filePath, data):
     mandatory = [['email'], ['specialization'], ['homepage', 'contact', 'forum', 'faq', 'blog']]
+    weekDays = {
+      'son': 0,
+      'mon': 1,
+      'tue': 2,
+      'wed': 3,
+      'thu': 4,
+      'fri': 5,
+      'sat': 6,
+    }
 
     self.name = re.sub(r'\.\w+$', r'', os.path.basename(filePath))
 
@@ -90,7 +101,7 @@ class Subscription(object):
         setattr(self, key, value)
         if value == '':
           warn('Empty value given for attribute %s in %s' % (key, filePath))
-        if oldValue != None and key != 'name' and key != 'type' and key != 'digest':
+        if oldValue != None and key != 'name' and key != 'type' and key != 'digest' and key != 'digestDay':
           warn('Value for attribute %s is duplicated in %s' % (key, filePath))
       except:
         # Not a simple attribute, needs special handling
@@ -169,6 +180,10 @@ class Subscription(object):
       warn('Unknown type given in %s' % (filePath))
     if self.digest != 'daily' and self.digest != 'weekly':
       warn('Unknown digest frequency given in %s' % (filePath))
+    if not self.digestDay[0:3].lower() in weekDays:
+      warn('Unknown digest day given in %s' % (filePath))
+      self.digestDay = 'wed'
+    self.digestDay = weekDays[self.digestDay[0:3].lower()]
     if self.recommendation != None and (self.languages == None or not re.search(r'\S', self.languages)):
       warn('Recommendation without languages in %s' % (filePath))
     if len(self.supplements) == 0:
