@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding=utf-8
 
+import os, re
 from flup.server.fcgi import WSGIServer
 from urlparse import urlparse
 
@@ -16,7 +17,11 @@ class MultiplexerApp:
     start_response('404 Not Found', [('Content-Type', 'text/html')])
     return ["Not Found"]
 
-srv = WSGIServer(MultiplexerApp(), debug=False)
+bindAddress = None
+if 'FCGI_BIND_ADDRESS' in os.environ:
+  match = re.match(r'^(.*?):(\d+)$', os.environ['FCGI_BIND_ADDRESS'])
+  bindAddress = (match.group(1), int(match.group(2)))
+srv = WSGIServer(MultiplexerApp(), debug=False, bindAddress=bindAddress)
 
 if __name__ == '__main__':
   srv.run()
