@@ -61,7 +61,7 @@ def getData(start_response, week):
                            timespent
                     FROM #TABLE#
                     WHERE status <> 2
-                    ORDER BY priority''')
+                    ORDER BY priority''', ())
     data['tasks'] += cursor.fetchall()
 
   start_response('200 OK', [('Content-Type', 'application/json; charset=utf-8')])
