@@ -74,3 +74,10 @@ changelogTemplate=extensions/template/changelog.html
 geckoUpdateManifest=extensions/template/update.rdf
 chromeUpdateManifest=extensions/template/updates.xml
 nightlyIndexPage=extensions/template/nightlies.html
+
+[tasks]
+database=db
+dbuser=user
+dbpassword=password
+dbtable=tasks
+mainPageTemplate=tasks/template/mainPage.html

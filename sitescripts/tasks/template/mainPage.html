@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Adblock Plus tasks</title>
+    <style type="text/css">
+      body
+      {
+        background-color: #FFFFFF;
+      }
+
+      #tasks
+      {
+        border: 1px solid black;
+        table-layout: fixed;
+        width: 100%;
+        clear: both;
+      }
+
+      #tasks > thead > tr,
+      #tasks > tbody > tr
+      {
+        border-bottom: 1px solid black;
+      }
+
+      #headerRow > th
+      {
+        background-color: #F0F0F0;
+      }
+
+      #tasks > thead > tr > th,
+      #tasks > tbody > tr > td
+      {
+        padding: 5px;
+        margin: 0px 2px;
+      }
+
+      .description
+      {
+        width: 50%;
+      }
+      .context
+      {
+        width: 20%;
+      }
+      .status, .resolved, .timespent
+      {
+        width: 10%;
+      }
+
+      #templateRow
+      {
+        display: none;
+      }
+
+      #loadingRow
+      {
+        background-image: url(data:image/gif;base64,R0lGODlhEAAQAPIAAP%2F%2F%2FwAAAMLCwkJCQgAAAGJiYoKCgpKSkiH%2FC05FVFNDQVBFMi4wAwEAAAAh%2FhpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh%2BQQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa%2BdIAAAh%2BQQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo%2FIpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo%2FIpFKSAAAh%2BQQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh%2BQQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc%2FjDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA%3D%3D);
+        background-position: 50% 50%;
+        height: 50px;
+        background-repeat: no-repeat;
+      }
+
+      #tasks:not(.loading) #loadingRow
+      {
+        display: none;
+      }
+      #tasks.loading #tasksContent
+      {
+        display: none;
+      }
+
+      #error
+      {
+        border: 1px solid black;
+        margin: 20px;
+        padding: 10px;
+        background-color: #FFC0C0;
+      }
+
+      tr.outstanding > td
+      {
+        background-color: #FFE0E0;
+      }
+      tr.progressing > td
+      {
+        background-color: #FFFFE0;
+      }
+      tr.done > td
+      {
+        background-color: #E0FFE0;
+      }
+
+      #navigation
+      {
+        text-align: center;
+        margin: 5px 20px;
+      }
+      #previousLink
+      {
+        float: left;
+      }
+      #nextLink
+      {
+        float: right;
+      }
+      #previousLink[disabled],
+      #nextLink[disabled]
+      {
+        color: #C0C0C0;
+      }
+      #weekText
+      {
+        font-weight: bold;
+      }
+
+      {% if isAdmin %}
+      #editorRow
+      {
+        background-color: #E0E0E0;
+      }
+
+      #editorRow > td
+      {
+        vertical-align: top;
+      }
+
+      #editorRow > td[invalid]
+      {
+        background-color: #FFC0C0;
+      }
+
+
+      #editorRow > td > input[type="text"]
+      {
+        width: 100%;
+      }
+      {% endif %}
+    </style>
+    <script type="text/javascript">
+      window.addEventListener("load", updateTable, false);
+
+      var rowTemplate = null;
+      var callQueue = [];
+      var waitingForResponse = false;
+      {% if isAdmin %}
+      var editor = null;
+      {% endif %}
+
+      function E(id)
+      {
+        return document.getElementById(id);
+      }
+
+      function getCurrentWeek()
+      {
+        if (/\bweek=(-\d+)\b/.test(window.location.hash))
+          return parseInt(RegExp.$1, 10) || 0;
+        else
+          return 0;
+      }
+
+      function setCurrentWeek(week)
+      {
+        window.location.hash = "#week=" + week;
+        updateTable();
+      }
+
+      function taskComparison(task1, task2)
+      {
+        function strComparison(str1, str2)
+        {
+          if (str1 < str2)
+            return -1;
+          else if (str1 > str2)
+            return 1;
+          else
+            return 0;
+        }
+
+        // Completed tasks go first
+        var result = (task1.status != 2) - (task2.status != 2);
+        if (result != 0)
+          return result;
+        if (task1.status == 2)
+        {
+          // Sort completed tasks by resolution date first
+          result = strComparsion(task1.resolved, task2.resolved);
+          if (resuls != 0)
+            return result;
+        }
+        // Sort by priority
+        return task1.priority - task2.priority;
+      }
+
+      function updateTable()
+      {
+        E("tasks").className = "loading";
+        E("previousLink").setAttribute("disabled", "true");
+        E("nextLink").setAttribute("disabled", "disabled");
+        E("weekText").textContent = "";
+        E("goToCurrent").style.display = "none";
+
+        if (!rowTemplate)
+        {
+          rowTemplate = E("templateRow");
+          if (rowTemplate.parentNode)
+            rowTemplate.parentNode.removeChild(rowTemplate);
+        }
+
+        {% if isAdmin %}
+        E("addNewRow").style.display = "none";
+        if (!editor)
+        {
+          editor = E("editorRow");
+          if (editor.parentNode)
+            editor.parentNode.removeChild(editor);
+        }
+        {% endif %}
+
+        var content = E("tasksContent");
+        while (content.firstChild)
+          content.removeChild(content.firstChild);
+
+        serverCall({action: "getData", week: getCurrentWeek()}, null, function(data)
+        {
+          for (var i = 0; i < data.tasks.length; i++)
+            addTaskRow(data.tasks[i]);
+
+          E("previousLink").removeAttribute("disabled");
+          if (data.week < 0)
+            E("nextLink").removeAttribute("disabled");
+          else
+            E("nextLink").setAttribute("disabled", "disabled");
+          E("weekText").textContent = (data.week < 0 ? "Week " + data.startDate + " to " + data.endDate : "Current week");
+          if (data.week != 0)
+            E("goToCurrent").style.display = "";
+          {% if isAdmin %}
+          if (data.week == 0)
+            E("addNewRow").style.display = "";
+          {% endif %}
+
+          E("tasks").className = "";
+        });
+      }
+
+      function addTaskRow(taskData)
+      {
+        var statusToClass = ["outstanding", "progressing", "done"];
+        var statusToText = ["Outstanding", "In progress", "Done"];
+
+        var row = rowTemplate.cloneNode(true);
+        row.removeAttribute("id");
+        row.setAttribute("class", statusToClass[taskData.status]);
+        if (taskData.description)
+        {
+          var field = row.getElementsByClassName("description")[0];
+          var text = taskData.description;
+          field.textContent = "";
+          while (/\bhttps?:\/\/.*?(?=[,.:%]?[\s\(\)\[\]"'])/.test(text))
+          {
+            field.appendChild(document.createTextNode(RegExp.leftContext));
+            var link = document.createElement("a");
+            link.setAttribute("href", RegExp.lastMatch);
+            link.textContent = "link";
+            field.appendChild(link);
+            text = RegExp.rightContext;
+          }
+          field.appendChild(document.createTextNode(text));
+        }
+        if (taskData.context)
+          row.getElementsByClassName("context")[0].textContent = taskData.context;
+        row.getElementsByClassName("status")[0].textContent = statusToText[taskData.status];
+        if (taskData.resolved)
+          row.getElementsByClassName("resolved")[0].textContent = taskData.resolved;
+        if (taskData.timespent)
+          row.getElementsByClassName("timespent")[0].textContent = taskData.timespent;
+        row._taskData = taskData;
+
+        var insertBefore = E("tasksContent").firstChild;
+        while (insertBefore && taskComparison(taskData, insertBefore._taskData) > 0)
+          insertBefore = insertBefore.nextSibling;
+        E("tasksContent").insertBefore(row, insertBefore);
+      }
+
+      function serverCall(params, data, callback)
+      {
+        var query = [];
+        for (var k in params)
+          query.push(encodeURIComponent(k) + "=" + encodeURIComponent(params[k]));
+        if (data)
+          data = JSON.stringify(data);
+        callQueue.push(["?" + query.join("&"), data, callback]);
+        if (!waitingForResponse)
+          doNextServerCall();
+      }
+
+      function doNextServerCall()
+      {
+        if (!callQueue.length)
+          return;
+
+        waitingForResponse = true;
+
+        var callParams = callQueue.shift();
+        var url = callParams[0];
+        var data = callParams[1];
+        var callback = callParams[2];
+
+        var request = new XMLHttpRequest();
+        request.open("POST", url);
+        request.setRequestHeader("X-Same-Origin", "1");
+        request.onload = function()
+        {
+          if (callback)
+          {
+            try
+            {
+              var data = JSON.parse(request.responseText);
+              callback(data);
+            }
+            catch (e)
+            {
+              reportError("Processing server response failed: " + e);
+            }
+          }
+          waitingForResponse = false;
+          doNextServerCall();
+        }
+        request.onerror = function()
+        {
+          reportError("Server call failed");
+          waitingForResponse = false;
+          doNextServerCall();
+        }
+        request.send(data);
+      }
+
+      function previousWeek()
+      {
+        setCurrentWeek(getCurrentWeek() - 1);
+      }
+      function nextWeek()
+      {
+        setCurrentWeek(getCurrentWeek() + 1);
+      }
+
+      function hideErrorMessage(hide)
+      {
+        E("error").style.display = (hide ? "none" : "");
+      }
+
+      function reportError(message)
+      {
+        E("errorMessage").textContent = message;
+        hideErrorMessage(false);
+      }
+
+      {% if isAdmin %}
+      function startEditor(taskData, field)
+      {
+        editor._taskData = taskData;
+        E("descriptionEditor").value = taskData.description || "";
+        E("contextEditor").value = taskData.context || "";
+        E("resolvedEditor").value = taskData.resolved || "";
+        E("timespentEditor").value = taskData.timespent || "";
+
+        var statusFields = editor.getElementsByClassName("statusEditor");
+        var selectedStatusField = statusFields[0];
+        for (var i = 0; i < statusFields.length; i++)
+        {
+          statusFields[i].checked = false;
+          if (statusFields[i].value == taskData.status)
+            selectedStatusField = statusFields[i];
+        }
+        selectedStatusField.checked = true;
+
+        switch(field)
+        {
+          default:
+            E("contextEditor").focus();
+            break;
+          case "description":
+            E("descriptionEditor").focus();
+            break;
+          case "status":
+            selectedStatusField.focus();
+            break;
+          case "resolved":
+            E("resolvedEditor").focus();
+            break;
+          case "timespent":
+            E("timespentEditor").focus();
+            break;
+        }
+      }
+
+      function trim(str)
+      {
+        return str.replace(/^\s+/, "").replace(/\s+$/, "");
+      }
+
+      function formatDate(date)
+      {
+        function padNumber(number, length)
+        {
+          var result = number.toString();
+          while (result.length < length)
+            result = "0" + result;
+          return result;
+        }
+        return padNumber(date.getFullYear(), 4) + "-" + padNumber(date.getMonth() + 1, 2) + "-" + padNumber(date.getDate(), 2);
+      }
+
+      function stopEditor(save, remove)
+      {
+        var statusFields = editor.getElementsByClassName("statusEditor");
+        var newStatus = 0;
+        for (var i = 0; i < statusFields.length; i++)
+          if (statusFields[i].checked)
+            newStatus = parseInt(statusFields[i].value, 10);
+
+        var tests = [
+          [E("descriptionEditor"), /\S/],
+          [E("contextEditor"), /\S/],
+          // This field is no longer optional if status is "Done"
+          [E("resolvedEditor"), newStatus == 2 ? /^\s*\d{4}-\d{2}-\d{2}\s*$/ : /^\s*(\d{4}-\d{2}-\d{2}\s*)?$/]
+        ];
+        if (save)
+        {
+          // Validation
+          for (var i = 0; i < tests.length; i++)
+          {
+            var field = tests[i][0];
+            var regexp = tests[i][1];
+            if (!regexp.test(field.value))
+            {
+              field.parentNode.setAttribute("invalid", "true");
+              field.focus();
+              return;
+            }
+          }
+
+          if (/^\s*(\d+)-(\d+)-(\d+)\s*$/.test(E("resolvedEditor").value))
+          {
+            var resolvedDate = new Date(RegExp.$1, RegExp.$2 - 1, RegExp.$3);
+            if (newStatus == 2)
+            {
+              var currentDate = new Date();
+              if (resolvedDate > currentDate && !confirm("Resolution date is in the future. Are you sure?"))
+                return;
+              if (currentDate - resolvedDate > 1000*60*60*24*7 && !confirm("Resolution date is more than a week in the past. Are you sure?"))
+                return;
+            }
+            E("resolvedEditor").value = formatDate(resolvedDate);
+          }
+        }
+        for (var i = 0; i < tests.length; i++)
+          tests[i][0].parentNode.removeAttribute("invalid");
+
+        var taskData = editor._taskData;
+        delete editor._taskData;
+        if (save)
+        {
+          taskData.description = trim(E("descriptionEditor").value);
+          taskData.context = trim(E("contextEditor").value);
+          taskData.status = newStatus;
+          taskData.resolved = trim(E("resolvedEditor").value) || null;
+          taskData.timespent = trim(E("timespentEditor").value) || null;
+
+          if (!("priority" in taskData))
+          {
+            var maxPriority = 0;
+            for (var row = E("tasksContent").firstChild; row; row = row.nextSibling)
+              if (row != editor && row._taskData.priority > maxPriority)
+                maxPriority = row._taskData.priority;
+            taskData.priority = maxPriority + 1;
+          }
+
+          serverCall({action: "saveTask"}, taskData, function(taskID)
+          {
+            taskData.id = taskID;
+          });
+        }
+        if (remove && "id" in taskData)
+        {
+          serverCall({action: "removeTask", task: taskData.id});
+          delete taskData.id;
+        }
+        editor.parentNode.removeChild(editor);
+        if (save || ("id" in taskData))
+          addTaskRow(taskData);
+      }
+
+      function editorKeyPress(event)
+      {
+        if (event.keyCode == 13)
+        {
+          stopEditor(true, false);
+          event.preventDefault;
+        }
+        else if (event.keyCode == 27)
+        {
+          stopEditor(false, false);
+          event.preventDefault;
+        }
+      }
+
+      function editTask(row, event)
+      {
+        // Ignore link clicks
+        if (event.target instanceof HTMLAnchorElement)
+          return;
+
+        // Ignore new tasks that didn't get a task ID yet
+        if (!("id" in row._taskData))
+          return;
+
+        if (editor.parentNode)
+          stopEditor(true, false);
+
+        row.parentNode.replaceChild(editor, row);
+        startEditor(row._taskData, event.target.className);
+      }
+
+      function newTask()
+      {
+        if (editor.parentNode)
+          stopEditor(true, false);
+
+        E("tasksContent").appendChild(editor)
+        startEditor({}, null);
+      }
+
+      function editInitResolution()
+      {
+        var resolvedEditor = E("resolvedEditor");
+        if (!/\S/.test(resolvedEditor.value))
+          resolvedEditor.value = formatDate(new Date());
+      }
+
+      var draggedRow = null;
+      function dragStart(row, event)
+      {
+        // Ignore new tasks that didn't get a task ID yet
+        if (!("id" in row._taskData))
+          return;
+        // Tasks that are done cannot be reordered
+        if (row._taskData.status == 2)
+          return;
+
+        if (editor.parentNode)
+          stopEditor(true, false);
+
+        var transfer = event.dataTransfer;
+        transfer.setData("text/x-task", JSON.stringify(row._taskData));
+        transfer.setDragImage(row, 0, 0);
+        transfer.effectAllowed = "move";
+        draggedRow = row;
+      }
+
+      function dragOver(row, event)
+      {
+        // Tasks that are done cannot be reordered
+        if (row._taskData.status == 2)
+          return;
+        if (event.dataTransfer.types.contains("text/x-task") && draggedRow && draggedRow != row)
+          event.preventDefault();
+      }
+
+      function drop(row, event)
+      {
+        if (event.dataTransfer.types.contains("text/x-task") && draggedRow && draggedRow != row)
+        {
+          var movedDown = false;
+          if (row.compareDocumentPosition(draggedRow) & Node.DOCUMENT_POSITION_PRECEDING)
+            movedDown = true;
+
+          // Safety check
+          for (var node = row; node && node != draggedRow; node = (movedDown ? node.previousSibling : node.nextSibling))
+            if (!("id" in node._taskData))    // Oops, new task without an assigned ID
+              return;
+
+          var changes = [];
+
+          // Update priorities
+          var newPriority = row._taskData.priority;
+          for (var node = row; node && node != draggedRow; node = (movedDown ? node.previousSibling : node.nextSibling))
+          {
+            node._taskData.priority = (movedDown ? node.previousSibling : node.nextSibling)._taskData.priority;
+            changes.push({id: node._taskData.id, priority: node._taskData.priority});
+          }
+          draggedRow._taskData.priority = newPriority;
+          changes.push({id: draggedRow._taskData.id, priority: draggedRow._taskData.priority});
+
+          if (movedDown)
+            row.parentNode.insertBefore(draggedRow, row.nextSibling);
+          else
+            row.parentNode.insertBefore(draggedRow, row);
+
+          serverCall({action: "prioritizeTasks"}, changes);
+        }
+      }
+      {% endif %}
+    </script>
+  </head>
+  <body>
+    <div id="error" style="display: none;">
+      <div id="errorMessage"></div>
+      <div><a href="#" onclick="hideErrorMessage(true);return false;">Hide this message</a></div>
+    </div>
+
+    <p id="navigation">
+      <a id="previousLink" href="#" disabled="disabled" onclick="if (!this.hasAttribute('disabled')) previousWeek();return false;">&lt;&lt; Previous week</a>
+      <a id="nextLink" href="#" disabled="disabled" onclick="if (!this.hasAttribute('disabled')) nextWeek();return false;">Next week &gt;&gt;</a>
+      <span id="weekText"></span>
+      <a id="goToCurrent" href="#" style="display: none;" onclick="setCurrentWeek(0); return false;">(go to current week)</a>
+    </p>
+
+    <table id="tasks" class="loading">
+      <thead>
+        <tr id="headerRow">
+          <th class="context">Context</th>
+          <th class="description">Description</th>
+          <th class="status">Status</th>
+          <th class="resolved">Resolution date</th>
+          <th class="timespent">Time spent</th>
+        </tr>
+      </thead>
+      <tbody id="tasksContent">
+        <tr id="templateRow"{% if isAdmin %} draggable="true" onclick="editTask(this, event);"
+            ondragstart="dragStart(this, event);" ondragover="dragOver(this, event);" ondrop="drop(this, event);"{% endif %}>
+          <td class="context"></td>
+          <td class="description"></td>
+          <td class="status"></td>
+          <td class="resolved"></td>
+          <td class="timespent"></td>
+        </tr>
+        {%- if isAdmin %}
+        <tr id="editorRow" onkeypress="editorKeyPress(event);">
+          <td class="context">
+            <input type="text" id="contextEditor" />
+          </td>
+          <td class="description">
+            <input type="text" id="descriptionEditor" />
+            <button type="button" tabindex="-1" onclick="stopEditor(false, true);">Delete task</button>
+          </td>
+          <td class="status">
+            <input type="radio" name="statusEditor" class="statusEditor" value="0" />Outstanding<br />
+            <input type="radio" name="statusEditor" class="statusEditor" value="1" />In progress<br />
+            <input type="radio" name="statusEditor" class="statusEditor" value="2" onclick="editInitResolution();" />Done
+          </td>
+          <td class="resolved">
+            <input type="text" id="resolvedEditor" maxlength="10" />
+          </td>
+          <td class="timespent">
+            <input type="text" id="timespentEditor" maxlength="20" />
+          </td>
+        </tr>
+        {%- endif %}
+      </tbody>
+      <tbody>
+        <tr id="loadingRow">
+          <td colspan="5"></td>
+        </tr>
+        {%- if isAdmin %}
+        <tr id="addNewRow">
+          <td colspan="5"><button type="button" onclick="newTask();">Add new task</button></td>
+        </tr>
+        {%- endif %}
+      </tbody>
+    </table>
+  </body>
+</html>
