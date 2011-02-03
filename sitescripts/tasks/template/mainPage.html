@@ -256,7 +256,7 @@
           var field = row.getElementsByClassName("description")[0];
           var text = taskData.description;
           field.textContent = "";
-          while (/\bhttps?:\/\/.*?(?=[,.:%]?[\s\(\)\[\]"'])/.test(text))
+          while (/\bhttps?:\/\/.*?(?=[,.:%]?(?:[\s\(\)\[\]"']|$))/.test(text))
           {
             field.appendChild(document.createTextNode(RegExp.leftContext));
             var link = document.createElement("a");
