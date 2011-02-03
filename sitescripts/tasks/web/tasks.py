@@ -1,6 +1,6 @@
 # coding=utf-8
 
-import MySQLdb, json, re
+import MySQLdb, json, re, os
 from sitescripts.utils import get_config, cached, setupStderr, get_template
 from sitescripts.web import url_handler
 from urlparse import parse_qs
@@ -114,7 +114,10 @@ def get_db():
   database = get_config().get('tasks', 'database')
   dbuser = get_config().get('tasks', 'dbuser')
   dbpasswd = get_config().get('tasks', 'dbpassword')
-  return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database, use_unicode=True, charset='utf8', named_pipe=True)
+  if os.name == 'nt':
+    return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database, use_unicode=True, charset='utf8', named_pipe=True)
+  else:
+    return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database, use_unicode=True, charset='utf8')
 
 def executeQuery(cursor, query, args=None):
   tableName = get_config().get('tasks', 'dbtable')
