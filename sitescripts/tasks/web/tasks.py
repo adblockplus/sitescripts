@@ -44,7 +44,6 @@ def getData(start_response, week):
   cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
   executeQuery(cursor,
                '''SELECT id, priority, description, context, status,
-                         DATE_FORMAT(created, "%%Y-%%m-%%d") as created,
                          DATE_FORMAT(resolved, "%%Y-%%m-%%d") as resolved,
                          timespent
                   FROM #TABLE#
@@ -56,7 +55,6 @@ def getData(start_response, week):
   if week == 0:
     executeQuery(cursor,
                  '''SELECT id, priority, description, context, status,
-                         DATE_FORMAT(created, "%%Y-%%m-%%d") as created,
                          DATE_FORMAT(resolved, "%%Y-%%m-%%d") as resolved,
                            timespent
                     FROM #TABLE#
