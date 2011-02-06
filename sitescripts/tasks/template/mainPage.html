@@ -77,7 +77,7 @@
         background-color: #FFC0C0;
       }
 
-      tr.outstanding > td
+      tr.open > td
       {
         background-color: #FFE0E0;
       }
@@ -245,8 +245,8 @@
 
       function addTaskRow(taskData)
       {
-        var statusToClass = ["outstanding", "progressing", "done"];
-        var statusToText = ["Outstanding", "In progress", "Done"];
+        var statusToClass = ["open", "progressing", "done"];
+        var statusToText = ["Open", "In progress", "Done"];
 
         var row = rowTemplate.cloneNode(true);
         row.removeAttribute("id");
@@ -645,7 +645,7 @@
             <button type="button" tabindex="-1" onclick="stopEditor(false, true);">Delete task</button>
           </td>
           <td class="status">
-            <input type="radio" name="statusEditor" class="statusEditor" value="0" />Outstanding<br />
+            <input type="radio" name="statusEditor" class="statusEditor" value="0" />Open<br />
             <input type="radio" name="statusEditor" class="statusEditor" value="1" />In progress<br />
             <input type="radio" name="statusEditor" class="statusEditor" value="2" onclick="editInitResolution();" />Done
           </td>
