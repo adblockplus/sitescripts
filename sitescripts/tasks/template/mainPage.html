@@ -355,6 +355,29 @@
         hideErrorMessage(false);
       }
 
+      function windowKeyPress(event)
+      {
+        if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey)
+          return;
+
+        switch (event.keyCode)
+        {
+          case 37:  // VK_LEFT
+            E("previousLink").onclick();
+            break;
+          case 39:  // VK_RIGHT
+            E("nextLink").onclick();
+            break;
+          {% if isAdmin %}
+          case 45:  // VK_INSERT
+            newTask();
+            E("editorRow").scrollIntoView(false);
+            break;
+          {% endif %}
+        }
+      }
+      window.addEventListener("keypress", windowKeyPress, false);
+
       {% if isAdmin %}
       function startEditor(taskData, field)
       {
