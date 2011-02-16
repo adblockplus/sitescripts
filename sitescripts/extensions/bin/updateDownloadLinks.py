@@ -8,7 +8,7 @@ Update the list of extenstions
   and version information
 """
 
-import os, urllib, urlparse
+import os, urllib, urlparse, subprocess
 import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser
 from sitescripts.utils import get_config
@@ -106,6 +106,12 @@ def updateLinks():
   """
   writes the current extension download links to a file
   """
+
+  # Update downloads directory first
+  downloadsRepository = get_config().get('extensions', 'downloadsDirectory')
+  subprocess.Popen(['hg', '-R', downloadsRepository, 'pull',  '-u'], stdout=subprocess.PIPE).communicate()
+
+  # Now get download links and save them to file
   result = SafeConfigParser()
   getDownloadLinks(result)
   file = open(get_config().get('extensions', 'downloadLinksFile'), 'wb')
