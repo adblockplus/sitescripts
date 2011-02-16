@@ -14,22 +14,9 @@ import sys, os, os.path, subprocess, ConfigParser, traceback, json, hashlib
 import tempfile, re, shutil, urlparse
 from datetime import datetime
 from sitescripts.utils import get_config, setupStderr, get_template
-from sitescripts.extensions.utils import compareVersions, Configuration
+from sitescripts.extensions.utils import compareVersions, Configuration, KNOWN_APPS
 
 MAX_BUILDS = 50
-
-KNOWN_APPS = {
-  'conkeror':   '{a79fe89b-6662-4ff4-8e88-09950ad4dfde}',
-  'emusic':     'dlm@emusic.com',
-  'fennec':     '{a23983c0-fd0e-11dc-95ff-0800200c9a66}',
-  'firefox':    '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}',
-  'midbrowser':   '{aa5ca914-c309-495d-91cf-3141bbb04115}',
-  'prism':    'prism@developer.mozilla.org',
-  'seamonkey':  '{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}',
-  'songbird':   'songbird@songbirdnest.com',
-  'thunderbird':  '{3550f703-e582-4d05-9a08-453d09bdfdc6}',
-  'toolkit':    'toolkit@mozilla.org',
-}
 
 
 class NightlyBuild(object):
@@ -207,7 +194,7 @@ class NightlyBuild(object):
       templateName = 'chromeUpdateManifest'
 
     template = get_template(get_config().get('extensions', templateName))
-    template.stream({'build': self}).dump(manifestPath)
+    template.stream({'extensions': [self]}).dump(manifestPath)
 
   def build(self):
     """

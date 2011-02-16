@@ -1,8 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <gupdate xmlns="http://www.google.com/update2/response" protocol="2.0">
-  <app appid="{{build.extensionID}}">
-    <updatecheck codebase="{{build.updateURL}}" version="{{build.version}}"
-      {%- if build.compat and build.compat[0].id == 'chrome' %} prodversionmin="{{build.compat[0].minVersion}}"{% endif -%}
+  {%- for extension in extensions %}
+  <app appid="{{extension.extensionID}}">
+    <updatecheck codebase="{{extension.updateURL}}" version="{{extension.version}}"
+      {%- if extension.compat and extension.compat[0].id == 'chrome' %} prodversionmin="{{extension.compat[0].minVersion}}"{% endif -%}
     />
   </app>
+  {%- endfor %}
 </gupdate>

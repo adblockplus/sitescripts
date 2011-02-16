@@ -11,8 +11,9 @@ Update the list of extenstions
 import os, urllib, urlparse, subprocess
 import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser
-from sitescripts.utils import get_config
-from sitescripts.extensions.utils import compareVersions, Configuration
+from StringIO import StringIO
+from sitescripts.utils import get_config, get_template
+from sitescripts.extensions.utils import compareVersions, Configuration, KNOWN_APPS
 
 def urlencode(value):
   return urllib.quote(value.encode('utf-8'), '')
@@ -102,6 +103,47 @@ def getDownloadLinks(result):
     result.set(repo.repositoryName, "downloadURL", downloadURL)
     result.set(repo.repositoryName, "version", version)
 
+def readMetadata(repo, version):
+  """
+  reads extension ID and compatibility information from metadata file in the
+  extension's repository
+  """
+  command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata')]
+  (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+
+  parser = SafeConfigParser()
+  parser.readfp(StringIO(result))
+
+  result = {
+    'extensionID': parser.get('general', 'id'),
+    'version': version,
+    'compat': []
+  }
+  for key, value in KNOWN_APPS.iteritems():
+    if parser.has_option('compat', key):
+      minVersion, maxVersion = parser.get('compat', key).split('/')
+      result['compat'].append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
+  return result
+
+def writeUpdateManifest(links):
+  """
+  writes an update.rdf file for all Gecko extensions
+  """
+
+  extensions = []
+  for repo in Configuration.getRepositoryConfigurations():
+    if repo.type != 'gecko':
+      continue
+    if not links.has_section(repo.repositoryName):
+      continue
+    data = readMetadata(repo, links.get(repo.repositoryName, 'version'))
+    data['updateURL'] = links.get(repo.repositoryName, 'downloadURL')
+    extensions.append(data)
+
+  manifestPath = get_config().get('extensions', 'geckoUpdateManifestPath')
+  template = get_template(get_config().get('extensions', 'geckoUpdateManifest'))
+  template.stream({'extensions': extensions}).dump(manifestPath)
+
 def updateLinks():
   """
   writes the current extension download links to a file
@@ -117,6 +159,8 @@ def updateLinks():
   file = open(get_config().get('extensions', 'downloadLinksFile'), 'wb')
   result.write(file)
   file.close()
+
+  writeUpdateManifest(result)
 
 if __name__ == "__main__":
   updateLinks()

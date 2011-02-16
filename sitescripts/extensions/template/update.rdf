@@ -2,20 +2,23 @@
 
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
-  <Description about="urn:mozilla:extension:{{build.extensionID}}">
+  {%- for extension in extensions %}
+  <Description about="urn:mozilla:extension:{{extension.extensionID}}">
     <em:updates>
       <Seq>
         <li>
           <Description>
-            <em:version>{{build.version}}</em:version>
-            {%- for app in build.compat %}
+            <em:version>{{extension.version}}</em:version>
+            {%- for app in extension.compat %}
             <em:targetApplication>
               <Description>
                 <em:id>{{app.id}}</em:id>
                 <em:minVersion>{{app.minVersion}}</em:minVersion>
                 <em:maxVersion>{{app.maxVersion}}</em:maxVersion>
-                <em:updateLink>{{build.updateURL}}</em:updateLink>
-                <em:updateInfoURL>{{build.changelogURL}}</em:updateInfoURL>
+                <em:updateLink>{{extension.updateURL}}</em:updateLink>
+                {%- if extension.changelogURL %}
+                <em:updateInfoURL>{{extension.changelogURL}}</em:updateInfoURL>
+                {%- endif %}
               </Description>
             </em:targetApplication>
             {%- endfor %}
@@ -24,4 +27,5 @@
       </Seq>
     </em:updates>
   </Description>
+  {%- endfor %}
 </RDF>
