@@ -516,6 +516,9 @@
 
       function editorKeyPress(event)
       {
+        // Do not trigger global actions
+        event.stopPropagation();
+
         if (event.keyCode == 13)
         {
           stopEditor(true, false);
