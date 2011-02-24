@@ -79,6 +79,8 @@ def processReport(xmlFile, dumpFile, htmlFile):
 
   if 'screenshot' in reportData and not reportData['screenshot'].startswith('data:image/'):
     del reportData['screenshot']
+  if 'email' in reportData and reportData['email'].find(' at ') < 0:
+    del reportData['email']
   validateData(reportData)
 
   marshal.dump(reportData, target)
