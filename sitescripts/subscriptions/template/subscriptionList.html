@@ -16,7 +16,7 @@
       %maintainer_prefix% {{subscription.maintainer}} %maintainer_suffix%<br />
       {%- endif %}
       {%- set isFirst = True %}
-      {% for key in ('homepage', 'forum', 'contact', 'faq', 'blog', 'changelog') -%}
+      {% for key in ('homepage', 'forum', 'contact', 'faq', 'blog', 'changelog', 'policy') -%}
         {%- set url = subscription[key] -%}
         {%- if url -%}
           {%- if not isFirst %}, {% endif -%}

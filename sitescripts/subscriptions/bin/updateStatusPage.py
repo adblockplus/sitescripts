@@ -33,7 +33,7 @@ def checkSubscriptions():
   urls = {}
   sites = {}
   for subscription in subscriptions:
-    for key in ('homepage', 'forum', 'blog', 'faq', 'contact', 'changelog'):
+    for key in ('homepage', 'forum', 'blog', 'faq', 'contact', 'changelog', 'policy'):
       url = getattr(subscription, key)
       if url != None:
         urls[url] = True
@@ -52,7 +52,7 @@ def checkSubscriptions():
   for subscription in subscriptions:
     s = {'name': subscription.name, 'links': []}
     result.append(s)
-    for key in ('homepage', 'forum', 'blog', 'faq', 'contact', 'changelog'):
+    for key in ('homepage', 'forum', 'blog', 'faq', 'contact', 'changelog', 'policy'):
       url = getattr(subscription, key)
       if url != None:
         site = urlparse(url).netloc

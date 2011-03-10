@@ -38,6 +38,7 @@ class Subscription(object):
   faq = defineProperty("faq", True)
   blog = defineProperty("blog", True)
   changelog = defineProperty("changelog", True)
+  policy = defineProperty("policy", True)
   digest = defineProperty("digest", True)
   digestDay = defineProperty("digestDay", True)
 
@@ -62,6 +63,7 @@ class Subscription(object):
       'faq': None,
       'blog': None,
       'changelog': None,
+      'policy': None,
       'digest': 'weekly',
       'digestDay': 'wed',
     }
