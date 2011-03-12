@@ -77,7 +77,13 @@ class NightlyBuild(object):
       
     command = ['hg', 'up', '-q', '-R', self.tempdir, '-r', 'default']
     subprocess.Popen(command).communicate()
-    
+
+    try:
+      command = ['hg', 'archive', '-q', '-R', self.config.buildRepository, os.path.join(self.tempdir, 'buildtools')]
+      subprocess.Popen(command).communicate()
+    except:
+      pass
+
   def writeSignature(self):
     """
       write the signature file into the cloned repository

@@ -120,6 +120,7 @@ class Configuration(object):
   repositoryName = None
   repository = None
 
+  buildRepository = _defineGlobalProperty('buildRepository')
   nightliesDirectory = _defineGlobalProperty('nightliesDirectory')
   nightliesURL = _defineGlobalProperty('nightliesURL')
   downloadsDirectory = _defineGlobalProperty('downloadsDirectory')
