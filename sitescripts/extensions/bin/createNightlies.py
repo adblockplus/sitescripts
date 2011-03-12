@@ -219,6 +219,9 @@ class NightlyBuild(object):
       buildCommand = ['python', os.path.join(self.tempdir, 'build.py'), '-k', self.config.keyFile, outputPath]
       subprocess.Popen(buildCommand, stdout=subprocess.PIPE).communicate()
 
+    if not os.path.exists(outputPath):
+      raise Exception("Build failed, output file hasn't been created")
+
     linkPath = os.path.join(baseDir, '00latest%s' % self.config.packageSuffix)
     if hasattr(os, 'symlink'):
       if os.path.exists(linkPath):
