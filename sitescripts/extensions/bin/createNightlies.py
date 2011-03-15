@@ -79,7 +79,7 @@ class NightlyBuild(object):
     subprocess.Popen(command).communicate()
 
     try:
-      command = ['hg', 'archive', '-q', '-R', self.config.buildRepository, os.path.join(self.tempdir, 'buildtools')]
+      command = ['hg', 'archive', '-q', '-R', self.config.buildRepository, '-r', 'default', os.path.join(self.tempdir, 'buildtools')]
       subprocess.Popen(command).communicate()
     except:
       pass
