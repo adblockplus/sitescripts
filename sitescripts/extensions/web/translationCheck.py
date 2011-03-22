@@ -30,7 +30,7 @@ class BabelzillaConnection:
     except urllib2.HTTPError, e:
       raise Exception('HTTP Error, Babelzilla server responded with ' + self.statusLine(e.code))
     except urllib2.URLError, e:
-      raise Exception('Could not connect to Babelzilla server, reason: %s' % e.reason, start_response)
+      raise Exception('Could not connect to Babelzilla server, reason: %s' % e.reason)
 
 @url_handler('/babelzilla.php')
 def handleRequest(environ, start_response):
