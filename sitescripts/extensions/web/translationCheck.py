@@ -17,7 +17,7 @@ class BabelzillaConnection:
       if not any(cookie.name == 'bbmember_id' for cookie in cj):
         raise Exception('Server didn\'t log us in')
     except Exception, e:
-      raise Exception('Babelzilla login failed. %s', str(e))
+      raise Exception('Babelzilla login failed. %s' % str(e))
 
   def statusLine(code):
     msg = BaseHTTPRequestHandler.responses.get(code, ['unknown', 'unknown'])
