@@ -102,7 +102,7 @@ def downloadLanguage(connection, language, extensionID):
 def checkLanguage(language, data, repository):
   tempdir = tempfile.mkdtemp(prefix='adblockplus')
   try:
-    subprocess.Popen(['hg', 'clone',  repository, tempdir], stdout=subprocess.PIPE).communicate()
+    subprocess.Popen(['hg', 'archive',  '-R', repository, tempdir], stdout=subprocess.PIPE).communicate()
     localeDir = os.path.join(tempdir, 'chrome', 'locale', language['code'])
     if not os.path.exists(localeDir):
       os.mkdir(localeDir)
