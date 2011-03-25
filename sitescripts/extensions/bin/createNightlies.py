@@ -176,11 +176,6 @@ class NightlyBuild(object):
     """
       calculate the effective nightly build number
     """
-    if self.config.type == 'gecko' and not re.search(r'[^\d\.]\d*$', self.version):
-      parts = self.version.split('.')
-      while len(parts) < 3:
-        parts.append('0')
-      self.version = '.'.join(parts) + '+'
     self.buildNumber, dummy = subprocess.Popen(['hg', 'id', '-R', self.tempdir, '-n'], stdout=subprocess.PIPE).communicate()
     self.buildNumber = re.sub(r'\D', '', self.buildNumber)
     self.version += '.' + self.buildNumber
