@@ -245,6 +245,7 @@
           <th bgcolor="#66DDEE" colspan="2">Hits</th>
           <th bgcolor="#2EA495">Bandwidth</th>
         </tr>
+        {%- set maxHits, maxBandwidth = app|max(attribute='hits'),app|max(attribute='bandwidth') %}
         {%- set totalHits = app|sum(attribute='hits') %}
         {%- set totalBandwidth = app|sum(attribute='bandwidth') %}
         {%- for info in app[0:10] %}
@@ -253,6 +254,10 @@
           <td align="right">{{info.hits}}</td>
           <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
           <td align="right">{{info.bandwidth|bytes}}</td>
+          <td class="chart">
+            <img src="/awstatsicons/other/hh.png" width="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
+            <img src="/awstatsicons/other/hk.png" width="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+          </td>
         </tr>
         {%- endfor %}
         {%- if app|length > 10 %}
@@ -266,6 +271,7 @@
           <td align="right">{{app[10:]|sum(attribute='hits')}}</td>
           <td>&nbsp;</td>
           <td align="right">{{app[10:]|sum(attribute='bandwidth')|bytes}}</td>
+          <td>&nbsp;</td>
         </tr>
         <tbody id="otherapps" style="display: none;">
           {%- for info in app[10:] %}
@@ -274,6 +280,10 @@
             <td align="right">{{info.hits}}</td>
             <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
             <td align="right">{{info.bandwidth|bytes}}</td>
+          <td class="chart">
+            <img src="/awstatsicons/other/hh.png" width="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
+            <img src="/awstatsicons/other/hk.png" width="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+          </td>
           </tr>
           {%- endfor %}
         </tbody>
