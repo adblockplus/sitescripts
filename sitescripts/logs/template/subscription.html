@@ -257,18 +257,15 @@
         {%- endfor %}
         {%- if app|length > 10 %}
         <tr class="special" id="showotherapps">
-          <td>&nbsp;</td>
           <td>
             Other
             <a href="#" style="font-size: 80%;" onclick="getElementById('showotherapps').style.display='none';getElementById('otherapps').style.display='';return false;">
               Show all
             </a>
           </td>
-          <td>&nbsp;</td>
           <td align="right">{{app[10:]|sum(attribute='hits')}}</td>
           <td>&nbsp;</td>
           <td align="right">{{app[10:]|sum(attribute='bandwidth')|bytes}}</td>
-          <td>&nbsp;</td>
         </tr>
         <tbody id="otherapps" style="display: none;">
           {%- for info in app[10:] %}
