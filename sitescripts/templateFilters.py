@@ -1,13 +1,13 @@
 # coding: utf-8
 
-import re, email.header, urllib
-from time import gmtime, strftime
+import re, email.header, urllib, time
+from datetime import date
 from jinja2.utils import Markup
 from urlparse import urlparse
 
 def formattime(value):
   try:
-    return strftime('%Y-%m-%d %H:%M GMT', gmtime(int(value)))
+    return time.strftime('%Y-%m-%d %H:%M GMT', time.gmtime(int(value)))
   except Exception, e:
     return 'unknown'
 
@@ -124,6 +124,41 @@ def ltruncate(value, length=255, end='...'):
     return value
   return end + value[len(value) - length:len(value)]
 
+def formatmonthname(value):
+  return date(int(value[0:4]), int(value[4:]), 1).strftime('%b %Y')
+
+def formatweekday(value):
+  return time.strftime('%a', (0, 0, 0, 0, 0, 0, value, 0, 0))
+
+def formatbytes(value):
+  if value == 0:
+    return '0'
+
+  value = float(value)
+  unit = 'Bytes'
+  if value > 1024:
+    value /= 1024
+    unit = 'KB'
+  if value > 1024:
+    value /= 1024
+    unit = 'MB'
+  if value > 1024:
+    value /= 1024
+    unit = 'GB'
+  return '%.2f %s' % (value, unit)
+
+def getsum(iterable, attribute=None):
+  if attribute == None:
+    return sum(iterable)
+  else:
+    return sum(item[attribute] for item in iterable)
+
+def getmax(iterable, attribute=None):
+  if attribute == None:
+    return max(iterable)
+  else:
+    return max(iterable, key=lambda item: item[attribute])[attribute]
+
 filters = {
   'formattime': formattime,
   'timerelative': formatrelativetime,
@@ -137,4 +172,9 @@ filters = {
   'ljust': ljust,
   'rjust': rjust,
   'ltruncate': ltruncate,
+  'weekday': formatweekday,
+  'monthname': formatmonthname,
+  'bytes': formatbytes,
+  'sum': getsum,
+  'max': getmax,
 }

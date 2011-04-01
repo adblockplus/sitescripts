@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Statistics for filter subscription {{fileName}} ({{month|monthname}})</title>
+    <style type="text/css">
+    <!--
+    body { font: 11px verdana, arial, helvetica, sans-serif; background-color: #FFFFFF; margin-top: 0; margin-bottom: 0; }
+    .block { border: 2px solid #CCCCDD; margin-bottom: 10px; }
+    .block_title  { width: 70%; font: 13px verdana, arial, helvetica, sans-serif; font-weight: bold; background-color: #CCCCDD; text-align: center; padding: 1px; color: #000000; }
+    td, th {
+    	vertical-align: center;
+    	padding: 4px;
+            border-width: 0px;
+    	font: 11px verdana, arial, helvetica, sans-serif;
+    	color: #000000;
+    }
+    td.title {
+    	font-size: 13px;
+    	font-weight: bold;
+    }
+    td.chart {
+      line-height: 1px;
+    }
+    .special { background-color: #EAEAEA; }
+    a { font: 11px verdana, arial, helvetica, sans-serif; }
+    a:link    { color: #0011BB; text-decoration: none; }
+    a:visited { color: #0011BB; text-decoration: none; }
+    a:hover   { color: #605040; text-decoration: underline; }
+    //-->
+    </style>
+  </head>
+
+  <body style="margin-top: 0px">
+    <a name="top">&nbsp;</a>
+    <table class="block" width="100%">
+      <tr>
+        <td class="title" width="250">Statistics for subscription:</td>
+        <td>easylist-downloads.adblockplus.org/{{fileName}}</td>
+      </tr>
+      <tr>
+        <td class="title" width="250">Last update:</td>
+        <td>{{now|formattime}}</td>
+      </tr>
+      <tr>
+        <td class="title" width="250">Reported period:</td>
+        <td>Month {{month|monthname}} (<a href="{{overviewURL}}">To overview page</a>)</td>
+      </tr>
+    </table>
+
+    <div class="block_title">Days of month</div>
+    <div class="block">
+      <table align="center" style="margin-bottom: 20px;">
+        <tr align="bottom">
+          {%- set maxHits, maxBandwidth = day|max(attribute='hits'), day|max(attribute='bandwidth') %}
+          {%- set totalHits = day|sum(attribute='hits') %}
+          {%- set totalBandwidth = day|sum(attribute='bandwidth') %}
+          {%- set dayCount = day|length %}
+          {%- if currentMonth and dayCount > 1 %}
+            {%- set totalHits = totalHits - day[-1].hits %}
+            {%- set totalBandwidth = totalBandwidth - day[-1].bandwidth %}
+            {%- set dayCount = dayCount - 1 %}
+          {%- endif %}
+          {%- for info in day %}
+          <td align="center" style="vertical-align: bottom;">
+            <img src="/awstatsicons/other/vh.png" alt="Hits: {{info.hits}}" title="Hits: {{info.hits}}" width="6" height="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" />
+            {{- '' -}}
+            <img src="/awstatsicons/other/vk.png" alt="Bandwidth: {{info.bandwidth|bytes}}" title="Bandwidth: {{info.bandwidth|bytes}}" width="6" height="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" />
+          </td>
+          {%- if loop.last and info.id|int < daysInMonth %}
+            {%- for dummyDay in range(info.id|int + 1, daysInMonth + 1) %}
+              <td align="center" style="vertical-align: bottom;">
+                <img src="/awstatsicons/other/vh.png" alt="Hits: 0" title="Hits: 0" width="6" height="1" />
+                {{- '' -}}
+                <img src="/awstatsicons/other/vk.png" alt="Bandwidth: 0" title="Bandwidth: 0" width="6" height="1" />
+              </td>
+            {%- endfor %}
+          {%- endif %}
+          {%- endfor %}
+          {%- set avgHits = (totalHits / dayCount)|int %}
+          {%- set avgBandwidth = (totalBandwidth / dayCount)|int %}
+          <td align="center" style="vertical-align: bottom;">
+            <img src="/awstatsicons/other/vh.png" alt="Hits: {{avgHits}}" title="Hits: {{avgHits}}" width="6" height="{{(avgHits / maxHits * 100)|round(method='ceil')|int}}" />
+            {{- '' -}}
+            <img src="/awstatsicons/other/vk.png" alt="Bandwidth: {{avgBandwidth|bytes}}" title="Bandwidth: {{avgBandwidth|bytes}}" width="6" height="{{(avgBandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" />
+          </td>
+        </tr>
+        <tr>
+          {%- for info in day %}
+          <td align="center"{% if info.weekday > 4 %} class="special"{% endif %}>
+            {{info.id}}<br />
+            {{month|monthname[0:3]}}
+          </td>
+          {%- if loop.last and info.id|int < daysInMonth %}
+            {%- for dummyDay in range(info.id|int + 1, daysInMonth + 1) %}
+              <td align="center">
+                {{dummyDay}}<br />
+                {{month|monthname[0:3]}}
+              </td>
+            {%- endfor %}
+          {%- endif %}
+          {%- endfor %}
+          <td align="center">
+            Average
+          </td>
+        </tr>
+      </table>
+
+      <table align="center">
+        <tr>
+          <th bgcolor="#ECECEC">Day</th>
+          <th bgcolor="#66DDEE" colspan="2">Hits</th>
+          <th bgcolor="#2EA495">Bandwidth</th>
+        </tr>
+        {%- for info in day %}
+        <tr{% if info.weekday > 4 %} class="special"{% endif %}>
+          <td>{{info.id}} {{month|monthname}}</td>
+          <td align="right">{{info.hits}}</td>
+          <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
+          <td align="right">{{info.bandwidth|bytes}}</td>
+        </tr>
+        {%- endfor %}
+        <tr class="special">
+          <td style="font-weight: bold">Average</td>
+          <td align="right">{{avgHits}}</td>
+          <td align="right">&nbsp;</td>
+          <td align="right">{{avgBandwidth|bytes}}</td>
+        </tr>
+        <tr class="special">
+          <td style="font-weight: bold">Total</td>
+          <td align="right">{{totalHits}}</td>
+          <td align="right">&nbsp;</td>
+          <td align="right">{{totalBandwidth|bytes}}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="block_title">Days of week</div>
+    <div class="block">
+      <table align="center" style="margin-bottom: 20px;">
+        <tr align="bottom">
+          {%- set maxHits, maxBandwidth = weekday|max(attribute='hits'),weekday|max(attribute='bandwidth') %}
+          {%- for info in weekday %}
+          <td align="center" style="vertical-align: bottom;">
+            <img src="/awstatsicons/other/vh.png" alt="Hits: {{info.hits}}" title="Hits: {{info.hits}}" width="6" height="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" />
+            {{- '' -}}
+            <img src="/awstatsicons/other/vk.png" alt="Bandwidth: {{info.bandwidth|bytes}}"" title="Bandwidth: {{info.bandwidth|bytes}}" width="6" height="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" />
+          </td>
+          {%- endfor %}
+        </tr>
+        <tr>
+          {%- for info in weekday %}
+          <td align="center"{% if info.id > 4 %} class="special"{% endif %}>
+            {{info.id|weekday}}
+          </td>
+          {%- endfor %}
+        </tr>
+      </table>
+
+      <table align="center">
+        <tr>
+          <th bgcolor="#ECECEC">Day</th>
+          <th bgcolor="#66DDEE" colspan="2">Hits</th>
+          <th bgcolor="#2EA495">Bandwidth</th>
+        </tr>
+        {%- set totalHits = weekday|sum(attribute='hits') %}
+        {%- set totalBandwidth = weekday|sum(attribute='bandwidth') %}
+        {%- for info in weekday %}
+        <tr{% if info.id > 4 %} class="special"{% endif %}>
+          <td>{{info.id|weekday}}</td>
+          <td align="right">{{info.hits}}</td>
+          <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
+          <td align="right">{{info.bandwidth|bytes}}</td>
+        </tr>
+        {%- endfor %}
+      </table>
+    </div>
+
+    <div class="block_title">Hours</div>
+    <div class="block">
+      <table align="center" style="margin-bottom: 20px;">
+        <tr align="bottom">
+          {%- set maxHits, maxBandwidth = hour|max(attribute='hits'),hour|max(attribute='bandwidth') %}
+          {%- for info in hour %}
+          <td align="center" style="vertical-align: bottom;">
+            <img src="/awstatsicons/other/vh.png" alt="Hits: {{info.hits}}" title="Hits: {{info.hits}}" width="6" height="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" />
+            {{- '' -}}
+            <img src="/awstatsicons/other/vk.png" alt="Bandwidth: {{info.bandwidth|bytes}}" title="Bandwidth: {{info.bandwidth|bytes}}" width="6" height="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" />
+          </td>
+          {%- if loop.last and info.id|int < 23 %}
+            {%- for dummyHour in range(info.id|int + 1, 24) %}
+              <td align="center" style="vertical-align: bottom;">
+                <img src="/awstatsicons/other/vh.png" alt="Hits: 0" title="Hits: 0" width="6" height="1" />
+                {{- '' -}}
+                <img src="/awstatsicons/other/vk.png" alt="Bandwidth: 0" title="Bandwidth: 0" width="6" height="1" />
+              </td>
+            {%- endfor %}
+          {%- endif %}
+          {%- endfor %}
+        </tr>
+        <tr>
+          {%- for info in hour %}
+          <td align="center">
+            {{info.id}}<br />
+            <img src="/awstatsicons/clock/hr{{info.id|int % 12 + 1}}.png" />
+          </td>
+          {%- if loop.last and info.id|int < 23 %}
+            {%- for dummyHour in range(info.id|int + 1, 24) %}
+              <td align="center">
+                {{dummyHour}}<br />
+                <img src="/awstatsicons/clock/hr{{dummyHour % 12 + 1}}.png" />
+              </td>
+            {%- endfor %}
+          {%- endif %}
+          {%- endfor %}
+        </tr>
+      </table>
+
+      <table align="center">
+        <tr>
+          <th bgcolor="#ECECEC">Hour</th>
+          <th bgcolor="#66DDEE" colspan="2">Hits</th>
+          <th bgcolor="#2EA495">Bandwidth</th>
+        </tr>
+        {%- set totalHits = hour|sum(attribute='hits') %}
+        {%- set totalBandwidth = hour|sum(attribute='bandwidth') %}
+        {%- for info in hour %}
+        <tr>
+          <td>{{info.id}}</td>
+          <td align="right">{{info.hits}}</td>
+          <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
+          <td align="right">{{info.bandwidth|bytes}}</td>
+        </tr>
+        {%- endfor %}
+      </table>
+    </div>
+
+    {%- if app %}
+    <div class="block_title">Browsers</div>
+    <div class="block">
+      <table align="center">
+        <tr>
+          <th bgcolor="#ECECEC">Browser</th>
+          <th bgcolor="#66DDEE" colspan="2">Hits</th>
+          <th bgcolor="#2EA495">Bandwidth</th>
+        </tr>
+        {%- set totalHits = app|sum(attribute='hits') %}
+        {%- set totalBandwidth = app|sum(attribute='bandwidth') %}
+        {%- for info in app[0:10] %}
+        <tr>
+          <td>{{info.id}}</td>
+          <td align="right">{{info.hits}}</td>
+          <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
+          <td align="right">{{info.bandwidth|bytes}}</td>
+        </tr>
+        {%- endfor %}
+        {%- if app|length > 10 %}
+        <tr class="special" id="showotherapps">
+          <td>&nbsp;</td>
+          <td>
+            Other
+            <a href="#" style="font-size: 80%;" onclick="getElementById('showotherapps').style.display='none';getElementById('otherapps').style.display='';return false;">
+              Show all
+            </a>
+          </td>
+          <td>&nbsp;</td>
+          <td align="right">{{app[10:]|sum(attribute='hits')}}</td>
+          <td>&nbsp;</td>
+          <td align="right">{{app[10:]|sum(attribute='bandwidth')|bytes}}</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tbody id="otherapps" style="display: none;">
+          {%- for info in app[10:] %}
+          <tr>
+            <td>{{info.id}}</td>
+            <td align="right">{{info.hits}}</td>
+            <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
+            <td align="right">{{info.bandwidth|bytes}}</td>
+          </tr>
+          {%- endfor %}
+        </tbody>
+        {%- endif %}
+      </table>
+    </div>
+    {%- endif %}
+
+    <div class="block_title">Countries</div>
+    <div class="block">
+      <table align="center">
+        <tr>
+          <th bgcolor="#ECECEC" colspan="3">Country</th>
+          <th bgcolor="#66DDEE" colspan="2">Hits</th>
+          <th bgcolor="#2EA495">Bandwidth</th>
+          <th>&nbsp;</th>
+        </tr>
+        {%- set maxHits, maxBandwidth = country|max(attribute='hits'),country|max(attribute='bandwidth') %}
+        {%- set totalHits = country|sum(attribute='hits') %}
+        {%- set totalBandwidth = country|sum(attribute='bandwidth') %}
+        {%- for info in country[0:10] %}
+        <tr>
+          <td><img src="/awstatsicons/flags/{{info.image}}.png" alt="{{info.image}}" width="14" height="14" /></td>
+          <td>{{info.name}}</td>
+          <td>{{info.id}}</td>
+          <td align="right">{{info.hits}}</td>
+          <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
+          <td align="right">{{info.bandwidth|bytes}}</td>
+          <td class="chart">
+            <img src="/awstatsicons/other/hh.png" width="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
+            <img src="/awstatsicons/other/hk.png" width="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+          </td>
+        </tr>
+        {%- endfor %}
+        {%- if country|length > 10 %}
+        <tr class="special" id="showothercountries">
+          <td>&nbsp;</td>
+          <td>
+            Other
+            <a href="#" style="font-size: 80%;" onclick="getElementById('showothercountries').style.display='none';getElementById('othercountries').style.display='';return false;">
+              Show all
+            </a>
+          </td>
+          <td>&nbsp;</td>
+          <td align="right">{{country[10:]|sum(attribute='hits')}}</td>
+          <td>&nbsp;</td>
+          <td align="right">{{country[10:]|sum(attribute='bandwidth')|bytes}}</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tbody id="othercountries" style="display: none;">
+          {%- for info in country[10:] %}
+          <tr>
+            <td><img src="/awstatsicons/flags/{{info.image}}.png" alt="{{info.image}}" width="14" height="14" /></td>
+            <td>{{info.name}}</td>
+            <td>{{info.id}}</td>
+            <td align="right">{{info.hits}}</td>
+            <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
+            <td align="right">{{info.bandwidth|bytes}}</td>
+            <td class="chart">
+              <img src="/awstatsicons/other/hh.png" width="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
+              <img src="/awstatsicons/other/hk.png" width="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+            </td>
+          </tr>
+          {%- endfor %}
+        </tbody>
+        {%- endif %}
+      </table>
+    </div>
+
+    <div class="block_title">Download mirrors</div>
+    <div class="block">
+      <table align="center">
+        <tr>
+          <th bgcolor="#ECECEC">Mirror</th>
+          <th bgcolor="#66DDEE" colspan="2">Hits</th>
+          <th bgcolor="#2EA495">Bandwidth</th>
+          <th>&nbsp;</th>
+        </tr>
+        {%- set maxHits, maxBandwidth = mirror|max(attribute='hits'),mirror|max(attribute='bandwidth') %}
+        {%- set totalHits = mirror|sum(attribute='hits') %}
+        {%- set totalBandwidth = mirror|sum(attribute='bandwidth') %}
+        {%- for info in mirror %}
+        <tr>
+          <td>{{info.id}}</td>
+          <td align="right">{{info.hits}}</td>
+          <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
+          <td align="right">{{info.bandwidth|bytes}}</td>
+          <td class="chart">
+            <img src="/awstatsicons/other/hh.png" width="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
+            <img src="/awstatsicons/other/hk.png" width="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+          </td>
+        </tr>
+        {%- endfor %}
+      </table>
+    </div>
+  </body>
+</html>

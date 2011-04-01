@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Statistics for filter subscriptions ({{month|monthname}})</title>
+    <style type="text/css">
+    <!--
+    body { font: 11px verdana, arial, helvetica, sans-serif; background-color: #FFFFFF; margin-top: 0; margin-bottom: 0; }
+    .block { border: 2px solid #CCCCDD; margin-bottom: 10px; }
+    .block_title  { width: 70%; font: 13px verdana, arial, helvetica, sans-serif; font-weight: bold; background-color: #CCCCDD; text-align: center; padding: 1px; color: #000000; }
+    td, th {
+    	vertical-align: center;
+    	padding: 4px;
+            border-width: 0px;
+    	font: 11px verdana, arial, helvetica, sans-serif;
+    	color: #000000;
+    }
+    td.title {
+    	font-size: 13px;
+    	font-weight: bold;
+    }
+    td.chart {
+      line-height: 1px;
+    }
+    .special { background-color: #EAEAEA; }
+    a { font: 11px verdana, arial, helvetica, sans-serif; }
+    a:link    { color: #0011BB; text-decoration: none; }
+    a:visited { color: #0011BB; text-decoration: none; }
+    a:hover   { color: #605040; text-decoration: underline; }
+    //-->
+    </style>
+  </head>
+
+  <body style="margin-top: 0px">
+    <a name="top">&nbsp;</a>
+    <table class="block" width="100%">
+      <tr>
+        <td class="title" width="250">Subscription statistics for:</td>
+
+        <td>easylist-downloads.adblockplus.org</td>
+      </tr>
+      <tr>
+        <td class="title" width="250">Last update:</td>
+        <td>{{now|formattime}}</td>
+      </tr>
+      <tr>
+        <td class="title" width="250">Reported period:</td>
+        <td>Month {{month|monthname}}</td>
+      </tr>
+    </table>
+    <div class="block_title">Subscriptions</div>
+    <div class="block">
+      <table align="center">
+      <tr>
+        <th bgcolor="#ECECEC">Subscription</th>
+        <th bgcolor="#66DDEE">Hits</th>
+        <th bgcolor="#2EA495">Bandwidth</th>
+        <th>&nbsp;</th>
+      </tr>
+      {%- set maxHits = subscriptions|max(attribute='hits') %}
+      {%- set maxBandwidth = subscriptions|max(attribute='bandwidth') %}
+      {%- for subscription in subscriptions %}
+      <tr>
+        <td><a href="{{subscription.url}}">{{subscription.fileName}}</a></td>
+        <td align="right">{{subscription.hits}}</td>
+        <td align="right">{{subscription.bandwidth|bytes}}</td>
+        <td class="chart">
+          <img src="/awstatsicons/other/hh.png" width="{{(subscription.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
+          <img src="/awstatsicons/other/hk.png" width="{{(subscription.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+        </td>
+      </tr>
+      {%- endfor %}
+      </table>
+    </div>
+  </body>
+</html>
