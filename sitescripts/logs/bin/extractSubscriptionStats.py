@@ -41,7 +41,7 @@ def parseUA(ua):
   return 'Other'
 
 def parseStdIn(geo):
-  result = SafeConfigParser()
+  data = {}
   for line in sys.stdin:
     match = re.search(r'(\S+) \S+ \S+ \[([^]\s]+) ([+\-]\d\d)(\d\d)\] "GET (?:\w+://[^/]+)?/([\w\-\+\.]+\.(?:txt|tpl)) [^"]+" (\d+) (\d+) "[^"]*" "([^"]*)"', line)
     if not match:
@@ -64,17 +64,14 @@ def parseStdIn(geo):
     ua = parseUA(ua)
 
     section = time.strftime('%Y%m')
-    if not result.has_section(section):
-      result.add_section(section)
-
-    def getResultInt(key, default = 0):
-      try:
-        return result.getint(section, key)
-      except NoOptionError:
-        return default
+    if not section in data:
+      data[section] = {}
 
     def addResultInt(key, value):
-      result.set(section, key, str(getResultInt(key) + value))
+      if key in data[section]:
+        data[section][key] += value
+      else:
+        data[section][key] = value
 
     addResultInt('%s hits' % file, 1)
     addResultInt('%s bandwidth' % file, size)
@@ -86,6 +83,12 @@ def parseStdIn(geo):
     addResultInt('%s bandwidth country %s' % (file, country), size)
     addResultInt('%s hits app %s' % (file, ua), 1)
     addResultInt('%s bandwidth app %s' % (file, ua), size)
+
+  result = SafeConfigParser()
+  for section in data.iterkeys():
+    result.add_section(section)
+    for key, value in data[section].iteritems():
+      result.set(section, key, str(value))
   return result
 
 if __name__ == '__main__':
