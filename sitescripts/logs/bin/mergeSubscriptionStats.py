@@ -9,7 +9,7 @@ def readStatsFile(path):
   result = SafeConfigParser()
   match = re.search(r'^ssh://(\w+)@([^/:]+)(?::(\d+))?', path)
   if match:
-    command = ['ssh', '-q', '-o' 'NumberOfPasswordPrompts 0', '-k', '-l', match.group(1), match.group(2)]
+    command = ['ssh', '-q', '-o' 'NumberOfPasswordPrompts 0', '-T', '-k', '-l', match.group(1), match.group(2)]
     if match.group(3):
       command[1:1] = ['-P', match.group(3)]
     (data, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
