@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import os, sys, codecs, subprocess, jinja2, sitescripts
+import os, sys, codecs, subprocess, sitescripts
 from time import time
 from tempfile import mkstemp
 from ConfigParser import SafeConfigParser
@@ -104,6 +104,7 @@ def get_template_environment():
     Returns a Jinja2 template environment with autoescaping enabled.
   """
   from sitescripts.templateFilters import filters
+  import jinja2
   env = jinja2.Environment(loader=jinja2.FileSystemLoader(siteScriptsPath), autoescape=True, extensions=['jinja2.ext.autoescape'])
   env.filters.update(filters)
   return env
@@ -115,6 +116,7 @@ def get_unescaped_template_environment():
     generate HTML files!
   """
   from sitescripts.templateFilters import filters
+  import jinja2
   env = jinja2.Environment(loader=jinja2.FileSystemLoader(siteScriptsPath))
   env.filters.update(filters)
   return env
