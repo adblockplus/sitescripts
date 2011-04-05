@@ -41,9 +41,19 @@ def parseUA(ua):
   return 'Other'
 
 def parseStdIn(geo):
+  if get_config().has_option('logs', 'subscriptionsSubdir'):
+    subdir = get_config().get('logs', 'subscriptionsSubdir')
+    subdir = re.sub(r'^/+', '', subdir)
+    subdir = re.sub(r'/+$', '', subdir)
+    subdir = re.sub(r'(?=\W)', r'\\', subdir)
+    subdir = subdir + '/'
+  else:
+    subdir = ''
+  regexp = re.compile(r'(\S+) \S+ \S+ \[([^]\s]+) ([+\-]\d\d)(\d\d)\] "GET (?:\w+://[^/]+)?/%s([\w\-\+\.]+\.(?:txt|tpl)) [^"]+" (\d+) (\d+) "[^"]*" "([^"]*)"' % subdir)
+
   data = {}
   for line in sys.stdin:
-    match = re.search(r'(\S+) \S+ \S+ \[([^]\s]+) ([+\-]\d\d)(\d\d)\] "GET (?:\w+://[^/]+)?/([\w\-\+\.]+\.(?:txt|tpl)) [^"]+" (\d+) (\d+) "[^"]*" "([^"]*)"', line)
+    match = re.search(regexp, line)
     if not match:
       continue
 

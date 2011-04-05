@@ -83,3 +83,10 @@ dbuser=user
 dbpassword=password
 dbtable=tasks
 mainPageTemplate=tasks/template/mainPage.html
+
+[logs]
+geoip_db=%(root)s/data/GeoIP.dat
+#subscriptionsSubdir=easylist
+
+[subscriptionStats]
+tempFile=%(root)s/tmp/subscriptionStats.ini
