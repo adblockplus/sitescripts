@@ -1,0 +1,73 @@
+/*
+ * These hour images were originally part of AWStats and are distributed under
+ * the GNU General Public License: http://www.gnu.org/copyleft/gpl.html
+ */
+
+.hour
+{
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-image: url(hours.png);
+  background-position: 0px 0px;
+}
+
+.hour.hour1
+{
+  background-position: 0px 0px;
+}
+
+.hour.hour2
+{
+  background-position: 0px -14px;
+}
+
+.hour.hour3
+{
+  background-position: 0px -28px;
+}
+
+.hour.hour4
+{
+  background-position: 0px -42px;
+}
+
+.hour.hour5
+{
+  background-position: 0px -56px;
+}
+
+.hour.hour6
+{
+  background-position: 0px -70px;
+}
+
+.hour.hour7
+{
+  background-position: 0px -84px;
+}
+
+.hour.hour8
+{
+  background-position: 0px -98px;
+}
+
+.hour.hour9
+{
+  background-position: 0px -112px;
+}
+
+.hour.hour10
+{
+  background-position: 0px -126px;
+}
+
+.hour.hour11
+{
+  background-position: 0px -140px;
+}
+
+.hour.hour12
+{
+  background-position: 0px -154px;
+}

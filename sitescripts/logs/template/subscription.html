@@ -3,33 +3,10 @@
   <head>
     <meta name="robots" content="noindex,nofollow" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="static/subscriptions.css" />
+    <link rel="stylesheet" type="text/css" href="static/flags.css" />
+    <link rel="stylesheet" type="text/css" href="static/hours.css" />
     <title>Statistics for filter subscription {{fileName}} ({{month|monthname}})</title>
-    <style type="text/css">
-    <!--
-    body { font: 11px verdana, arial, helvetica, sans-serif; background-color: #FFFFFF; margin-top: 0; margin-bottom: 0; }
-    .block { border: 2px solid #CCCCDD; margin-bottom: 10px; }
-    .block_title  { width: 70%; font: 13px verdana, arial, helvetica, sans-serif; font-weight: bold; background-color: #CCCCDD; text-align: center; padding: 1px; color: #000000; }
-    td, th {
-    	vertical-align: center;
-    	padding: 4px;
-            border-width: 0px;
-    	font: 11px verdana, arial, helvetica, sans-serif;
-    	color: #000000;
-    }
-    td.title {
-    	font-size: 13px;
-    	font-weight: bold;
-    }
-    td.chart {
-      line-height: 1px;
-    }
-    .special { background-color: #EAEAEA; }
-    a { font: 11px verdana, arial, helvetica, sans-serif; }
-    a:link    { color: #0011BB; text-decoration: none; }
-    a:visited { color: #0011BB; text-decoration: none; }
-    a:hover   { color: #605040; text-decoration: underline; }
-    //-->
-    </style>
   </head>
 
   <body style="margin-top: 0px">
@@ -64,16 +41,16 @@
           {%- endif %}
           {%- for info in day %}
           <td align="center" style="vertical-align: bottom;">
-            <img src="/awstatsicons/other/vh.png" alt="Hits: {{info.hits}}" title="Hits: {{info.hits}}" width="6" height="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" />
+            <div class="hitsChart vertical" title="Hits: {{info.hits}}" style="height: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px;"></div>
             {{- '' -}}
-            <img src="/awstatsicons/other/vk.png" alt="Bandwidth: {{info.bandwidth|bytes}}" title="Bandwidth: {{info.bandwidth|bytes}}" width="6" height="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" />
+            <div class="bandwidthChart vertical" title="Bandwidth: {{info.bandwidth|bytes}}" style="height: {{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}px;"></div>
           </td>
           {%- if loop.last and info.id|int < daysInMonth %}
             {%- for dummyDay in range(info.id|int + 1, daysInMonth + 1) %}
               <td align="center" style="vertical-align: bottom;">
-                <img src="/awstatsicons/other/vh.png" alt="Hits: 0" title="Hits: 0" width="6" height="1" />
+                <div class="hitsChart vertical" title="Hits: 0" style="height: 1px;"></div>
                 {{- '' -}}
-                <img src="/awstatsicons/other/vk.png" alt="Bandwidth: 0" title="Bandwidth: 0" width="6" height="1" />
+                <div class="bandwidthChart vertical" title="Bandwidth: 1" style="height: 1px;"></div>
               </td>
             {%- endfor %}
           {%- endif %}
@@ -81,9 +58,9 @@
           {%- set avgHits = (totalHits / dayCount)|int %}
           {%- set avgBandwidth = (totalBandwidth / dayCount)|int %}
           <td align="center" style="vertical-align: bottom;">
-            <img src="/awstatsicons/other/vh.png" alt="Hits: {{avgHits}}" title="Hits: {{avgHits}}" width="6" height="{{(avgHits / maxHits * 100)|round(method='ceil')|int}}" />
+            <div class="hitsChart vertical" title="Hits: {{avgHits}}" style="height: {{(avgHits / maxHits * 100)|round(method='ceil')|int}}px;"></div>
             {{- '' -}}
-            <img src="/awstatsicons/other/vk.png" alt="Bandwidth: {{avgBandwidth|bytes}}" title="Bandwidth: {{avgBandwidth|bytes}}" width="6" height="{{(avgBandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" />
+            <div class="bandwidthChart vertical" title="Bandwidth: {{avgBandwidth|bytes}}" style="height: {{(avgBandwidth / maxBandwidth * 100)|round(method='ceil')|int}}px;"></div>
           </td>
         </tr>
         <tr>
@@ -143,9 +120,9 @@
           {%- set maxHits, maxBandwidth = weekday|max(attribute='hits'),weekday|max(attribute='bandwidth') %}
           {%- for info in weekday %}
           <td align="center" style="vertical-align: bottom;">
-            <img src="/awstatsicons/other/vh.png" alt="Hits: {{info.hits}}" title="Hits: {{info.hits}}" width="6" height="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" />
+            <div class="hitsChart vertical" title="Hits: {{info.hits}}" style="height: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px"></div>
             {{- '' -}}
-            <img src="/awstatsicons/other/vk.png" alt="Bandwidth: {{info.bandwidth|bytes}}"" title="Bandwidth: {{info.bandwidth|bytes}}" width="6" height="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" />
+            <div class="bandwidthChart vertical" alt="Bandwidth: {{info.bandwidth|bytes}}"" title="Bandwidth: {{info.bandwidth|bytes}}" style="height: {{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}px"></div>
           </td>
           {%- endfor %}
         </tr>
@@ -184,16 +161,16 @@
           {%- set maxHits, maxBandwidth = hour|max(attribute='hits'),hour|max(attribute='bandwidth') %}
           {%- for info in hour %}
           <td align="center" style="vertical-align: bottom;">
-            <img src="/awstatsicons/other/vh.png" alt="Hits: {{info.hits}}" title="Hits: {{info.hits}}" width="6" height="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" />
+            <div class="hitsChart vertical" title="Hits: {{info.hits}}" style="height: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px;"></div>
             {{- '' -}}
-            <img src="/awstatsicons/other/vk.png" alt="Bandwidth: {{info.bandwidth|bytes}}" title="Bandwidth: {{info.bandwidth|bytes}}" width="6" height="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" />
+            <div class="bandwidthChart vertical" title="Bandwidth: {{info.bandwidth|bytes}}" style="height: {{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}px;"></div>
           </td>
           {%- if loop.last and info.id|int < 23 %}
             {%- for dummyHour in range(info.id|int + 1, 24) %}
               <td align="center" style="vertical-align: bottom;">
-                <img src="/awstatsicons/other/vh.png" alt="Hits: 0" title="Hits: 0" width="6" height="1" />
+                <div class="hitsChart vertical" title="Hits: 0" style="height: 1px;"></div>
                 {{- '' -}}
-                <img src="/awstatsicons/other/vk.png" alt="Bandwidth: 0" title="Bandwidth: 0" width="6" height="1" />
+                <div class="bandwidthChart vertical" title="Bandwidth: 0" style="height: 1px;"></div>
               </td>
             {%- endfor %}
           {%- endif %}
@@ -203,13 +180,13 @@
           {%- for info in hour %}
           <td align="center">
             {{info.id}}<br />
-            <img src="/awstatsicons/clock/hr{{info.id|int % 12 + 1}}.png" />
+            <div class="hour hour{{info.id|int % 12 + 1}}" ></div>
           </td>
           {%- if loop.last and info.id|int < 23 %}
             {%- for dummyHour in range(info.id|int + 1, 24) %}
               <td align="center">
                 {{dummyHour}}<br />
-                <img src="/awstatsicons/clock/hr{{dummyHour % 12 + 1}}.png" />
+                <div class="hour hour{{dummyHour % 12 + 1}}" ></div>
               </td>
             {%- endfor %}
           {%- endif %}
@@ -255,8 +232,8 @@
           <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
           <td align="right">{{info.bandwidth|bytes}}</td>
           <td class="chart">
-            <img src="/awstatsicons/other/hh.png" width="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
-            <img src="/awstatsicons/other/hk.png" width="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+            <div class="hitsChart horizontal" style="width: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px;"></div><br />
+            <div class="bandwidthChart horizontal" style="width: {{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}px;"></div>
           </td>
         </tr>
         {%- endfor %}
@@ -281,8 +258,8 @@
             <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
             <td align="right">{{info.bandwidth|bytes}}</td>
           <td class="chart">
-            <img src="/awstatsicons/other/hh.png" width="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
-            <img src="/awstatsicons/other/hk.png" width="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+            <div class="hitsChart horizontal" style="width: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px;"></div><br />
+            <div class="bandwidthChart horizontal" style="width: {{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}px;"></div>
           </td>
           </tr>
           {%- endfor %}
@@ -306,15 +283,15 @@
         {%- set totalBandwidth = country|sum(attribute='bandwidth') %}
         {%- for info in country[0:10] %}
         <tr>
-          <td><img src="/awstatsicons/flags/{{info.image}}.png" alt="{{info.image}}" width="14" height="14" /></td>
+          <td><div class="flag {{info.image}}"></div></td>
           <td>{{info.name}}</td>
           <td>{{info.id}}</td>
           <td align="right">{{info.hits}}</td>
           <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
           <td align="right">{{info.bandwidth|bytes}}</td>
           <td class="chart">
-            <img src="/awstatsicons/other/hh.png" width="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
-            <img src="/awstatsicons/other/hk.png" width="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+            <div class="hitsChart horizontal" style="width: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px;"></div><br />
+            <div class="bandwidthChart horizontal" style="width: {{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}px;"></div>
           </td>
         </tr>
         {%- endfor %}
@@ -336,15 +313,15 @@
         <tbody id="othercountries" style="display: none;">
           {%- for info in country[10:] %}
           <tr>
-            <td><img src="/awstatsicons/flags/{{info.image}}.png" alt="{{info.image}}" width="14" height="14" /></td>
+            <td><div class="flag {{info.image}}"></div></td>
             <td>{{info.name}}</td>
             <td>{{info.id}}</td>
             <td align="right">{{info.hits}}</td>
             <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
             <td align="right">{{info.bandwidth|bytes}}</td>
             <td class="chart">
-              <img src="/awstatsicons/other/hh.png" width="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
-              <img src="/awstatsicons/other/hk.png" width="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+              <div class="hitsChart horizontal" style="width: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px;"></div><br />
+              <div class="bandwidthChart horizontal" style="width: {{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}px;"></div>
             </td>
           </tr>
           {%- endfor %}
@@ -372,8 +349,8 @@
           <td align="right">{{(info.hits / totalHits * 100)|round(precision=1)}}%</td>
           <td align="right">{{info.bandwidth|bytes}}</td>
           <td class="chart">
-            <img src="/awstatsicons/other/hh.png" width="{{(info.hits / maxHits * 100)|round(method='ceil')|int}}" height="5" alt="" /><br />
-            <img src="/awstatsicons/other/hk.png" width="{{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}" height="5" alt="" />
+            <div class="hitsChart horizontal" style="width: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px;"></div><br />
+            <div class="bandwidthChart horizontal" style="width: {{(info.bandwidth / maxBandwidth * 100)|round(method='ceil')|int}}px;"></div>
           </td>
         </tr>
         {%- endfor %}
