@@ -46,13 +46,17 @@ def get_config():
 
   paths = []
 
+  # Allow SITESCRIPTS_CONFIG variable to override config path
+  if 'SITESCRIPTS_CONFIG' in os.environ:
+    paths.append(os.environ['SITESCRIPTS_CONFIG'])
+
   # For debugging - accept configuration in user's profile
   paths.append(os.path.expanduser('~/.sitescripts'))
   paths.append(os.path.expanduser('~/sitescripts.ini'))
 
   # Server-wide configuration if no custom found
-  paths.append(os.path.expanduser('/etc/sitescripts'))
-  paths.append(os.path.expanduser('/etc/sitescripts.ini'))
+  paths.append('/etc/sitescripts')
+  paths.append('/etc/sitescripts.ini')
 
   for path in paths:
     path = os.path.abspath(path)
