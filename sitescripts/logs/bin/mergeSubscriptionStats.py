@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import os, re, subprocess
+import os, re, subprocess, urllib
 from sitescripts.utils import get_config, setupStderr
 from ConfigParser import SafeConfigParser, NoOptionError
 from StringIO import StringIO
@@ -14,6 +14,8 @@ def readStatsFile(path):
       command[1:1] = ['-P', match.group(3)]
     (data, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
     result.readfp(StringIO(data))
+  elif path.startswith('http://') or path.startswith('https://'):
+    result.readfp(urllib.urlopen(path))
   elif os.path.exists(path):
     result.read(path)
   return result
