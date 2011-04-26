@@ -36,8 +36,6 @@ dataPath=%(root)s/logs
 fileName=log.%%i.gz
 
 [extensions]
-babelzilla_user=user
-babelzilla_password=password
 abp_repository=%(root)s/hg/adblockplus
 abp_name=Adblock Plus
 abp_galleryID=adblock-plus
@@ -70,8 +68,8 @@ downloadLinksFile=%(root)s/tmp/downloadLinks.ini
 geckoUpdateManifestPath=%(root)s/www/update.rdf
 docsDirectory=%(root)s/www/jsdoc
 errorTemplate=extensions/template/error.html
-languagesTemplate=extensions/template/languages.html
 languageCheckTemplate=extensions/template/languageCheckResult.html
+languageFormTemplate=extensions/template/languageForm.html
 changelogTemplate=extensions/template/changelog.html
 geckoUpdateManifest=extensions/template/update.rdf
 chromeUpdateManifest=extensions/template/updates.xml

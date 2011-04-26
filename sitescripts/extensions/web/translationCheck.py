@@ -7,99 +7,34 @@ from sitescripts.utils import get_config, get_template, setupStderr, cached
 from sitescripts.web import url_handler
 from urlparse import parse_qs
 
-class BabelzillaConnection:
-  def __init__(self, user, password):
-    cj = cookielib.CookieJar()
-    self.url_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-    try:
-      self.openurl('http://www.babelzilla.org/index.php', \
-                   {'username': user, 'passwd': password, 'option': 'ipblogin', 'task':'login'})
-      if not any(cookie.name == 'bbmember_id' for cookie in cj):
-        raise Exception('Server didn\'t log us in')
-    except Exception, e:
-      raise Exception('Babelzilla login failed. %s' % str(e))
-
-  def statusLine(code):
-    msg = BaseHTTPRequestHandler.responses.get(code, ['unknown', 'unknown'])
-    return 'Code %i (%s, %s)' % (code, msg[0], msg[1])
-
-  def openurl(self, url, params = {}):
-    data = urllib.urlencode(params)
-    try:
-      return self.url_opener.open(url, data, timeout = 30)
-    except urllib2.HTTPError, e:
-      raise Exception('HTTP Error, Babelzilla server responded with ' + self.statusLine(e.code))
-    except urllib2.URLError, e:
-      raise Exception('Could not connect to Babelzilla server, reason: %s' % e.reason)
-
 @url_handler('/babelzilla.php')
 def handleRequest(environ, start_response):
   setupStderr(environ['wsgi.errors'])
 
   try:
-    connection = get_connection()
-    languages = loadLanguageList(connection, get_config().get('extensions', 'abp_babelzilla_extension'))
-
     params = parse_qs(environ.get('QUERY_STRING', ''))
-    langParam = params.get('language', [''])[0]
-    if langParam:
-      candidates = filter(lambda language: language['id'] == langParam or language['code'] == langParam, languages)
-      if not candidates:
-        raise Exception('Unknown language')
+    locale = params.get('language', [''])[0]
+    if locale:
+      if re.search(r'[^\w\-]', locale):
+        raise Exception('Invalid locale name, use something like "pt-BR" or "fr"')
 
-      language = candidates[0]
-      data = downloadLanguage(connection, language, get_config().get('extensions', 'abp_babelzilla_extension'))
-      checkResult = checkLanguage(language, data, get_config().get('extensions', 'abp_repository'), get_config().get('extensions', 'buildRepository'))
-      return showCheckResult(language, checkResult, start_response)
+      data = downloadLanguage(locale, get_config().get('extensions', 'abp_babelzilla_extension'))
+      checkResult = checkLanguage(locale, data, get_config().get('extensions', 'abp_repository'), get_config().get('extensions', 'buildRepository'))
+      return showCheckResult(locale, checkResult, start_response)
     else:
-      return showLanguages(languages, start_response)
+      return showForm(start_response)
   except Exception, e:
     traceback.print_exc()
     return showError(e, start_response)
 
-@cached(3600)
-def get_connection():
-  return BabelzillaConnection(get_config().get('extensions', 'babelzilla_user'),
-                              get_config().get('extensions', 'babelzilla_password'))
-
-def loadLanguageList(connection, extensionID):
+def downloadLanguage(locale, extensionID):
   try:
-    response = connection.openurl('http://www.babelzilla.org/index2.php',
-                                  {'option': 'com_wts', 'extension': extensionID, 'type': 'ajax', 'task': 'loadlist'})
-  except Exception, e:
-    raise Exception('Failed to load language list. %s' % str(e))
-
-  languages = []
-  for row in re.findall(r'<tr\b[^>]*>(.*?)</tr>', response.read().decode('utf-8'), re.S | re.I):
-    cols = re.findall(r'<td\b[^>]*>(.*?)</td>', row)
-
-    match = None
-    if len(cols) >= 2:
-      match = re.search(r'<a [^>]*href="[^">]*language=(\d+)[^">]*"[^>]*>([^<>&]+)', cols[1], re.I)
-    if match:
-      id, code = match.group(1), match.group(2)
-
-      name = code
-      m = re.search(r'<a\b[^>]*>([^<>&]+)', cols[0], re.I)
-      if (m):
-        name = m.group(1)
-
-      status = 'unknown'
-      if len(cols) >= 4:
-        m = re.search(r'<b>(?:&nbsp;)*([^<>&]+)(?:&nbsp;)*</b>', cols[3], re.I)
-      if m:
-        status = m.group(1)
-      languages.append({'id': id, 'code': code, 'name': name, 'status': status})
-  return languages
-
-def downloadLanguage(connection, language, extensionID):
-  try:
-    return connection.openurl('http://www.babelzilla.org/index2.php?' +
-                              urllib.urlencode({'option': 'com_wts', 'Itemid': '88', 'type': 'localeskipped', 'extension': extensionID, 'language': language['id']}))
+    url = 'http://www.babelzilla.org/wts/download/locale/%s/skipped/%s' % (locale, extensionID)
+    return urllib2.urlopen(url, timeout=30)
   except Exception, e:
     raise Exception('Failed to download locale. %s' % str(e))
 
-def checkLanguage(language, data, repository, buildRepository):
+def checkLanguage(locale, data, repository, buildRepository):
   tempdir = tempfile.mkdtemp(prefix='adblockplus')
   try:
     command = ['hg', 'archive',  '-q', '-R', repository, '-r', 'default', tempdir]
@@ -109,7 +44,7 @@ def checkLanguage(language, data, repository, buildRepository):
       subprocess.Popen(command).communicate()
     except:
       pass
-    localeDir = os.path.join(tempdir, 'chrome', 'locale', language['code'])
+    localeDir = os.path.join(tempdir, 'chrome', 'locale', locale)
     if not os.path.exists(localeDir):
       os.mkdir(localeDir)
 
@@ -130,7 +65,7 @@ def checkLanguage(language, data, repository, buildRepository):
 
     testScript = os.path.join(tempdir, 'test_locales.pl')
     os.chmod(testScript, 0755)
-    popen = subprocess.Popen(['perl', testScript, language['code']], stdout=subprocess.PIPE)
+    popen = subprocess.Popen(['perl', testScript, locale], stdout=subprocess.PIPE)
 
     errors = []
     for line in popen.stdout:
@@ -157,16 +92,16 @@ def checkLanguage(language, data, repository, buildRepository):
   finally:
     shutil.rmtree(tempdir)
 
-def showLanguages(languages, start_response):
-  template = get_template(get_config().get('extensions', 'languagesTemplate'))
+def showForm(start_response):
+  template = get_template(get_config().get('extensions', 'languageFormTemplate'))
 
   start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
-  return [template.render({'languages': languages}).encode('utf-8')]
+  return [template.render().encode('utf-8')]
 
-def showCheckResult(language, errors, start_response):
+def showCheckResult(locale, errors, start_response):
   template = get_template(get_config().get('extensions', 'languageCheckTemplate'))
   start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
-  return [template.render({'errors': errors, 'language': language}).encode('utf-8')]
+  return [template.render({'errors': errors, 'locale': locale}).encode('utf-8')]
 
 def showError(message, start_response):
   template = get_template(get_config().get('extensions', 'errorTemplate'))
