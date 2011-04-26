@@ -1,5 +1,10 @@
 # coding: utf-8
 
+# The contents of this file are subject to the Mozilla Public License
+# Version 1.1 (the "License"); you may not use this file except in
+# compliance with the License. You may obtain a copy of the License at
+# http://www.mozilla.org/MPL/
+
 import sys, os, re, codecs
 from urlparse import parse_qsl
 from gzip import GzipFile
