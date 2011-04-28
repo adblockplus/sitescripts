@@ -183,7 +183,8 @@ def writeTPL(filePath, lines):
         # This rule has options, check whether any of them are important
         line = match.group(1)
         for option in match.group(2).lower().split(','):
-          if option == '' or option == 'third-party' or option == '~third-party' or option == '~object_subrequest':
+          if (option == '' or option == 'third-party' or option == '~third-party' or
+              option == 'match-case' or option == '~match-case' or option == '~object_subrequest'):
             # We can ignore these options
             pass
           elif option == 'script':
