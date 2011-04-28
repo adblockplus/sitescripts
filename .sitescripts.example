@@ -92,3 +92,5 @@ tempFile=%(root)s/tmp/subscriptionStats.ini
 [easylist]
 repository=%(root)s/hg/easylist
 outdir=%(root)s/data/easylist
+cvsroot=:pserver:guest@mozdev.org:/cvs
+cvsdir=adblockplus/www/easylist
