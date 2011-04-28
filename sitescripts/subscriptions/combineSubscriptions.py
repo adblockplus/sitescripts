@@ -24,7 +24,7 @@ def combineSubscriptions(sourceDir, targetDir):
   global acceptedExtensions, ignore, verbatim
 
   if not os.path.exists(targetDir):
-    os.makedirs(targetDir, 0644)
+    os.makedirs(targetDir, 0755)
 
   known = {}
   for file in os.listdir(sourceDir):
