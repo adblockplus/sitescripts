@@ -15,6 +15,7 @@ ignore = {
   'Apache.txt': True,
   'CC-BY-SA.txt': True,
   'GPL.txt': True,
+  'MPL.txt': True,
 }
 verbatim = {
   'COPYING': True,
@@ -106,7 +107,7 @@ def processSubscriptionFile(sourceDir, targetDir, file):
 
 def resolveIncludes(filePath, lines, level=0):
   if level > 5:
-    raise Exception('Too many nested includes, probably a circular reference somewhere.')
+    raise Exception('There are too many nested includes, which is probably the result of a circular reference somewhere.')
 
   result = []
   for line in lines:
@@ -185,15 +186,17 @@ def writeTPL(filePath, lines):
         line = match.group(1)
         for option in match.group(2).replace('_', '-').lower().split(','):
           if (option == '' or option == 'third-party' or option == '~third-party' or
-              option == 'match-case' or option == '~match-case' or option == '~object-subrequest'):
+              option == 'match-case' or option == '~match-case' or
+              option == '~object-subrequest' or option == '~donottrack'):
             # We can ignore these options
             pass
           elif option == 'script':
+            # Mark filters specifying a script
             requiresScript = True
           elif option.startswith('domain=~') and isException:
             # Ignore it if exceptions aren't supposed to apply on particular domains
             pass
-          elif option != 'object-subrequest' and not option.startswith('domain=') and isException:
+          elif option != 'object-subrequest' and option != 'donottrack' and not option.startswith('domain=') and isException:
             # Ignore most options for exception, better to have too generic exceptions
             pass
           else:
