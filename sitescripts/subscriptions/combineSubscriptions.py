@@ -228,7 +228,7 @@ def writeTPL(filePath, lines):
           line = re.sub(r'\s+/$', '', line)
           result.append(line)
         elif isException:
-          # Exception rules without domain are unsupported
+          # Exception rules without domains are unsupported
           result.append('# ' + origLine)
         else:
           result.append('- ' + line)
