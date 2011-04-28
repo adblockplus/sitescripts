@@ -124,7 +124,7 @@ def resolveIncludes(filePath, lines, level=0):
           charset = contentType.split('charset=', 1)[1]
         newLines = unicode(request.read(), charset).split('\n')
         newLines = map(lambda l: re.sub(r'[\r\n]', '', l), newLines)
-        newLines = filter(lambda l: not re.search(r'^\s*!.*?\bExpires\s*(?::|after)\s*(\d+)\s*(h)?', l), newLines)
+        newLines = filter(lambda l: not re.search(r'^\s*!.*?\bExpires\s*(?::|after)\s*(\d+)\s*(h)?', l, re.M | re.I), newLines)
       else:
         result.append('! *** %s ***' % file)
 
