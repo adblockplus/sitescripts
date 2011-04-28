@@ -42,10 +42,10 @@ def combineSubscriptions(sourceDir, targetDir):
         print >>sys.stderr, 'Error processing subscription file "%s"' % file
         traceback.print_exc()
         print >>sys.stderr
-      known[file + '.gz'] = True
       known[os.path.splitext(file)[0] + '.tpl'] = True
       known[os.path.splitext(file)[0] + '.tpl.gz'] = True
     known[file] = True
+    known[file + '.gz'] = True
 
   for file in os.listdir(targetDir):
     if file[0] == '.':
