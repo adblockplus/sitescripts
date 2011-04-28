@@ -19,9 +19,9 @@ if __name__ == '__main__':
   destTemp = tempfile.mkdtemp()
   try:
     subprocess.Popen(['hg', 'archive', '-q', '-R', sourceRepo, '-r', 'default', sourceTemp]).communicate()
-    subprocess.Popen(['rsync', '-a', destRepo + '/', destTemp]).communicate()
+    subprocess.Popen(['rsync', '-a', '--delete', destRepo + '/', destTemp]).communicate()
     combineSubscriptions(sourceTemp, destTemp)
-    subprocess.Popen(['rsync', '-au', destTemp + '/', destRepo]).communicate()
+    subprocess.Popen(['rsync', '-au', '--delete', destTemp + '/', destRepo]).communicate()
   finally:
     if os.path.exists(sourceTemp):
       shutil.rmtree(sourceTemp, True)
