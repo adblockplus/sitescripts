@@ -6,7 +6,7 @@
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
 
-import sys, os, re, subprocess, urllib, time, traceback, codecs, hashlib, base64
+import sys, os, re, subprocess, urllib2, time, traceback, codecs, hashlib, base64
 
 acceptedExtensions = {
   '.txt': True,
@@ -117,7 +117,7 @@ def resolveIncludes(filePath, lines, level=0):
       if re.match(r'^https?://', file):
         result.append('! *** Fetched from: %s ***' % file)
 
-        request = urllib.urlopen(file)
+        request = urllib2.urlopen(file, None, 30)
         charset = 'utf-8'
         contentType = request.headers.get('content-type', '')
         if contentType.find('charset=') >= 0:
