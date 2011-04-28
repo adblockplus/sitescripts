@@ -71,7 +71,7 @@ def conditionalWrite(filePath, data):
     handle.write(data)
     handle.close()
     try:
-      subprocess.Popen(['7za', 'a', '-tgzip', '-mx=9', '-mpass=15', filePath + '.gz', filePath]).communicate()
+      subprocess.Popen(['7za', 'a', '-tgzip', '-mx=9', '-bd', '-mpass=15', filePath + '.gz', filePath]).communicate()
     except:
       print >>sys.stderr, 'Failed to compress file %s. Please ensure that p7zip is installed on the system.' % filePath
 
