@@ -183,9 +183,9 @@ def writeTPL(filePath, lines):
       if match:
         # This rule has options, check whether any of them are important
         line = match.group(1)
-        for option in match.group(2).lower().split(','):
+        for option in match.group(2).replace('_', '-').lower().split(','):
           if (option == '' or option == 'third-party' or option == '~third-party' or
-              option == 'match-case' or option == '~match-case' or option == '~object_subrequest'):
+              option == 'match-case' or option == '~match-case' or option == '~object-subrequest'):
             # We can ignore these options
             pass
           elif option == 'script':
@@ -193,7 +193,7 @@ def writeTPL(filePath, lines):
           elif option.startswith('domain=~') and isException:
             # Ignore it if exceptions aren't supposed to apply on particular domains
             pass
-          elif option != 'object_subrequest' and not option.startswith('domain=') and isException:
+          elif option != 'object-subrequest' and not option.startswith('domain=') and isException:
             # Ignore most options for exception, better to have too generic exceptions
             pass
           else:
