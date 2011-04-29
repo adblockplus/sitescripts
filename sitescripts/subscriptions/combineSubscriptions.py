@@ -165,7 +165,7 @@ def writeTPL(filePath, lines):
           interval = int(interval / 24)
         result.append(': Expires=%i' % interval)
       else:
-        result.append(re.sub(r'^!', '#', line))
+        result.append(re.sub(r'!', '#', re.sub(r'--!$', '--#', line)))
     elif line.find('#') >= 0:
       # Element hiding rules are not supported in MSIE, drop them
       pass
