@@ -92,7 +92,7 @@ def processSubscriptionFile(sourceDir, targetDir, file):
     header = lines[0]
     del lines[0]
   if not re.search(r'\[Adblock(?:\s*Plus\s*([\d\.]+)?)?\]', header, re.I):
-    raise Exception('Not a valid Adblock Plus subscription file')
+    raise Exception('This is not a valid Adblock Plus subscription file.')
 
   lines = resolveIncludes(filePath, lines)
   lines = filter(lambda l: l != '' and not re.search(r'!\s*checksum[\s\-:]+([\w\+\/=]+)', l, re.I), lines)
