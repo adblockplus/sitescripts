@@ -185,23 +185,33 @@ def writeTPL(filePath, lines):
       if match:
         # This rule has options, check whether any of them are important
         line = match.group(1)
-        for option in match.group(2).replace('_', '-').lower().split(','):
-          if (option == '' or option == 'third-party' or option == '~third-party' or
-              option == 'match-case' or option == '~match-case' or
-              option == '~object-subrequest' or option == '~donottrack'):
-            # We can ignore these options
-            pass
-          elif option == 'script':
-            # Mark filters specifying a script
-            requiresScript = True
-          elif option.startswith('domain=~') and isException:
-            # Ignore domain negation of whitelists
-            pass
-          elif option != 'object-subrequest' and option != 'donottrack' and not option.startswith('domain=') and isException:
-            # Ignore most options for exceptions to attempt to avoid false positives
-            pass
+        options = match.group(2).replace('_', '-').lower().split(',')
+
+        # A number of options are not supported in MSIE but can be safely ignored, remove them
+        options = filter(lambda o: not o in ('', 'third-party', '~third-party', 'match-case', '~match-case', '~object-subrequest', '~donottrack'), options)
+
+        # Also ignore domain negation of whitelists
+        if isException:
+          options = filter(lambda o: not o.startswith('domain=~'), options)
+
+        if 'donottrack' in options:
+          # Rules with donottrack option should always be removed
+          hasUnsupportedOptions = True
+        elif 'object-subrequest' in options and len(options) == 1:
+          # The rule applies only to object subrequests, it is not supported in MSIE
+          hasUnsupportedOptions = True
+        elif 'script' in options and len(options) == 1:
+          # The rule applies only to scripts, we can deal with that - somewhat
+          requiresScript = True
+        elif len(options) > 0:
+          # The rule has further options that we don't support. For exception
+          # rules we still ignore that if the rule isn't restricted to a single
+          # domain, this should hopefully prevent some false positives.
+          if isException:
+            hasUnsupportedOptions = any([o.startswith('domain=') for o in options])
           else:
             hasUnsupportedOptions = True
+
       if hasUnsupportedOptions:
         result.append('# ' + origLine)
       else:
