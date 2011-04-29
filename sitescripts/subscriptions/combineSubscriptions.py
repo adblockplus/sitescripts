@@ -7,6 +7,7 @@
 # http://www.mozilla.org/MPL/
 
 import sys, os, re, subprocess, urllib2, time, traceback, codecs, hashlib, base64
+from getopt import getopt, GetoptError
 
 acceptedExtensions = {
   '.txt': True,
@@ -21,7 +22,7 @@ verbatim = {
   'COPYING': True,
 }
 
-def combineSubscriptions(sourceDir, targetDir):
+def combineSubscriptions(sourceDir, targetDir, timeout=30):
   global acceptedExtensions, ignore, verbatim
 
   if not os.path.exists(targetDir):
@@ -37,7 +38,7 @@ def combineSubscriptions(sourceDir, targetDir):
       continue
     else:
       try:
-        processSubscriptionFile(sourceDir, targetDir, file)
+        processSubscriptionFile(sourceDir, targetDir, file, timeout)
       except:
         print >>sys.stderr, 'Error processing subscription file "%s"' % file
         traceback.print_exc()
@@ -81,7 +82,7 @@ def processVerbatimFile(sourceDir, targetDir, file):
   conditionalWrite(os.path.join(targetDir, file), handle.read())
   handle.close()
 
-def processSubscriptionFile(sourceDir, targetDir, file):
+def processSubscriptionFile(sourceDir, targetDir, file, timeout):
   filePath = os.path.join(sourceDir, file)
   handle = codecs.open(filePath, 'rb', encoding='utf-8')
   lines = map(lambda l: re.sub(r'[\r\n]', '', l), handle.readlines())
@@ -94,7 +95,7 @@ def processSubscriptionFile(sourceDir, targetDir, file):
   if not re.search(r'\[Adblock(?:\s*Plus\s*([\d\.]+)?)?\]', header, re.I):
     raise Exception('This is not a valid Adblock Plus subscription file.')
 
-  lines = resolveIncludes(filePath, lines)
+  lines = resolveIncludes(filePath, lines, timeout)
   lines = filter(lambda l: l != '' and not re.search(r'!\s*checksum[\s\-:]+([\w\+\/=]+)', l, re.I), lines)
 
   writeTPL(os.path.join(targetDir, os.path.splitext(file)[0] + '.tpl'), lines)
@@ -105,7 +106,7 @@ def processSubscriptionFile(sourceDir, targetDir, file):
   lines.insert(0, header)
   conditionalWrite(os.path.join(targetDir, file), '\n'.join(lines) + '\n')
 
-def resolveIncludes(filePath, lines, level=0):
+def resolveIncludes(filePath, lines, timeout, level=0):
   if level > 5:
     raise Exception('There are too many nested includes, which is probably the result of a circular reference somewhere.')
 
@@ -118,7 +119,7 @@ def resolveIncludes(filePath, lines, level=0):
       if re.match(r'^https?://', file):
         result.append('! *** Fetched from: %s ***' % file)
 
-        request = urllib2.urlopen(file, None, 30)
+        request = urllib2.urlopen(file, None, timeout)
         charset = 'utf-8'
         contentType = request.headers.get('content-type', '')
         if contentType.find('charset=') >= 0:
@@ -137,7 +138,7 @@ def resolveIncludes(filePath, lines, level=0):
 
         handle = codecs.open(includePath, 'rb', encoding='utf-8')
         newLines = map(lambda l: re.sub(r'[\r\n]', '', l), handle.readlines())
-        newLines = resolveIncludes(includePath, newLines, level + 1)
+        newLines = resolveIncludes(includePath, newLines, timeout, level + 1)
         handle.close()
 
       if len(newLines) and re.search(r'\[Adblock(?:\s*Plus\s*([\d\.]+)?)?\]', newLines[0], re.I):
@@ -234,14 +235,38 @@ def writeTPL(filePath, lines):
           result.append('- ' + line)
   conditionalWrite(filePath, '\n'.join(result) + '\n')
 
+def usage():
+  print '''Usage: %s [source_dir] [output_dir]
+
+Options:
+  -h          --help              Print this message and exit
+  -t seconds  --timeout=seconds   Timeout when fetching remote subscriptions
+''' % os.path.basename(sys.argv[0])
+
 if __name__ == '__main__':
-  if len(sys.argv) >= 3:
-    sourceDir, targetDir = sys.argv[1], sys.argv[2]
-  else:
-    sourceDir, targetDir =  '.', 'subscriptions'
+  try:
+    opts, args = getopt(sys.argv[1:], 'ht:', ['help', 'timeout='])
+  except GetoptError, e:
+    print str(e)
+    usage()
+    sys.exit(2)
+
+  sourceDir, targetDir =  '.', 'subscriptions'
+  if len(args) >= 1:
+    sourceDir = args[0]
+  if len(args) >= 2:
+    targetDir = args[1]
+
+  timeout = 30
+  for option, value in opts:
+    if option in ('-h', '--help'):
+      usage()
+      sys.exit()
+    elif option in ('-t', '--timeout'):
+      timeout = int(value)
 
   if os.path.exists(os.path.join(sourceDir, '.hg')):
     # Our source is a Mercurial repository, try updating
     subprocess.Popen(['hg', '-R', sourceDir, 'pull', '--update']).communicate()
 
-  combineSubscriptions(sourceDir, targetDir)
+  combineSubscriptions(sourceDir, targetDir, timeout)
