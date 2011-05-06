@@ -15,7 +15,7 @@ def updateRecommendations(repository):
   tempdir = mkdtemp(prefix='adblockplus')
   try:
     subprocess.Popen(['hg', 'clone',  '-U', repository, tempdir], stdout=subprocess.PIPE).communicate()
-    subprocess.Popen(['hg', 'up', '-R', tempdir, '-r', 'experimental'], stdout=subprocess.PIPE).communicate()
+    subprocess.Popen(['hg', 'up', '-R', tempdir, '-r', 'default'], stdout=subprocess.PIPE).communicate()
     writeSubscriptions('recommendations', os.path.join(tempdir, 'chrome', 'content', 'ui', 'subscriptions.xml'))
     subprocess.Popen(['hg', 'commit', '-R', tempdir, '-u', 'hgbot', '-m', 'Updated list of recommended subscriptions'], stdout=subprocess.PIPE).communicate()
     subprocess.Popen(['hg', 'push', '-R', tempdir], stdout=subprocess.PIPE).communicate()
