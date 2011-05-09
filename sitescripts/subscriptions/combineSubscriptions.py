@@ -213,6 +213,7 @@ def writeTPL(filePath, lines):
             hasUnsupportedOptions = True
 
       if hasUnsupportedOptions:
+        # Do not include filters with unsupported options
         result.append('# ' + origLine)
       else:
         line = line.replace('^', '/') # Assume that separator placeholders mean slashes
