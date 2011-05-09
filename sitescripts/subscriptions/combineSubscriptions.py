@@ -188,7 +188,7 @@ def writeTPL(filePath, lines):
         options = match.group(2).replace('_', '-').lower().split(',')
 
         # A number of options are not supported in MSIE but can be safely ignored, remove them
-        options = filter(lambda o: not o in ('', 'third-party', '~third-party', 'match-case', '~match-case', '~object-subrequest', '~donottrack'), options)
+        options = filter(lambda o: not o in ('', 'third-party', '~third-party', 'match-case', '~match-case', '~object-subrequest', '~other', '~donottrack'), options)
 
         # Also ignore domain negation of whitelists
         if isException:
