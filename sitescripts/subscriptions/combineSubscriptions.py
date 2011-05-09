@@ -230,6 +230,8 @@ def writeTPL(filePath, lines):
           line = re.sub(r'^\|', '', line)
         # Remove anchors at the rule end
         line = re.sub(r'\|$', '', line)
+        # Remove unnecessary asterisks at the ends of lines
+        line = re.sub(r'\*$', '', line)
         # Emulate $script by appending *.js to the rule
         if requiresScript:
           line += '*.js'
