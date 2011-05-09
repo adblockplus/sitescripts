@@ -194,19 +194,21 @@ def writeTPL(filePath, lines):
         if isException:
           options = filter(lambda o: not o.startswith('domain=~'), options)
 
-        if 'donottrack' in options:
-          # Rules with donottrack option should always be removed
+        unsupportedOptions = filter(lambda o: o in ('object-subrequest', 'other', 'elemhide'), options)
+        if unsupportedOptions and len(unsupportedOptions) == len(options):
+          # The rule only applies to types that are not supported in MSIE
           hasUnsupportedOptions = True
-        elif 'object-subrequest' in options and len(options) == 1:
-          # The rule applies only to object subrequests, it is not supported in MSIE
+        elif 'donottrack' in options:
+          # Do-Not-Track rules have to be removed even if $donottrack is combined with other options
           hasUnsupportedOptions = True
-        elif 'script' in options and len(options) == 1:
-          # The rule applies only to scripts, we can deal with that - somewhat
+        elif 'script' in options and len(options) == len(unsupportedOptions) + 1:
+          # Mark rules that only apply to scripts for approximate conversion
           requiresScript = True
         elif len(options) > 0:
-          # The rule has further options that we don't support. For exception
-          # rules we still ignore that if the rule isn't restricted to a single
-          # domain, this should hopefully prevent some false positives.
+          # The rule has further options that aren't available in TPLs. For
+          # exception rules that aren't specific to a domain we ignore all
+          # remaining options to avoid potential false positives. Other rules
+          # simply aren't included in the TPL file.
           if isException:
             hasUnsupportedOptions = any([o.startswith('domain=') for o in options])
           else:
