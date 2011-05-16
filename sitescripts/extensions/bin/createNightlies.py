@@ -19,7 +19,8 @@ import sys, os, os.path, subprocess, ConfigParser, traceback, json, hashlib
 import tempfile, re, shutil, urlparse
 from datetime import datetime
 from sitescripts.utils import get_config, setupStderr, get_template
-from sitescripts.extensions.utils import compareVersions, Configuration, KNOWN_APPS
+from sitescripts.extensions.utils import compareVersions, Configuration
+import buildtools.packager as packager
 
 MAX_BUILDS = 50
 
@@ -83,32 +84,6 @@ class NightlyBuild(object):
     command = ['hg', 'up', '-q', '-R', self.tempdir, '-r', 'default']
     subprocess.Popen(command).communicate()
 
-    try:
-      command = ['hg', 'archive', '-q', '-R', self.config.buildRepository, '-r', 'default', os.path.join(self.tempdir, 'buildtools')]
-      subprocess.Popen(command).communicate()
-    except:
-      pass
-
-  def writeSignature(self):
-    """
-      write the signature file into the cloned repository
-    """
-    if self.config.type != 'gecko':
-      # This step is only required for Mozilla extensions
-      return
-
-    try:
-      if self.config.signtool:
-        signatureFilename = os.path.join(self.tempdir, ".signature")
-        f = open(signatureFilename, 'wb')
-        print >>f, "signtool=%s" % self.config.signtool
-        print >>f, "certname=%s" % self.config.certname
-        print >>f, "dbdir=%s" % self.config.dbdir
-        print >>f, "dbpass=%s" % self.config.dbpass
-        f.close()
-    except ConfigParser.NoOptionError:
-      pass
-
   def writeChangelog(self, changes):
     """
       write the changelog file into the cloned repository
@@ -145,7 +120,7 @@ class NightlyBuild(object):
     self.version = parser.get("general", "version")
     self.basename = parser.get("general", "basename")
     self.compat = []
-    for key, value in KNOWN_APPS.iteritems():
+    for key, value in packager.KNOWN_APPS.iteritems():
       if parser.has_option('compat', key):
         minVersion, maxVersion = parser.get('compat', key).split('/')
         self.compat.append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
@@ -214,13 +189,7 @@ class NightlyBuild(object):
     self.updateURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + outputFile + '?update')
 
     if self.config.type != 'chrome':
-      currentPath = os.getcwd()
-      try:
-        os.chdir(self.tempdir)
-        buildCommand = ['perl', 'create_xpi.pl', outputPath, self.buildNumber]
-        subprocess.Popen(buildCommand, stdout=subprocess.PIPE).communicate()
-      finally:
-        os.chdir(currentPath)
+      packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.buildNumber, keyFile=self.config.keyFile)
     else:
       buildCommand = ['python', os.path.join(self.tempdir, 'build.py'), '-k', self.config.keyFile, outputPath]
       subprocess.Popen(buildCommand, stdout=subprocess.PIPE).communicate()
@@ -312,9 +281,6 @@ class NightlyBuild(object):
       else:
         # clone the repository to the tempdir
         self.cloneRepository()
-
-        # write the signature file to the tempdir
-        self.writeSignature()
 
         # get meta data from the repository
         if self.config.type != 'chrome':
