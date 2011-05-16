@@ -53,7 +53,7 @@ class NightlyBuild(object):
     """
       retrieves the current revision number from the repository
     """
-    command = ["hg", "log", "-R", self.config.repository, "-b", "default", "-l", "1", "--template", "{node|short}"]
+    command = ['hg', 'log', '-R', self.config.repository, '-r', 'default', '--template', '{rev}']
     (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
     return result
 
@@ -62,8 +62,8 @@ class NightlyBuild(object):
       retrieve changes between the current and previous ("first") revision
     """
 
-    command = ['hg', 'log', '-R', self.tempdir, '-b', 'default',
-      '-l', '50', '-M',
+    command = ['hg', 'log', '-R', self.config.repository, '-r', 'tip:0',
+      '-b', 'default', '-l', '50', '-M',
       '--template', '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0']
     (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
 
@@ -72,16 +72,12 @@ class NightlyBuild(object):
         date, author, revision, description = change.split('\0')
         yield {'date': date, 'author': author, 'revision': revision, 'description': description}
 
-  def cloneRepository(self):
-    """
-      clone the repository into the tempdir
-    """
+  def copyRepository(self):
+    '''
+      Create a repository copy in a temporary directory
+    '''
     self.tempdir = tempfile.mkdtemp(prefix=self.config.repositoryName)
-      
-    command = ['hg', 'clone', '-q', '-U', self.config.repository, self.tempdir]
-    subprocess.Popen(command).communicate()
-      
-    command = ['hg', 'up', '-q', '-R', self.tempdir, '-r', 'default']
+    command = ['hg', 'archive', '-R', self.config.repository, '-r', 'default', self.tempdir]
     subprocess.Popen(command).communicate()
 
   def writeChangelog(self, changes):
@@ -117,7 +113,7 @@ class NightlyBuild(object):
     parser.read(filename)
     
     self.extensionID = parser.get("general", "id")
-    self.version = parser.get("general", "version")
+    self.version = '%s.%s' % (parser.get("general", "version"), self.revision)
     self.basename = parser.get("general", "basename")
     self.compat = []
     for key, value in packager.KNOWN_APPS.iteritems():
@@ -146,19 +142,11 @@ class NightlyBuild(object):
     manifest = json.load(manifestFile)
     manifestFile.close()
 
-    self.version = manifest['version']
+    self.version = '%s.%s' % (manifest['version'], self.revision)
     self.basename = os.path.basename(self.config.repository)
     self.compat = []
     if 'minimum_chrome_version' in manifest:
       self.compat.append({'id': 'chrome', 'minVersion': manifest['minimum_chrome_version']})
-
-  def calculateBuildNumber(self):
-    """
-      calculate the effective nightly build number
-    """
-    self.buildNumber, dummy = subprocess.Popen(['hg', 'id', '-R', self.tempdir, '-n'], stdout=subprocess.PIPE).communicate()
-    self.buildNumber = re.sub(r'\D', '', self.buildNumber)
-    self.version += '.' + self.buildNumber
 
   def writeUpdateManifest(self):
     """
@@ -189,9 +177,9 @@ class NightlyBuild(object):
     self.updateURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + outputFile + '?update')
 
     if self.config.type != 'chrome':
-      packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.buildNumber, keyFile=self.config.keyFile)
+      packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile)
     else:
-      buildCommand = ['python', os.path.join(self.tempdir, 'build.py'), '-k', self.config.keyFile, outputPath]
+      buildCommand = ['python', os.path.join(self.tempdir, 'build.py'), '-k', self.config.keyFile, '-b', self.revision, outputPath]
       subprocess.Popen(buildCommand, stdout=subprocess.PIPE).communicate()
 
     if not os.path.exists(outputPath):
@@ -279,17 +267,14 @@ class NightlyBuild(object):
         # the directory. Basename has to be deduced from the repository name.
         self.basename = os.path.basename(self.config.repository)
       else:
-        # clone the repository to the tempdir
-        self.cloneRepository()
+        # copy the repository into a temporary directory
+        self.copyRepository()
 
         # get meta data from the repository
         if self.config.type != 'chrome':
           self.readMetadata()
         else:
           self.readChromeMetadata()
-
-        # generate the current build number
-        self.calculateBuildNumber()
 
         # create development build
         self.build()
