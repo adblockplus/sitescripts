@@ -108,17 +108,14 @@ class NightlyBuild(object):
       and parse id, version, basename and the compat section
       out of the file
     """
-    filename = os.path.join(self.tempdir, "metadata")
-    parser = ConfigParser.SafeConfigParser()
-    parser.read(filename)
-    
-    self.extensionID = parser.get("general", "id")
-    self.version = '%s.%s' % (parser.get("general", "version"), self.revision)
-    self.basename = parser.get("general", "basename")
+    metadata = packager.readMetadata(self.tempdir)
+    self.extensionID = metadata.get("general", "id")
+    self.version = '%s.%s' % (metadata.get("general", "version"), self.revision)
+    self.basename = metadata.get("general", "basename")
     self.compat = []
     for key, value in packager.KNOWN_APPS.iteritems():
-      if parser.has_option('compat', key):
-        minVersion, maxVersion = parser.get('compat', key).split('/')
+      if metadata.has_option('compat', key):
+        minVersion, maxVersion = metadata.get('compat', key).split('/')
         self.compat.append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
 
   def readChromeMetadata(self):
