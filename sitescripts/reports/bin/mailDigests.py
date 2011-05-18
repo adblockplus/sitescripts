@@ -147,6 +147,8 @@ def calculateReportWeight(reportData):
     weight -= 0.5
   elif re.search(r'\S', reportData.get('comment', '')):
     weight += 0.5
+  if 'email' in reportData:
+    weight += 0.3
 
   weight += (reportData.get('time', 0) - startTime) / (currentTime - startTime) * 0.2
   return weight
