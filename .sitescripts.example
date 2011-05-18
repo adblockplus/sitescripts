@@ -89,8 +89,9 @@ geoip_db=%(root)s/data/GeoIP.dat
 [subscriptionStats]
 tempFile=%(root)s/tmp/subscriptionStats.ini
 
-[easylist]
-repository=%(root)s/hg/easylist
+[subscriptionDownloads]
+easylist_repository=%(root)s/hg/easylist
+easylistgermany_repository=%(root)s/hg/easylistgermany
 outdir=%(root)s/data/easylist
 cvsroot=:pserver:guest@mozdev.org:/cvs
 cvsdir=adblockplus/www/easylist

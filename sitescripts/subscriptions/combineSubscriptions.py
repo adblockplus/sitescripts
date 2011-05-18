@@ -22,31 +22,35 @@ verbatim = {
   'COPYING': True,
 }
 
-def combineSubscriptions(sourceDir, targetDir, timeout=30):
+def combineSubscriptions(sourceDirs, targetDir, timeout=30):
   global acceptedExtensions, ignore, verbatim
+
+  if isinstance(sourceDirs, basestring):
+    sourceDirs = {'': sourceDirs}
 
   if not os.path.exists(targetDir):
     os.makedirs(targetDir, 0755)
 
   known = {}
-  for file in os.listdir(sourceDir):
-    if file in ignore or file[0] == '.' or not os.path.isfile(os.path.join(sourceDir, file)):
-      continue
-    if file in verbatim:
-      processVerbatimFile(sourceDir, targetDir, file)
-    elif not os.path.splitext(file)[1] in acceptedExtensions:
-      continue
-    else:
-      try:
-        processSubscriptionFile(sourceDir, targetDir, file, timeout)
-      except:
-        print >>sys.stderr, 'Error processing subscription file "%s"' % file
-        traceback.print_exc()
-        print >>sys.stderr
-      known[os.path.splitext(file)[0] + '.tpl'] = True
-      known[os.path.splitext(file)[0] + '.tpl.gz'] = True
-    known[file] = True
-    known[file + '.gz'] = True
+  for sourceDir in sourceDirs.itervalues():
+    for file in os.listdir(sourceDir):
+      if file in ignore or file[0] == '.' or not os.path.isfile(os.path.join(sourceDir, file)):
+        continue
+      if file in verbatim:
+        processVerbatimFile(sourceDir, targetDir, file)
+      elif not os.path.splitext(file)[1] in acceptedExtensions:
+        continue
+      else:
+        try:
+          processSubscriptionFile(sourceDir, targetDir, file, timeout)
+        except:
+          print >>sys.stderr, 'Error processing subscription file "%s"' % file
+          traceback.print_exc()
+          print >>sys.stderr
+        known[os.path.splitext(file)[0] + '.tpl'] = True
+        known[os.path.splitext(file)[0] + '.tpl.gz'] = True
+      known[file] = True
+      known[file + '.gz'] = True
 
   for file in os.listdir(targetDir):
     if file[0] == '.':

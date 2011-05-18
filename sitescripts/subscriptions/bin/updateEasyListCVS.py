@@ -11,9 +11,9 @@ from sitescripts.utils import get_config, setupStderr
 if __name__ == '__main__':
   setupStderr()
 
-  source = get_config().get('easylist', 'outdir')
-  cvsroot = get_config().get('easylist', 'cvsroot')
-  cvsdir = get_config().get('easylist', 'cvsdir')
+  source = get_config().get('subscriptionDownloads', 'outdir')
+  cvsroot = get_config().get('subscriptionDownloads', 'cvsroot')
+  cvsdir = get_config().get('subscriptionDownloads', 'cvsdir')
   dest = tempfile.mkdtemp()
   try:
     os.chdir(os.path.dirname(dest))   # Yes, CVS sucks
