@@ -18,7 +18,8 @@ import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
 from sitescripts.utils import get_config, get_template
-from sitescripts.extensions.utils import compareVersions, Configuration, KNOWN_APPS
+from sitescripts.extensions.utils import compareVersions, Configuration
+from buildtools.packager import KNOWN_APPS
 
 def urlencode(value):
   return urllib.quote(value.encode('utf-8'), '')
