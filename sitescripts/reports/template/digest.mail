@@ -5,21 +5,27 @@ Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset="UTF-8"
 
 The following reports have been received for your filter list "{{subscription.name}}"
-through the Adblock Plus issue reporter. Some information will be displayed before
-the report link:
-* Issue type: "fp" means false positive, "ma" means missed ad
-* Whether any filters from your subscription had matches: "+" if yes, "-" if no
-* Number of filter subscriptions the user is subscribed to
+through the Adblock Plus issue reporter. Legend for the information displayed at
+the line start:
+* f: false positive
+* m: missed ad
+* +: has matches for filters from your subscription
+* e: has contact address
+* s: has screenshot
+* k: matches known issues
+* 0-9: number of filter subscriptions
 
 {% for group in groups -%}
 {{group.name}}:
 {% for report in group.reports -%}
-{{ {'false positive': 'fp', 'false negative': 'ma', 'other': 'ot'}.get(report.type, 'uk') -}}
-{{' ' -}}
-{{ '+' if subscription in report.matchSubscriptions else '-' -}}
-{{' ' -}}
-{{report.numSubscriptions|ljust(3) -}}
-{{' ' -}}
+{{'[' -}}
+{{ {'false positive': 'f', 'false negative': 'm', 'other': 'o'}.get(report.type, 'u') -}}
+{{ '+' if subscription in report.matchSubscriptions else ' ' -}}
+{{ 'e' if report.email else ' ' -}}
+{{ 's' if report.screenshot else ' ' -}}
+{{ 'k' if report.knownIssues > 0 else ' ' -}}
+{{ report.numSubscriptions if report.numSubscriptions < 10 else 9 -}}
+{{'] ' -}}
 {% if group.dumpAll -%}
   {{report.site|ltruncate(20,end='…')|ljust(21) -}}
   {{' ' -}}

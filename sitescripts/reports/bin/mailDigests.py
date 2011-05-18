@@ -79,6 +79,9 @@ def scanReports(dir, result = []):
         'type': reportData.get('type', 'unknown'),
         'numSubscriptions': len(reportData.get('subscriptions', [])),
         'matchSubscriptions': matchSubscriptions.values(),
+        'email': reportData.get('email', None),
+        'screenshot': reportData.get('screenshot', None),
+        'knownIssues': len(reportData.get('knownIssues', [])),
       }
       result.append(report)
   return result
