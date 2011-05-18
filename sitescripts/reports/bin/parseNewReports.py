@@ -168,6 +168,8 @@ def processElementStart(name, attributes):
           'column': attributes.get('column', 'unknown'),\
           'sourceLine': re.sub(r'[\r\n]+$', '', attributes.get('sourceLine', '')),\
     })
+  elif name == 'screenshot':
+    reportData['screenshotEdited'] = (attributes.get('edited', 'false') == 'true')
 
   tagStack.append([name, attributes])
 
