@@ -137,7 +137,9 @@ def calculateReportWeight(reportData):
   weight = 1.0
   if reportData.get('type', 'unknown') == 'false positive' or reportData.get('type', 'unknown') == 'false negative':
     weight /= len(reportData.get('subscriptions', []))
-  if 'screenshot' in reportData:
+  if 'screenshot' in reportData and reportData.get('screenshotEdited', False):
+    weight += 0.7
+  elif 'screenshot' in reportData:
     weight += 0.3
   if len(reportData.get('knownIssues', [])) > 0:
     weight -= 0.3
