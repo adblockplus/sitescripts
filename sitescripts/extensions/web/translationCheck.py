@@ -42,10 +42,10 @@ def downloadLanguage(locale, extensionID):
 def checkLanguage(locale, data, repository, buildRepository):
   tempdir = tempfile.mkdtemp(prefix='adblockplus')
   try:
-    command = ['hg', 'archive',  '-q', '-R', repository, '-r', 'default', tempdir]
+    command = ['hg', 'archive',  '-R', repository, '-r', 'default', tempdir]
     subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
     try:
-      command = ['hg', 'archive', '-q', '-R', buildRepository, '-r', 'default', os.path.join(tempdir, 'buildtools')]
+      command = ['hg', 'archive', '-R', buildRepository, '-r', 'default', os.path.join(tempdir, 'buildtools')]
       subprocess.Popen(command).communicate()
     except:
       pass

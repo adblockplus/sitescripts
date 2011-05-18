@@ -25,7 +25,7 @@ if __name__ == '__main__':
     for repoName, repoDir in sourceRepos.iteritems():
       tempDir = tempfile.mkdtemp()
       sourceTemp[repoName] = tempDir
-      subprocess.Popen(['hg', 'archive', '-q', '-R', repoDir, '-r', 'default', tempDir]).communicate()
+      subprocess.Popen(['hg', 'archive', '-R', repoDir, '-r', 'default', tempDir]).communicate()
     subprocess.Popen(['rsync', '-a', '--delete', destDir + '/', destTemp]).communicate()
     combineSubscriptions(sourceTemp, destTemp)
     subprocess.Popen(['rsync', '-au', '--delete', destTemp + '/', destDir]).communicate()
