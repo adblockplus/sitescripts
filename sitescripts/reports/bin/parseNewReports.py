@@ -127,13 +127,19 @@ def processElementStart(name, attributes):
     reportData['opener'] = attributes.get('opener', '')
     reportData['referrer'] = attributes.get('referrer', '')
   elif name == 'request':
-    reportData['requests'].append({\
-          'location': attributes.get('location', ''),\
-          'type': attributes.get('type', 'unknown'),\
-          'docDomain': attributes.get('docDomain', 'unknown'),\
-          'thirdParty': (attributes.get('thirdParty', 'false') == 'true'),\
-          'size': attributes.get('size', ''),\
-          'filter': attributes.get('filter', ''),\
+    try:
+      requestCount = int(attributes['count'])
+    except:
+      requestCount = 1
+    reportData['requests'].append({
+          'location': attributes.get('location', ''),
+          'type': attributes.get('type', 'unknown'),
+          'docDomain': attributes.get('docDomain', 'unknown'),
+          'thirdParty': (attributes.get('thirdParty', 'false') == 'true'),
+          'size': attributes.get('size', ''),
+          'filter': attributes.get('filter', ''),
+          'count': requestCount,
+          'tagName': attributes.get('node', ''),
     })
   elif name == 'filter':
     reportData['filters'].append({\

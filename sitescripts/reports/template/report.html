@@ -108,6 +108,7 @@
               <th class="requestType">Type</th>
               <th class="requestDocDomain">Document source</th>
               <th class="requestThirdParty">Third party</th>
+              <th class="requestCount">Count</th>
               <th class="requestSize">Size</th>
             </tr>
           </thead>
@@ -127,7 +128,8 @@
               <td class="requestType">{{request.type.lower()}}</td>
               <td class="requestDocDomain">{{request.docDomain}}</td>
               <td class="requestThirdParty">{{ {True: 'yes', False: 'no'}.get(request.thirdParty, 'unknown') }}</td>
-              <td class="requestSize">{{request.size}}</td>
+              <td class="requestCount">{{request.count}}</td>
+              <td class="requestSize"{% if request.tagName %} title="{{request.tagName}}"{% endif %}>{{request.size}}</td>
             </tr>
             {% endfor -%}
           </tbody>
