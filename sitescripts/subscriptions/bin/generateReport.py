@@ -6,9 +6,10 @@
 # http://www.mozilla.org/MPL/
 
 import sys, os, re, codecs
-from urlparse import parse_qsl
+from urlparse import parse_qs
 from gzip import GzipFile
 from sitescripts.utils import get_config, setupStderr, sendMail
+from sitescripts.extensions.utils import compareVersions
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def countSubscriptionRequests(logPath, counts):
@@ -18,13 +19,17 @@ def countSubscriptionRequests(logPath, counts):
     matches = re.search(regexp, line)
     if matches:
       query = matches.group(1)
-      for key, value in parse_qsl(query):
-        if key == 'url' and re.match(r'^https?:[\x00-\x7F]+$', value):
-          if not value in counts:
-            counts[value] = 1
-          else:
-            counts[value] += 1
-          break
+      params = parse_qs(query)
+      if not 'version' in params or compareVersions(params['version'][0], '1.3.5') < 0:
+        continue
+      if not 'url' in params:
+        continue
+      url = params['url'][0]
+      if re.match(r'^https?:[\x00-\x7F]+$', url):
+        if not url in counts:
+          counts[url] = 1
+        else:
+          counts[url] += 1
   f.close()
 
 def processFile(data, counts):
