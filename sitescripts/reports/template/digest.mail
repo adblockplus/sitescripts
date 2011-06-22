@@ -1,5 +1,5 @@
 To: {{email}}
-From: donotreply@adblockplus.org
+From: subscriptionlist@adblockplus.org
 Subject: Adblock Plus issue reports for {{subscription.name|mime}}
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset="UTF-8"
