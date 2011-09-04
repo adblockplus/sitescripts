@@ -95,3 +95,7 @@ easylistgermany_repository=%(root)s/hg/easylistgermany
 outdir=%(root)s/data/easylist
 cvsroot=:pserver:guest@mozdev.org:/cvs
 cvsdir=adblockplus/www/easylist
+
+[hg]
+auth_repository=%(root)s/hg/hgaccess
+auth_file=%(root)s/.ssh/.ssh/authorized_keys
