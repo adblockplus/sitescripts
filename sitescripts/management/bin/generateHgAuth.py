@@ -63,6 +63,8 @@ def generateData(authRepo):
         print >>sys.stderr, 'Unknown user listed for repository %s: %s' % (name, user)
 
   for user in users.itervalues():
+    if user['disabled']:
+      continue
     yield 'no-pty,environment="HGUSER=%s",environment="HGREPOS=%s" %s %s\n' % (
       user['name'] if not user['trusted'] else '',
       ' '.join(user['repos']),
