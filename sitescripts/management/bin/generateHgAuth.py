@@ -72,7 +72,7 @@ def generateData(authRepo):
       user['key']
     )
 
-if __name__ == '__main__':
+def hook(ui, repo, **kwargs):
   setupStderr()
 
   result = generateData(get_config().get('hg', 'auth_repository'))
@@ -81,3 +81,6 @@ if __name__ == '__main__':
   for s in result:
     file.write(s)
   file.close()
+
+if __name__ == '__main__':
+  hook()
