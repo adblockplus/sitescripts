@@ -36,7 +36,7 @@ def syncFiles(name, settings, syncState):
 
   tempdir = tempfile.mkdtemp(prefix=name)
   try:
-    command = ['hg', 'archive', '-R', repo, '-r', 'default', '-X', os.path.join(repo, '.hg_archival.txt'), tempdir]
+    command = ['hg', 'archive', '-R', repo, '-r', 'default', '-X', os.path.join(repo, '.hg_archival.txt'), '-X', os.path.join(repo, '.hgtags'), tempdir]
     subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
     for relpath in settings['ignore']:
       abspath = os.path.join(tempdir, relpath)
