@@ -63,6 +63,9 @@ def syncFiles(name, settings, syncState):
     command.append(settings['target'])
     subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
 
+    if settings['postsync']:
+      subprocess.Popen(settings['postsync'], stdout=subprocess.PIPE, shell=True).communicate()
+
     syncState.set(name, 'latestRevision', currentRevision)
   finally:
     shutil.rmtree(tempdir, ignore_errors=True)
@@ -73,7 +76,7 @@ def readSyncSettings():
     if option.find('_') < 0:
       continue
     name, setting = option.rsplit('_', 2)
-    if not setting in ('source', 'target', 'user', 'group', 'ignore'):
+    if not setting in ('source', 'target', 'user', 'group', 'ignore', 'postsync'):
       continue
 
     if not name in result:
@@ -82,6 +85,7 @@ def readSyncSettings():
         'target': None,
         'user': None,
         'group': None,
+        'postsync': None,
         'ignore': []
       }
     if isinstance(result[name][setting], list):
