@@ -13,7 +13,7 @@ def splitRepositoryPath(path):
   while not os.path.isdir(os.path.join(repo, '.hg')):
     if len(repo) < 4:
       raise Exception('Mercurial repository not found for path %s' % path)
-    repo = os.path.basename(repo)
+    repo = os.path.dirname(repo)
   return (repo, os.path.relpath(path, repo))
 
 def chown((uid, gid), dirname, names):
@@ -36,11 +36,17 @@ def syncFiles(name, settings, syncState):
 
   tempdir = tempfile.mkdtemp(prefix=name)
   try:
-    command = ['hg', 'archive', '-R', repo, '-r', 'default', '-X', os.path.join(repo, '.hg_archival.txt'), '-X', os.path.join(repo, '.hgtags'), tempdir]
+    command = ['hg', 'archive', '-R', repo, '-r', 'default',
+      '-I', os.path.join(repo, path),
+      '-X', os.path.join(repo, '.hg_archival.txt'),
+      '-X', os.path.join(repo, '.hgtags'),
+      tempdir]
+
     subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+    srcdir = os.path.normpath(os.path.join(tempdir, path))
     for relpath in settings['ignore']:
-      abspath = os.path.join(tempdir, relpath)
-      if os.path.commonprefix((abspath, tempdir)) == tempdir and os.path.exists(abspath):
+      abspath = os.path.join(srcdir, relpath)
+      if os.path.commonprefix((abspath, srcdir)) == srcdir and os.path.exists(abspath):
         shutil.rmtree(abspath)
 
     if hasattr(os, 'chown') and settings['user'] and settings['group']:
@@ -48,9 +54,9 @@ def syncFiles(name, settings, syncState):
       from grp import getgrnam
       uid = getpwnam(settings['user']).pw_uid
       gid = getgrnam(settings['group']).gr_gid
-      os.path.walk(tempdir, chown, (uid, gid))
-      os.chmod(tempdir, 0755)
-      os.chown(tempdir, uid, gid)
+      os.path.walk(srcdir, chown, (uid, gid))
+      os.chmod(srcdir, 0755)
+      os.chown(srcdir, uid, gid)
 
     command = ['rsync', '-a', '--delete']
     for relpath in settings['ignore']:
@@ -58,10 +64,10 @@ def syncFiles(name, settings, syncState):
       if os.path.commonprefix((abspath, settings['target'])) == settings['target'] and os.path.exists(abspath):
         command.append('--exclude')
         if os.path.isdir(abspath):
-          command.append(os.path.join(relpath, '.')[0:-1])
+          command.append(os.path.join(relpath, ''))
         else:
           command.append(relpath)
-    command.append(os.path.join(tempdir, '.')[0:-1])
+    command.append(os.path.join(srcdir, ''))
     command.append(settings['target'])
     subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
 
