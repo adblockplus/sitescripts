@@ -47,7 +47,7 @@ def syncFiles(name, settings, syncState):
       uid = getpwnam(settings['user']).pw_uid
       gid = getgrnam(settings['group']).gr_gid
       os.path.walk(tempdir, chown, (uid, gid))
-      os.chmod(tempdir, 0777)
+      os.chmod(tempdir, 0755)
       os.chown(tempdir, uid, gid)
 
     command = ['rsync', '-a', '--delete']
