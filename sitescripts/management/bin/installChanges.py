@@ -61,9 +61,9 @@ def syncFiles(name, settings, syncState):
     command = ['rsync', '-a', '--delete']
     for relpath in settings['ignore']:
       abspath = os.path.join(settings['target'], relpath)
-      if os.path.commonprefix((abspath, settings['target'])) == settings['target'] and os.path.exists(abspath):
+      if os.path.commonprefix((abspath, settings['target'])) == settings['target'] and os.path.lexists(abspath):
         command.append('--exclude')
-        if os.path.isdir(abspath):
+        if os.path.isdir(abspath) and not os.path.islink(abspath):
           command.append(os.path.join(relpath, ''))
         else:
           command.append(relpath)
