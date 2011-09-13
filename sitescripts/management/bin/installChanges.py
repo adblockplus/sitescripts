@@ -19,6 +19,8 @@ def splitRepositoryPath(path):
 def chown((uid, gid), dirname, names):
   for name in names:
     os.chown(os.path.join(dirname, name), uid, gid)
+    if (name.endswith('.fcgi') or name.endswith('.sh') or name.endswith('.pl')):
+      os.chmod(os.path.join(dirname, name), 0755)
 
 def syncFiles(name, settings, syncState):
   repo, path = splitRepositoryPath(settings['source'])
@@ -64,7 +66,7 @@ def syncFiles(name, settings, syncState):
     subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
 
     if settings['postsync']:
-      subprocess.Popen(settings['postsync'], stdout=subprocess.PIPE, shell=True).communicate()
+      subprocess.Popen(settings['postsync'], stdout=subprocess.PIPE, shell=True, cwd=settings['target']).communicate()
 
     syncState.set(name, 'latestRevision', currentRevision)
   finally:
