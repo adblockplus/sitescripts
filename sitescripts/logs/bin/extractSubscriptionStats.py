@@ -72,6 +72,9 @@ def parseStdIn(geo):
     time = datetime.strptime(time, '%d/%b/%Y:%H:%M:%S')
     time -= timedelta(hours = tzHours, minutes = math.copysign(tzMinutes, tzHours))
 
+    match = re.search(r'^::ffff:(\d+\.\d+\.\d+\.\d+)$', ip)
+    if match:
+      ip = match.group(1)
     country = geo.country_code_by_addr(ip)
     if country == '' or country == '--':
       country = 'unknown'
