@@ -124,7 +124,16 @@ def resolveIncludes(sourceName, sourceDirs, filePath, lines, timeout, level=0):
       if re.match(r'^https?://', file):
         result.append('! *** Fetched from: %s ***' % file)
 
-        request = urllib2.urlopen(file, None, timeout)
+        for i in range(3):
+          try:
+            request = urllib2.urlopen(file, None, timeout)
+            error = None
+            break
+          except urllib2.URLError, e:
+            error = e
+        if error:
+          raise error
+
         charset = 'utf-8'
         contentType = request.headers.get('content-type', '')
         if contentType.find('charset=') >= 0:
