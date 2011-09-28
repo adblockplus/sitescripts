@@ -20,6 +20,13 @@
     <a href="{{config.downloadPage}}">its installation page</a>
   {%- endif -%}
   .
+
+  {%- if config.type == 'chrome' and config.experimental -%}
+    <br /><br />
+    <em>Note</em>: The builds in this directory use experimental Google Chrome API.
+    To install them you have to enable support for these APIs by going to
+    <code>chrome://flags</code> and enabling "Experimental Extension APIs" option.
+  {%- endif -%}
 </p>
 
 <h2>Development build listing for {{config.name}}</h2>
