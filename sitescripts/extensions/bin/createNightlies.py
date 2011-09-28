@@ -141,6 +141,9 @@ class NightlyBuild(object):
 
     self.version = '%s.%s' % (manifest['version'], self.revision)
     self.basename = os.path.basename(self.config.repository)
+    if self.config.experimental:
+      self.basename += '-experimental'
+
     self.compat = []
     if 'minimum_chrome_version' in manifest:
       self.compat.append({'id': 'chrome', 'minVersion': manifest['minimum_chrome_version']})
@@ -177,6 +180,8 @@ class NightlyBuild(object):
       packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile)
     else:
       buildCommand = ['python', os.path.join(self.tempdir, 'build.py'), '-k', self.config.keyFile, '-b', self.revision, outputPath]
+      if self.config.experimental:
+        buildCommand[-1:0] = ['--experimental']
       subprocess.Popen(buildCommand, stdout=subprocess.PIPE).communicate()
 
     if not os.path.exists(outputPath):
