@@ -131,6 +131,7 @@ def resolveIncludes(sourceName, sourceDirs, filePath, lines, timeout, level=0):
             break
           except urllib2.URLError, e:
             error = e
+            time.sleep(5)
         if error:
           raise error
 
