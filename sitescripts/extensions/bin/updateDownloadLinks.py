@@ -13,7 +13,7 @@ Update the list of extenstions
   and version information
 """
 
-import os, urllib, urlparse, subprocess
+import os, urllib, urlparse, subprocess, time
 import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
@@ -24,12 +24,24 @@ from buildtools.packager import KNOWN_APPS
 def urlencode(value):
   return urllib.quote(value.encode('utf-8'), '')
 
+def urlopen(url, attempts=3):
+  """
+  Tries to open a particular URL, retries on failure.
+  """
+  for i in range(attempts):
+    try:
+      return urllib.urlopen(url)
+    except IOError, e:
+      error = e
+      time.sleep(5)
+  raise error
+
 def getMozillaDownloadLink(galleryID):
   """
   gets download link for a Gecko add-on from the Mozilla Addons site
   """
   url = 'https://services.addons.mozilla.org/en-US/firefox/api/1/addon/%s' % urlencode(galleryID)
-  contents = urllib.urlopen(url).read()
+  contents = urlopen(url).read()
   document = dom.parseString(contents)
   linkTags = document.getElementsByTagName('install')
   linkTag = linkTags[0] if len(linkTags) > 0 else None
@@ -46,7 +58,7 @@ def getGoogleDownloadLink(galleryID):
   """
   param = 'id=%s&uc' % urlencode(galleryID)
   url = 'https://clients2.google.com/service/update2/crx?x=%s' % urlencode(param)
-  contents = urllib.urlopen(url).read()
+  contents = urlopen(url).read()
   document = dom.parseString(contents)
   updateTags = document.getElementsByTagName('updatecheck')
   updateTag = updateTags[0] if len(updateTags) > 0 else None
