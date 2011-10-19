@@ -106,10 +106,10 @@ def processSubscriptionFile(sourceName, sourceDirs, targetDir, file, timeout):
   writeTPL(os.path.join(targetDir, os.path.splitext(file)[0] + '.tpl'), lines)
 
   checksum = hashlib.md5()
-  checksum.update((header + '\n' + '\n'.join(lines) + '\n').encode('utf-8'))
+  checksum.update((header + '\n' + '\n'.join(lines)).encode('utf-8'))
   lines.insert(0, '! Checksum: %s' % re.sub(r'=', '', base64.b64encode(checksum.digest())))
   lines.insert(0, header)
-  conditionalWrite(os.path.join(targetDir, file), '\n'.join(lines) + '\n')
+  conditionalWrite(os.path.join(targetDir, file), '\n'.join(lines))
 
 def resolveIncludes(sourceName, sourceDirs, filePath, lines, timeout, level=0):
   if level > 5:
