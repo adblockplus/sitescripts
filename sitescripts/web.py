@@ -24,3 +24,4 @@ import reports.web.submitReport
 import reports.web.updateReport
 import extensions.web.translationCheck
 import tasks.web.tasks
+import formmail.web.formmail

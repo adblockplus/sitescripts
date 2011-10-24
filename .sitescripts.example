@@ -99,3 +99,6 @@ cvsdir=adblockplus/www/easylist
 [hg]
 auth_repository=%(root)s/hg/hgaccess
 auth_file=%(root)s/.ssh/.ssh/authorized_keys
+
+[formmail]
+template=formmail/template/eyeo.mail
