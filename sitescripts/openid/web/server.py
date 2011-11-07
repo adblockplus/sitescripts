@@ -40,7 +40,7 @@ def handleRequest(environ, start_response):
   if request.mode in ["checkid_immediate", "checkid_setup"]:
     is_authorized = environ['REMOTE_ADDR'] == environ['SERVER_ADDR']
     if is_authorized:
-      response = request.answer(True)
+      response = request.answer(True, identity='http://adblockplus.org/blog/')
       addSRegResponse(request, response)
     else:
       response = request.answer(False)
