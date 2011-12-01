@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE subscriptions SYSTEM "chrome://adblockplus/locale/subscriptionSelection.dtd">
-
 <subscriptions>
   {% for subscription in subscriptions|subscriptionSort -%}
   {% if subscription.recommendation -%}
@@ -14,9 +12,4 @@
                 author="{{subscription.maintainer}}"/>
   {% endif -%}
   {% endfor -%}
-  <subscription title="&other.label;…"
-                url=""
-                homepage=""
-                prefixes=""
-                author=""/>
 </subscriptions>
