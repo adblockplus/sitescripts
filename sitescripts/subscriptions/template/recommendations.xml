@@ -5,7 +5,8 @@
   {% if subscription.recommendation -%}
   {% set title, url, complete = subscription.recommendation -%}
   {% set homepage = subscription.homepage or subscription.forum or subscription.blog or subscription.faq or subscription.contact -%}
-  <subscription title="{{title}} ({{subscription.specialization}})"
+  <subscription title="{{title}}"
+                specialization="{{subscription.specialization}}"
                 url="{{url}}"
                 homepage="{{homepage}}"
                 prefixes="{{subscription.languages}}"

@@ -13,6 +13,8 @@ recommendationsTemplate=subscriptions/template/recommendations.xml
 recommendationsFile=%(root)s/www/recommendations.xml
 subscriptionsXMLTemplate=subscriptions/template/subscriptions.xml
 subscriptionsXMLFile=%(root)s/www/subscriptions.xml
+subscriptionsXML2Template=subscriptions/template/subscriptions2.xml
+subscriptionsXML2File=%(root)s/www/subscriptions2.xml
 subscriptionListTemplate=subscriptions/template/subscriptionList.html
 subscriptionListFile=%(root)s/www/subscriptions.html
 
