@@ -32,6 +32,7 @@ supportedKeys = {
   'requestDomain': ('request', 'docDomain'),
   'filterText': ('filter', 'text'),
   'subscriptionURL': ('subscription', 'id'),
+  'subscriptionDownloadStatus': ('subscription', 'downloadStatus'),
   'extension': ('extension', 'id version'),
   'errorText': ('error', 'text'),
   'errorLocation': ('error', 'file line'),
