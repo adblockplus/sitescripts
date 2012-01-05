@@ -196,6 +196,8 @@ def processText(text):
       reportData['option_collapse'] = (text == 'true')
     elif attributes.get('id', None) == 'privateBrowsing':
       reportData['option_privateBrowsing'] = (text == 'true')
+    elif attributes.get('id', None) == 'subscriptionsAutoUpdate':
+      reportData['option_subscriptionsAutoUpdate'] = (text == 'true')
   elif name == 'screenshot':
     if 'screenshot' in reportData:
       reportData['screenshot'] += text

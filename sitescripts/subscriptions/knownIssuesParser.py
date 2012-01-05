@@ -23,6 +23,7 @@ supportedKeys = {
   'objectTabsEnabled': ('option', 'id', 'objecttabs'),
   'collapseEnabled': ('option', 'id', 'collapse'),
   'privateBrowsingEnabled': ('option', 'id', 'privateBrowsing'),
+  'subscriptionsAutoUpdateEnabled': ('option', 'id', 'subscriptionsAutoUpdate'),
   'mainURL': ('window', 'url'),
   'frameURL': ('frame', 'url'),
   'openerURL': ('window', 'opener'),

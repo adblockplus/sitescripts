@@ -54,7 +54,8 @@
           Enabled: {{ {True: 'yes', False: 'no'}.get(option_enabled, 'unknown') }},
           Tabs on Flash and Java: {{ {True: 'yes', False: 'no'}.get(option_objecttabs, 'unknown') }},
           Collapse blocked elements: {{ {True: 'yes', False: 'no'}.get(option_collapse, 'unknown') }},
-          Private browsing: {{ {True: 'yes', False: 'no'}.get(option_privateBrowsing, 'unknown') }}
+          Private browsing: {{ {True: 'yes', False: 'no'}.get(option_privateBrowsing, 'unknown') }},
+          Automatic subscription updates: {{ {True: 'yes', False: 'no'}.get(option_subscriptionsAutoUpdate, 'unknown') }}
         </td>
       </tr>
       {% if comment -%}
