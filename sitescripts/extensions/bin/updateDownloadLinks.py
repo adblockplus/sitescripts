@@ -153,12 +153,9 @@ def writeUpdateManifest(links):
       continue
     if not links.has_section(repo.repositoryName):
       continue
-    try:
-      data = readMetadata(repo, links.get(repo.repositoryName, 'version'))
-      data['updateURL'] = links.get(repo.repositoryName, 'downloadURL')
-      extensions.append(data)
-    except:
-      pass  # Ignore errors due to missing manifest file
+    data = readMetadata(repo, links.get(repo.repositoryName, 'version'))
+    data['updateURL'] = links.get(repo.repositoryName, 'downloadURL')
+    extensions.append(data)
 
   manifestPath = get_config().get('extensions', 'geckoUpdateManifestPath')
   template = get_template(get_config().get('extensions', 'geckoUpdateManifest'))
