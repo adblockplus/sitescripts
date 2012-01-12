@@ -138,7 +138,10 @@ class NightlyBuild(object):
     manifest = json.load(manifestFile)
     manifestFile.close()
 
-    self.version = '%s.%s' % (manifest['version'], self.revision)
+    self.version = manifest['version']
+    while self.version.count('.') < 2:
+      self.version += '.0'
+    self.version = '%s.%s' % (self.version, self.revision)
     self.basename = os.path.basename(self.config.repository)
     if self.config.experimental:
       self.basename += '-experimental'
