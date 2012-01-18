@@ -42,12 +42,17 @@ def handleRequest(environ, start_response):
   dir = os.path.dirname(path)
   if not os.path.exists(dir):
     os.makedirs(dir)
-  file = open(path + '.tmp', 'wb')
-  iter = dataIterator(environ['wsgi.input'], file)
-  knownIssues = knownIssuesParser.findMatches(iter, params.get('lang', ['en-US'])[0])
-  file.close()
+  try:
+    file = open(path + '.tmp', 'wb')
+    iter = dataIterator(environ['wsgi.input'], file)
+    knownIssues = knownIssuesParser.findMatches(iter, params.get('lang', ['en-US'])[0])
+    file.close()
 
-  os.rename(path + '.tmp', path);
+    os.rename(path + '.tmp', path);
+  except Exception, e:
+    if os.path.isfile(path + '.tmp'):
+      os.remove(path + '.tmp')
+    raise e
 
   template = get_template(get_config().get('reports', 'submitResponseTemplate'))
   start_response('200 OK', [('Content-Type', 'application/xhtml+xml; charset=utf-8')])
