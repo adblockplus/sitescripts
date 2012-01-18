@@ -9,7 +9,7 @@ from urlparse import urlparse
 from time import time
 from xml.parsers.expat import ParserCreate, ExpatError, ErrorString
 from sitescripts.utils import get_config, setupStderr
-from sitescripts.reports.utils import saveReport
+from sitescripts.reports.utils import saveReport, get_db, executeQuery
 import sitescripts.subscriptions.knownIssuesParser as knownIssuesParser
 
 reportData = None
@@ -48,23 +48,25 @@ lengthRestrictions = {
 def scanReports(dir):
   for file in os.listdir(dir):
     filePath = os.path.join(dir, file)
-    if os.path.isdir(filePath):
-      scanReports(filePath)
-    elif os.stat(filePath).st_mtime < time() - 30*24*60*60:
-      # Remove files that are older than 30 days
-      os.remove(filePath)
-    elif file.endswith('.xml'):
-      dumpFile = re.sub(r'\.xml$', '.dump', filePath)
-      htmlFile = re.sub(r'\.xml$', '.html', filePath)
-      if os.path.exists(dumpFile) or os.path.exists(htmlFile):
-        continue
-      processReport(filePath, dumpFile, htmlFile)
+    if os.path.isfile(filePath) and file.endswith('.xml'):
+      processReport(filePath)
 
-def processReport(xmlFile, dumpFile, htmlFile):
+def processReport(xmlFile):
   global reportData, tagStack
 
+  guid = os.path.splitext(os.path.basename(xmlFile))[0]
+
+  cursor = get_db().cursor()
+  executeQuery(cursor,
+              '''SELECT guid FROM #PFX#reports WHERE guid = %s''',
+              (guid))
+  report = cursor.fetchone()
+
+  if report != None:
+    os.remove(xmlFile)
+    return
+
   source = open(xmlFile, 'rb')
-  target = open(dumpFile, 'wb')
   reportData = {'status': '',  'warnings': {}, 'requests': [], 'filters': [], 'subscriptions': [], 'extensions': [], 'errors': [], 'time': time()}
   tagStack = []
 
@@ -85,12 +87,9 @@ def processReport(xmlFile, dumpFile, htmlFile):
     del reportData['screenshot']
   if 'email' in reportData and reportData['email'].find(' at ') < 0:
     del reportData['email']
+
   validateData(reportData)
-
-  marshal.dump(reportData, target)
-  target.close()
-
-  saveReport(reportData, htmlFile)
+  saveReport(guid, reportData)
   os.remove(xmlFile)
 
 def processElementStart(name, attributes):

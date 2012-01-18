@@ -35,7 +35,7 @@ def handleRequest(environ, start_response):
   if not re.match(r'^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$', guid):
     return showError('Invalid or missing GUID', start_response)
 
-  path = os.path.join(get_config().get('reports', 'dataPath'), guid[0], guid[1], guid[2], guid[3], guid + '.xml')
+  path = os.path.join(get_config().get('reports', 'dataPath'), guid + '.xml')
   if os.path.exists(path) or os.path.exists(path + '.tmp'):
     return showError('Duplicate GUID', start_response)
 

@@ -4,11 +4,11 @@
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
 
-import os, sys, re, marshal
+import MySQLdb, os, sys, re, marshal
 from time import time
 from sitescripts.utils import get_config, setupStderr
 from sitescripts.templateFilters import formatmime
-from sitescripts.reports.utils import mailDigest, calculateReportSecret
+from sitescripts.reports.utils import mailDigest, calculateReportSecret, get_db, executeQuery
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def loadSubscriptions():
@@ -31,59 +31,56 @@ def loadSubscriptions():
     resultList.append(subscription)
   return (results, resultList)
 
-def scanReports(dir, result = []):
+def scanReports():
   global fakeSubscription, interval, subscriptions, startTime
 
-  for file in os.listdir(dir):
-    filePath = os.path.join(dir, file)
-    if os.path.isdir(filePath):
-      scanReports(filePath, result)
-    elif file.endswith('.dump'):
-      handle = open(filePath, 'rb')
-      reportData = marshal.load(handle)
-      handle.close()
+  result = []
+  cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
+  executeQuery(cursor,
+              '''SELECT guid, dump FROM #PFX#reports WHERE ctime >= FROM_UNIXTIME(%s)''',
+              (startTime))
+  reports = cursor.fetchall()
 
-      if reportData.get('time', 0) < startTime:
-        continue
+  for report in reports:
+    reportData = marshal.loads(report['dump'])
 
-      matchSubscriptions = {}
-      for filter in reportData.get('filters', []):
-        for url in filter.get('subscriptions', []):
-          if url in subscriptions:
-            matchSubscriptions[url] = subscriptions[url]
+    matchSubscriptions = {}
+    for filter in reportData.get('filters', []):
+      for url in filter.get('subscriptions', []):
+        if url in subscriptions:
+          matchSubscriptions[url] = subscriptions[url]
 
-      recipients = []
-      reportType = reportData.get('type', 'unknown')
-      if reportType == 'false positive' or reportType == 'false negative':
-        for subscription in reportData.get('subscriptions', []):
-          subscriptionID = subscription.get('id', 'unknown')
-          # Send false negatives to all subscription authors, false positives
-          # only to subscriptions with matching filters
-          if subscriptionID in subscriptions and (reportType == 'false negative' or subscriptionID in matchSubscriptions):
-            recipients.append(subscriptions[subscriptionID])
-      elif interval != 'week':
-        # Send type "other" to fake subscription - daily reports
-        recipients.append(fakeSubscription)
+    recipients = []
+    reportType = reportData.get('type', 'unknown')
+    if reportType == 'false positive' or reportType == 'false negative':
+      for subscription in reportData.get('subscriptions', []):
+        subscriptionID = subscription.get('id', 'unknown')
+        # Send false negatives to all subscription authors, false positives
+        # only to subscriptions with matching filters
+        if subscriptionID in subscriptions and (reportType == 'false negative' or subscriptionID in matchSubscriptions):
+          recipients.append(subscriptions[subscriptionID])
+    elif interval != 'week':
+      # Send type "other" to fake subscription - daily reports
+      recipients.append(fakeSubscription)
 
-      if len(recipients) == 0:
-        continue
+    if len(recipients) == 0:
+      continue
 
-      guid = re.sub(r'\.dump$', r'', file)
-      report = {
-        'url': get_config().get('reports', 'urlRoot') + guid + '#secret=' + calculateReportSecret(guid),
-        'weight': calculateReportWeight(reportData),
-        'site': reportData.get('siteName', 'unknown'),
-        'subscriptions': recipients,
-        'comment': re.sub(r'[\x00-\x20]', r' ', reportData.get('comment', '')),
-        'type': reportData.get('type', 'unknown'),
-        'numSubscriptions': len(reportData.get('subscriptions', [])),
-        'matchSubscriptions': matchSubscriptions.values(),
-        'email': reportData.get('email', None),
-        'screenshot': reportData.get('screenshot', None),
-        'screenshotEdited': reportData.get('screenshotEdited', False),
-        'knownIssues': len(reportData.get('knownIssues', [])),
-      }
-      result.append(report)
+    report = {
+      'url': get_config().get('reports', 'urlRoot') + report['guid'] + '#secret=' + calculateReportSecret(report['guid']),
+      'weight': calculateReportWeight(reportData),
+      'site': reportData.get('siteName', 'unknown'),
+      'subscriptions': recipients,
+      'comment': re.sub(r'[\x00-\x20]', r' ', reportData.get('comment', '')),
+      'type': reportData.get('type', 'unknown'),
+      'numSubscriptions': len(reportData.get('subscriptions', [])),
+      'matchSubscriptions': matchSubscriptions.values(),
+      'email': reportData.get('email', None),
+      'screenshot': reportData.get('screenshot', None),
+      'screenshotEdited': reportData.get('screenshotEdited', False),
+      'knownIssues': len(reportData.get('knownIssues', [])),
+    }
+    result.append(report)
   return result
 
 def sendNotifications(reports):
@@ -176,5 +173,5 @@ if __name__ == '__main__':
   fakeSubscription = {'url': 'https://fake.adblockplus.org', 'name': get_config().get('reports', 'defaultSubscriptionName'), 'email': get_config().get('reports', 'defaultSubscriptionRecipient')}
   (subscriptions, subscriptionList) = loadSubscriptions()
   subscriptionList.append(fakeSubscription)
-  reports = scanReports(get_config().get('reports', 'dataPath'))
+  reports = scanReports()
   sendNotifications(reports)

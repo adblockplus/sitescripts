@@ -28,6 +28,10 @@ defaultSubscriptionName=Adblock Plus
 defaultSubscriptionRecipient=Somebody <user@example.com>
 errorTemplate=reports/template/error.html
 submitResponseTemplate=reports/template/submitSuccess.html
+database=db
+dbuser=user
+dbpassword=password
+dbprefix=
 
 [openid]
 serverUrl=https://adblockplus.org/openid

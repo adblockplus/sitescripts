@@ -4,11 +4,11 @@
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
 
-import re, os, sys, marshal, random
+import re, os, sys, random
 from urlparse import parse_qsl
 from sitescripts.utils import get_config, get_template, setupStderr
 from sitescripts.web import url_handler
-from sitescripts.reports.utils import calculateReportSecret, saveReport, sendUpdateNotification
+from sitescripts.reports.utils import calculateReportSecret, getReport, saveReport, sendUpdateNotification
 
 @url_handler('/updateReport')
 def handleRequest(environ, start_response):
@@ -31,27 +31,20 @@ def handleRequest(environ, start_response):
   if not re.match(r'^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$', guid):
     return showError('Invalid or missing report GUID', start_response)
 
-  path = os.path.join(get_config().get('reports', 'dataPath'), guid[0], guid[1], guid[2], guid[3], guid + '.dump')
-  if not os.path.exists(path):
-    return showError('Report does not exists', start_response)
+  reportData = getReport(guid)    
+
+  if reportData == None:
+    return showError('Report does not exist', start_response)
 
   secret = calculateReportSecret(guid)
   if params.get('secret', '') != secret:
     return showError('Wrong secret value', start_response)
 
-  handle = open(path, 'rb')
-  reportData = marshal.load(handle)
-  handle.close()
-
   reportData['status'] = params.get('status', '')
   if len(reportData['status']) > 1024:
     reportData['status'] = reportData['status'][:1024]
 
-  handle = open(path, 'wb')
-  marshal.dump(reportData, handle)
-  handle.close()
-
-  saveReport(reportData, re.sub(r'\.dump', '.html', path))
+  saveReport(guid, reportData)
 
   if params.get('notify', '') and 'email' in reportData:
     email = reportData['email']
