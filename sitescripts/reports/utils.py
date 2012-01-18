@@ -26,8 +26,8 @@ def saveReport(guid, reportData):
               '''INSERT INTO #PFX#reports (guid, type, ctime, site, dump)
                  VALUES (%s, %s, FROM_UNIXTIME(%s), %s, %s) ON DUPLICATE KEY
                  UPDATE type = %s, site = %s, dump = %s''',
-              (guid, reportData['type'], reportData['time'], reportData['siteName'],
-               dumpstr, reportData['type'], reportData['siteName'], dumpstr))
+              (guid, reportData.get('type', None), reportData['time'], reportData.get('siteName', None),
+               dumpstr, reportData.get('type', None), reportData.get('siteName', None), dumpstr))
   if len(reportData['subscriptions']) > 0:
     for sn in reportData['subscriptions']:
       executeQuery(cursor,
