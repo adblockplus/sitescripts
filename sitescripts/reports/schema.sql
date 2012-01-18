@@ -1,8 +1,8 @@
-﻿/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `report_reports` (
+CREATE TABLE `reports` (
   `guid` varchar(40) NOT NULL,
-  `type` varchar(30) NOT NULL,
+  `type` varchar(30) DEFAULT NULL,,
   `ctime` datetime NOT NULL,
   `site` varchar(150) DEFAULT NULL,
   `dump` mediumblob,
@@ -12,7 +12,7 @@ CREATE TABLE `report_reports` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `report_sublists` (
+CREATE TABLE `sublists` (
   `report` varchar(40) NOT NULL,
   `list` int(10) unsigned NOT NULL,
   UNIQUE KEY `report_list` (`list`,`report`),
@@ -23,7 +23,7 @@ CREATE TABLE `report_sublists` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `report_subscriptions` (
+CREATE TABLE `subscriptions` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `url` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
