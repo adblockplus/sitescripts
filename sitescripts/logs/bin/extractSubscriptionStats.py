@@ -15,7 +15,7 @@ def parseUA(ua):
   if match:
     return 'Opera %s' % match.group(1)
 
-  for appName in ('Fennec', 'Firefox', 'Thunderbird', 'SeaMonkey', 'Songbird', 'K-Meleon', 'Prism'):
+  for appName in ('Fennec', 'Thunderbird', 'SeaMonkey', 'Songbird', 'K-Meleon', 'Prism', 'Firefox'):
     match = re.search(r'\b%s/(\d+\.\d+)' % appName, ua)
     if match:
       return '%s %s' % (appName, match.group(1))
