@@ -12,11 +12,8 @@ import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 def updateSubscriptionList():
   cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
   executeQuery(cursor, '''SELECT id, url FROM #PFX#subscriptions''')
-  dbsubs = cursor.fetchall()
-  
   subids = {}
-  
-  for dbsub in dbsubs:
+  for dbsub in cursor:
     subids[dbsub['url']] = dbsub['id']
       
   subscriptions = subscriptionParser.readSubscriptions()

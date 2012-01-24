@@ -13,8 +13,7 @@ def removeOldReports(days=30):
   executeQuery(cursor,
          '''SELECT guid FROM #PFX#reports WHERE ADDDATE(ctime, INTERVAL %s DAY) < NOW()''',
          (days))
-  reports = cursor.fetchall()
-  for report in reports:
+  for report in cursor:
     removeReport(report['guid'])
 
 if __name__ == '__main__':

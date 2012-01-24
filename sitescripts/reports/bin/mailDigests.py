@@ -39,9 +39,8 @@ def scanReports():
   executeQuery(cursor,
               '''SELECT guid, dump FROM #PFX#reports WHERE ctime >= FROM_UNIXTIME(%s)''',
               (startTime))
-  reports = cursor.fetchall()
 
-  for report in reports:
+  for report in cursor:
     reportData = marshal.loads(report['dump'])
 
     matchSubscriptions = {}
