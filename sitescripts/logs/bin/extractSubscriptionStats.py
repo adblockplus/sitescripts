@@ -78,7 +78,7 @@ def parseStdIn(geo):
     if country == '' or country == '--':
       country = 'unknown'
 
-    ua = parseUA(ua)
+    ua = parseUA(ua)[:20]
 
     section = time.strftime('%Y%m')
     if not section in data:
