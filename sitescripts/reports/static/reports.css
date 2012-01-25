@@ -1,0 +1,235 @@
+body
+{
+  background-color: #FFFFFF;
+}
+
+table
+{
+  border-collapse: collapse;
+}
+
+#requests, #filters, #subscriptions, #errors, #warnings, #extensions
+{
+  width: 100%;
+}
+
+th, td
+{
+  vertical-align: top;
+  border: 1px solid #000000;
+  padding: 5px;
+  max-width: 600px;
+  word-wrap: break-word;
+}
+
+th
+{
+  border-bottom-width: 2px;
+}
+
+.label, th
+{
+  background-color: #E0E0E0;
+  font-weight: bold;
+}
+
+td
+{
+  background-color: #FFFFFF;
+}
+
+.header
+{
+  font-weight: bold;
+  font-size: 120%;
+}
+
+:root:not([selectedTab="requests"]):not([selectedTab="all"]) #requestsBox
+{
+  display: none;
+}
+:root:not([selectedTab="filters"]):not([selectedTab="all"]) #filtersBox
+{
+  display: none;
+}
+:root:not([selectedTab="subscriptions"]):not([selectedTab="all"]) #subscriptionsBox
+{
+  display: none;
+}
+:root:not([selectedTab="errors"]):not([selectedTab="all"]) #errorsBox
+{
+  display: none;
+}
+:root:not([selectedTab="screenshot"]):not([selectedTab="all"]) #screenshotBox
+{
+  display: none;
+}
+:root:not([selectedTab="warnings"]):not([selectedTab="all"]) #warningsBox
+{
+  display: none;
+}
+:root:not([selectedTab="extensions"]):not([selectedTab="all"]) #extensionsBox
+{
+  display: none;
+}
+
+[selectedTab="requests"]:root #requestsTab
+{
+  background-color: #808080;
+  color: #FFFFFF;
+}
+[selectedTab="filters"]:root #filtersTab
+{
+  background-color: #808080;
+  color: #FFFFFF;
+}
+[selectedTab="subscriptions"]:root #subscriptionsTab
+{
+  background-color: #808080;
+  color: #FFFFFF;
+}
+[selectedTab="errors"]:root #errorsTab
+{
+  background-color: #808080;
+  color: #FFFFFF;
+}
+[selectedTab="screenshot"]:root #screenshotTab
+{
+  background-color: #808080;
+  color: #FFFFFF;
+}
+[selectedTab="warnings"]:root #warningsTab
+{
+  background-color: #808080;
+  color: #FFFFFF;
+}
+[selectedTab="extensions"]:root #extensionsTab
+{
+  background-color: #808080;
+  color: #FFFFFF;
+}
+[selectedTab="all"]:root #allTab
+{
+  background-color: #808080;
+  color: #FFFFFF;
+}
+
+#warningsTab
+{
+  color: red;
+}
+
+.tabStrip
+{
+  list-style: none;
+  margin: 10px 0px 0px 0px;
+  padding: 0px;
+}
+
+.tab
+{
+  cursor: pointer;
+  float: left;
+  padding: 5px 15px;
+  border: 1px solid #808080;
+  border-bottom-width: 0px;
+  -moz-border-radius-topleft: 10px;
+  -moz-border-radius-topright: 10px;
+  -webkit-border-top-left-radius: 10px;
+  -webkit-border-top-right-radius: 10px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  margin-right: 2px;
+}
+
+.tabsBody
+{
+  clear: both;
+  border: 1px solid #808080;
+  padding: 5px;
+}
+
+.censored
+{
+  color: red;
+}
+
+.errorColumn
+{
+  color: #00C000;
+}
+
+.errorMessage > p:first-child
+{
+  margin-top: 0px;
+}
+.errorMessage > p:last-child
+{
+  margin-bottom: 0px;
+}
+
+.whitelisted > td
+{
+  background-color: #C0FFC0;
+}
+.hidden > td
+{
+  background-color: #C0C0FF;
+}
+.blocked > td
+{
+  background-color: #FFC0C0;
+}
+
+td.requestSize, td.filterHitCount
+{
+  text-align: right;
+}
+td.requestThirdParty, td.subscriptionAutoDownload
+{
+  text-align: center;
+}
+
+#statusField
+{
+  width: 100%;
+  height: 150px;
+}
+
+#templatesField
+{
+  width: 100%;
+}
+
+#addTemplateButton, #removeTemplateButton
+{
+  float: right;
+}
+
+#notifyField
+{
+  float: right;
+}
+
+#knownIssuesRow
+{
+  color: red;
+}
+
+.sortable th
+{
+  background-position: 98% 50%;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  -moz-user-select: none;
+}
+
+.sortable th[sortDir="ascending"]
+{
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAENJREFUeNpifP3qNgMyOHzgwH8be3tGIICLMSErOLR%2F%2F%2F9%2F%2F%2F6BaSDAVIQugcxnglmBrADZapA445oVMzFl0QBAgAEAL2wvEOl1RbEAAAAASUVORK5CYII%3D);
+}
+
+.sortable th[sortDir="descending"]
+{
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAD1JREFUeNpiXLty1n8gYMAHmGwdHBiBAKcCkDwTSIGdoyNWVSBxJiYmBiaYgL2TEyO6ApgNTNgk0J0AEGAA9sYMDTSB5q8AAAAASUVORK5CYII%3D);
+}
