@@ -42,7 +42,6 @@ def updateDigests(dir):
 
     report = {
       'url': get_config().get('reports', 'urlRoot') + dbreport['guid'] + '#secret=' + calculateReportSecret(dbreport['guid']),
-      'weight': calculateReportWeight(reportData, startTime),
       'site': reportData.get('siteName', 'unknown'),
       'comment': re.sub(r'[\x00-\x20]', r' ', reportData.get('comment', '')),
       'type': reportData.get('type', 'unknown'),
@@ -81,28 +80,6 @@ def getDigestFilename(dir, email):
   hash = hashlib.md5()
   hash.update(email)
   return os.path.join(dir, hash.hexdigest() + '.html')
-
-def calculateReportWeight(reportData, startTime):
-  global currentTime
-
-  weight = 1.0
-  if reportData.get('type', 'unknown') == 'false positive' or reportData.get('type', 'unknown') == 'false negative':
-    weight /= len(reportData.get('subscriptions', []))
-  if 'screenshot' in reportData and reportData.get('screenshotEdited', False):
-    weight += 0.7
-  elif 'screenshot' in reportData:
-    weight += 0.3
-  if len(reportData.get('knownIssues', [])) > 0:
-    weight -= 0.3
-  if re.search(r'\btest\b', reportData.get('comment', ''), re.IGNORECASE):
-    weight -= 0.5
-  elif re.search(r'\S', reportData.get('comment', '')):
-    weight += 0.5
-  if 'email' in reportData:
-    weight += 0.3
-
-  weight += (reportData.get('time', 0) - startTime) / (currentTime - startTime) * 0.2
-  return weight
 
 if __name__ == '__main__':
   setupStderr()
