@@ -55,7 +55,7 @@ def updateDigests(dir):
       'knownIssues': len(reportData.get('knownIssues', [])),
     }
     
-    recipients = {}
+    recipients = set()
     
     reportType = reportData.get('type', 'unknown')
     if reportType == 'false positive' or reportType == 'false negative':
@@ -66,7 +66,7 @@ def updateDigests(dir):
         if subscriptionID in subscriptions and (reportType == 'false negative' or subscriptionID in matchSubscriptions):
           name, email = parseaddr(subscriptions[subscriptionID].email)
           if email and not email in recipients:
-            recipients[email] = 1
+            recipients.add(email)
             emails[email].append(report)
           report['subscriptions'].append(subscriptions[subscriptionID])
 
