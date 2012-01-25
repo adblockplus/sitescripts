@@ -59,7 +59,7 @@ def removeReport(guid):
     os.remove(file)
 
 def mailDigest(templateData):
-  sendMail(get_config().get('reports', 'digestTemplate'), templateData)
+  sendMail(get_config().get('reports', 'mailDigestTemplate'), templateData)
 
 def sendUpdateNotification(templateData):
   sendMail(get_config().get('reports', 'notificationTemplate'), templateData)

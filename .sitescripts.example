@@ -21,8 +21,11 @@ subscriptionListFile=%(root)s/www/subscriptions.html
 [reports]
 urlRoot=https://reports.adblockplus.org/
 dataPath=%(root)s/reports/data
+digestPath=%(root)s/reports/digests
+digestDays=2
 webTemplate=reports/template/report.html
-digestTemplate=reports/template/digest.mail
+mailDigestTemplate=reports/template/digest.mail
+htmlDigestTemplate=reports/template/digest.html
 notificationTemplate=reports/template/updateNotification.mail
 defaultSubscriptionName=Adblock Plus
 defaultSubscriptionRecipient=Somebody <user@example.com>

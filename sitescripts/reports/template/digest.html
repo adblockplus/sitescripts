@@ -1,0 +1,46 @@
+<!-- This Source Code is subject to the terms of the Mozilla Public License
+   - version 2.0 (the "License"). You can obtain a copy of the License at
+   - http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE html>
+<html lang="en" selectedTab="all">
+  <head>
+    <title>Issue report for {{siteName}}</title>
+    <link rel="stylesheet" href="/reports.css" type="text/css" />
+  </head>
+  <body>
+  <p>The following reports have been received for your filter list through the Adblock Plus issue reporter. Legend for the information displayed at
+the line start:</p>
+<ul>
+<li>f: false positive</li>
+<li>m: missed ad</li>
+<li>+: has matches for filters from your subscription</li>
+<li>e: has contact address</li>
+<li>s: has screenshot</li>
+<li>k: matches known issues</li>
+<li>0-9: number of filter subscriptions</li>
+</ul>
+
+<table>
+{% for report in reports -%}
+<tr><td>
+{{'[' -}}
+{{ {'false positive': 'f', 'false negative': 'm', 'other': 'o'}.get(report.type, 'u') -}}
+{{ '+' if report.numSubscriptions > 0 else ' ' -}}
+{{ 'e' if report.email else ' ' -}}
+{{ 'S' if report.screenshot and report.screenshotEdited else 's' if report.screenshot else ' ' -}}
+{{ 'k' if report.knownIssues > 0 else ' ' -}}
+{{ report.numSubscriptions if report.numSubscriptions < 10 else 9 -}}
+{{'] '}}
+</td><td>
+{{report.site}}
+</td><td>
+{{report.comment}}
+</td><td>
+{{report.url}}
+</td>
+</tr>
+{% endfor -%}
+</table>
+  </body>
+</html>
