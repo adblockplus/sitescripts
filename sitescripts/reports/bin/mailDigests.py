@@ -75,7 +75,7 @@ def scanReports():
       'numSubscriptions': len(reportData.get('subscriptions', [])),
       'matchSubscriptions': matchSubscriptions.values(),
       'email': reportData.get('email', None),
-      'screenshot': reportData.get('screenshot', None),
+      'screenshot': reportData.get('screenshot', None) != None,
       'screenshotEdited': reportData.get('screenshotEdited', False),
       'knownIssues': len(reportData.get('knownIssues', [])),
     }
