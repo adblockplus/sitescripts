@@ -8,12 +8,30 @@
 <title>Issue reports for {{email}}</title>
 <link rel="stylesheet" href="/reports.css" type="text/css" />
 <style type="text/css">
-#reportTemplate { display: none }
-.reportTime { text-align: right }
+#reportTemplate
+{
+  display: none;
+}
+.reportTime
+{
+  text-align: right;
+}
 .reportScreenshot,
 .reportContact,
 .reportKnown,
-.reportNumSubs { text-align: center }
+.reportNumSubs
+{
+  text-align: center;
+}
+.reportScreenshot,
+.reportContact
+{
+  color: #00C000;
+}
+.reportKnown
+{
+  color: #C00000;
+}
 </style>
 <script type="text/javascript">
 var reports = {{reports|json(indent=2,ensure_ascii=False)|safe}};
@@ -37,6 +55,7 @@ function addReportEntry(tbody, report)
 
   var time = element.getElementsByClassName("reportTime")[0];
   time.textContent = new Date(report.time * 1000).toLocaleDateString();
+  time.title = new Date(report.time * 1000).toLocaleString();
 
   var status = element.getElementsByClassName("reportStatus")[0];
   var s = truncate(report.status, 25, true);
@@ -51,11 +70,17 @@ function addReportEntry(tbody, report)
     contact.title = report.email;
   }
 
-  var screenshot = element.getElementsByClassName("reportScreenshot")[0];
-  screenshot.textContent = report.screenshot && report.screenshotEdited ? "✔" : report.screenshot ? "✓" : "";
+  if (report.screenshot)
+  {
+    var screenshot = element.getElementsByClassName("reportScreenshot")[0];
+    screenshot.textContent = (report.screenshotEdited ? "✔" : "✓");
+  }
 
-  var known = element.getElementsByClassName("reportKnown")[0];
-  known.textContent = report.knownIssues > 0 ? "✓" : " ";
+  if (report.knownIssues > 0)
+  {
+    var known = element.getElementsByClassName("reportKnown")[0];
+    known.textContent = "✓";
+  }
 
   var numSubs = element.getElementsByClassName("reportNumSubs")[0];
   numSubs.textContent = report.numSubscriptions;
@@ -237,16 +262,16 @@ function unixtime()
   <table id="reportList">
     <thead>
       <tr>
-        <th>report type</th>
-        <th>time</th>
-        <th>status</th>
-        <th title="has contact address">contact</th>
-        <th>screenshot</th>
-        <th title="matches known issues">known</th>
-        <th title="number of filter subscriptions">subscriptions</th>
-        <th>site</th>
-        <th>comment</th>
-        <th>link</th>
+        <th>Report type</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th title="Has contact address">Contact</th>
+        <th>Screenshot</th>
+        <th title="Matches known issues">Known</th>
+        <th title="Number of filter subscriptions">Subscriptions</th>
+        <th>Site</th>
+        <th>Comment</th>
+        <th>Link</th>
       </tr>
       <tr id="reportTemplate">
         <td class="reportType">
