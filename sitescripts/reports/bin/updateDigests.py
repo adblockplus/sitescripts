@@ -4,7 +4,7 @@
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
 
-import MySQLdb, hashlib, sys, os, re, marshal
+import MySQLdb, hashlib, sys, os, re, marshal, gc
 from time import time
 from email.utils import parseaddr
 from sitescripts.utils import get_config, get_template, setupStderr
@@ -32,6 +32,7 @@ def updateDigests(dir):
               (startTime))
 
   for dbreport in cursor:
+    gc.collect()
     reportData = marshal.loads(dbreport['dump'])
 
     matchSubscriptions = {}
