@@ -4,7 +4,7 @@
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
 
-import re, email.header, urllib, time
+import re, email.header, urllib, time, json
 from datetime import date
 from jinja2.utils import Markup
 from urlparse import urlparse
@@ -181,4 +181,5 @@ filters = {
   'bytes': formatbytes,
   'sum': getsum,
   'max': getmax,
+  'json': json.dumps
 }

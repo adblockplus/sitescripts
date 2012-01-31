@@ -3,44 +3,268 @@
    - http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE html>
-<html lang="en" selectedTab="all">
-  <head>
-    <title>Issue report for {{siteName}}</title>
-    <link rel="stylesheet" href="/reports.css" type="text/css" />
-  </head>
-  <body>
-  <p>The following reports have been received for your filter list through the Adblock Plus issue reporter. Legend for the information displayed at
-the line start:</p>
-<ul>
-<li>f: false positive</li>
-<li>m: missed ad</li>
-<li>+: has matches for filters from your subscription</li>
-<li>e: has contact address</li>
-<li>s: has screenshot</li>
-<li>k: matches known issues</li>
-<li>0-9: number of filter subscriptions</li>
-</ul>
+<html lang="en">
+<head>
+<title>Issue reports for {{email}}</title>
+<link rel="stylesheet" href="/reports.css" type="text/css" />
+<style type="text/css">
+#reportTemplate { display: none }
+.reportTime { text-align: right }
+.reportScreenshot,
+.reportContact,
+.reportKnown,
+.reportNumSubs { text-align: center }
+</style>
+<script type="text/javascript">
+var reports = {{reports|json(indent=2,ensure_ascii=False)|safe}};
 
-<table>
-{% for report in reports -%}
-<tr><td>
-{{'[' -}}
-{{ {'false positive': 'f', 'false negative': 'm', 'other': 'o'}.get(report.type, 'u') -}}
-{{ '+' if report.numSubscriptions > 0 else ' ' -}}
-{{ 'e' if report.email else ' ' -}}
-{{ 'S' if report.screenshot and report.screenshotEdited else 's' if report.screenshot else ' ' -}}
-{{ 'k' if report.knownIssues > 0 else ' ' -}}
-{{ report.numSubscriptions if report.numSubscriptions < 10 else 9 -}}
-{{'] '}}
-</td><td>
-{{report.site}}
-</td><td>
-{{report.comment}}
-</td><td>
-{{report.url}}
-</td>
-</tr>
-{% endfor -%}
-</table>
-  </body>
+var currentTime = unixtime();
+var currentPeriod = currentTime - 24 * 3600;
+var currentSort = compareRelevance;
+var onlyWithScreenshot = false;
+var onlyWithEmail = false;
+var sites = {};
+var ready = false;
+
+function addReportEntry(tbody, report)
+{
+  var template = document.getElementById("reportTemplate");
+  var element = template.cloneNode(true);
+  element.removeAttribute("id");
+  
+  var type = element.getElementsByClassName("reportType")[0];
+  type.textContent = report.type;
+
+  var time = element.getElementsByClassName("reportTime")[0];
+  time.textContent = new Date(report.time * 1000).toLocaleDateString();
+
+  var status = element.getElementsByClassName("reportStatus")[0];
+  var s = truncate(report.status, 25, true);
+  status.textContent = s;
+  if (s != report.status)
+    status.title = report.status;
+
+  if (report.email != null)
+  {
+    var contact = element.getElementsByClassName("reportContact")[0];
+    contact.textContent = "✓";
+    contact.title = report.email;
+  }
+
+  var screenshot = element.getElementsByClassName("reportScreenshot")[0];
+  screenshot.textContent = report.screenshot && report.screenshotEdited ? "✔" : report.screenshot ? "✓" : "";
+
+  var known = element.getElementsByClassName("reportKnown")[0];
+  known.textContent = report.knownIssues > 0 ? "✓" : " ";
+
+  var numSubs = element.getElementsByClassName("reportNumSubs")[0];
+  numSubs.textContent = report.numSubscriptions;
+  numSubs.title = report.subscriptions.map(function(x) {return x.name;}).join(", ");
+
+  var href = element.getElementsByClassName("reportHref")[0];
+  href.href = report.url;
+
+  var site = element.getElementsByClassName("reportSite")[0];
+  site.textContent = report.site;
+
+  var comment = element.getElementsByClassName("reportComment")[0];
+  var c = truncate(report.comment, 25, true);
+  comment.textContent = c;
+  if (c != report.comment)
+    comment.title = report.comment;
+
+  tbody.appendChild(element);
+}
+
+function truncate(s, n, useWordBoundary)
+{
+  if (s.length <= n)
+    return s;
+	var s_ = s.substr(0, n-1);
+  if (useWordBoundary && s_.lastIndexOf(' ') > 0)
+    s_ = s_.substr(0, s_.lastIndexOf(' '));
+  return  s_ + "…";
+}
+  
+function init()
+{
+  for (var i = 0; i < reports.length; i++)
+  {
+    reports[i].weight = calculateReportWeight(reports[i]);
+  }
+  updateFilters();
+  updateDisplayedPeriod();
+  updateSortFunction();
+  ready = true;
+  populateTable();
+}
+
+function populateTable()
+{
+  if (! ready)
+    return;
+
+  // clear table
+  var tbody = document.getElementById("reportList").tBodies[0];
+  while (tbody.lastChild)
+    tbody.removeChild(tbody.lastChild);
+
+  // period and filters
+  var r = reports.filter(filterReports);
+  
+  // sort
+  if (currentSort == compareSite)
+  {
+    sites = {};
+    for (var i = 0; i < r.length; i++)
+    {
+      if (! sites[r[i].site])
+        sites[r[i].site] = 1;
+      else
+        sites[r[i].site]++;
+    }
+  }
+  r.sort(currentSort);
+  
+  // add items
+  for (var i = 0; i < r.length; i++)
+  {
+    addReportEntry(tbody, r[i]);
+  }
+}
+
+function updateDisplayedPeriod()
+{
+  var select = document.getElementById("period");
+  var option = select.options[select.selectedIndex].value;
+  currentPeriod = currentTime - parseInt(option) * 3600;
+  populateTable();
+}
+
+function updateSortFunction()
+{
+  var select = document.getElementById("sort");
+  var option = select.options[select.selectedIndex].value;
+  if (option == "relevance")
+    currentSort = compareRelevance;
+  else if (option == "site")
+    currentSort = compareSite;
+  else if (option == "time")
+    currentSort = compareTime;
+  populateTable();
+}
+
+function updateFilters()
+{
+  onlyWithScreenshot = document.getElementById('screenshot').checked;
+  onlyWithEmail = document.getElementById('email').checked;
+  populateTable();
+}
+
+function filterReports(element, index, array)
+{
+  return (
+          element.time >= currentPeriod &&
+          (! onlyWithScreenshot || element.screenshot) &&
+          (! onlyWithEmail || element.email != null)
+         );
+}
+
+function compareSite(a,b)
+{
+  if (sites[a.site] != sites[b.site])
+    return sites[b.site] - sites[a.site];
+  if (a.site < b.site)
+    return -1;
+  if (a.site > b.site)
+    return 1;
+  return compareRelevance(a,b);
+}
+
+function compareRelevance(a,b)
+{
+  if (a.weight < b.weight)
+     return 1;
+  if (a.weight > b.weight)
+    return -1;
+  return compareTime(a, b);
+}
+
+function compareTime(a,b)
+{
+  return b.time - a.time;
+}
+
+function calculateReportWeight(report)
+{
+//  var startTime
+  var weight = 1.0;
+  if (report.type == 'false positive' || report.type == 'false negative')
+    weight /= report.subscriptions.length;
+  if (report.screenshot && report.screenshotEdited)
+    weight += 0.7;
+  else if (report.screenshot)
+    weight += 0.3;
+  if (report.knownIssues > 0)
+    weight -= 0.3;
+  if (report.comment.match(/\btest\b/i))
+    weight -= 0.5;
+  else if (report.comment.match(/\S/))
+    weight += 0.5;
+  if (report.email != null)
+    weight += 0.3;
+
+  return weight;
+}
+
+function unixtime()
+{
+  return parseInt(new Date().getTime()/1000);
+}
+</script>
+</head>
+<body onload="init()">
+  <p class="header">Issue reports for {{email}}</p>
+  <p>The following reports have been received for your filter list through the Adblock Plus issue reporter:</p>
+
+  <p>
+    for period: <select id="period" onchange="updateDisplayedPeriod()"><option value="24">last 24 hours</option><option value="168">last week</option><option value="8760">all</option></select>
+    sort by: <select id="sort" onchange="updateSortFunction()"><option value="relevance">relevance</option><option value="site">site</option><option value="time">time</option></select>
+    filter:
+    <input type="checkbox" id="screenshot" onclick="updateFilters()"><label for="screenshot"> only with screenshot</label>
+    <input type="checkbox" id="email" onclick="updateFilters()"><label for="email"> only with email</label>
+  </p>
+  <table id="reportList">
+    <thead>
+      <tr>
+        <th>report type</th>
+        <th>time</th>
+        <th>status</th>
+        <th title="has contact address">contact</th>
+        <th>screenshot</th>
+        <th title="matches known issues">known</th>
+        <th title="number of filter subscriptions">subscriptions</th>
+        <th>site</th>
+        <th>comment</th>
+        <th>link</th>
+      </tr>
+      <tr id="reportTemplate">
+        <td class="reportType">
+        </td><td class="reportTime">
+        </td><td class="reportStatus">
+        </td><td class="reportContact">
+        </td><td class="reportScreenshot">
+        </td><td class="reportKnown">
+        </td><td class="reportNumSubs">
+        </td><td class="reportSite">
+        </td><td class="reportComment">
+        </td><td class="reportLink">
+        <a class="reportHref">view</a>
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</body>
 </html>

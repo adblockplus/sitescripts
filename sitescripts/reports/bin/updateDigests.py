@@ -38,20 +38,22 @@ def updateDigests(dir):
     for filters in reportData.get('filters', []):
       for url in filters.get('subscriptions', []):
         if url in subscriptions:
-          matchSubscriptions[url] = subscriptions[url]
+          matchSubscriptions[url] = True
 
     report = {
+      'guid': dbreport['guid'],
+      'status': reportData.get('status', 'unknown'),
       'url': get_config().get('reports', 'urlRoot') + dbreport['guid'] + '#secret=' + calculateReportSecret(dbreport['guid']),
       'site': reportData.get('siteName', 'unknown'),
-      'comment': re.sub(r'[\x00-\x20]', r' ', reportData.get('comment', '')),
+      'comment': reportData.get('comment', ''),
       'type': reportData.get('type', 'unknown'),
       'subscriptions': [],
-      'numSubscriptions': len(reportData.get('subscriptions', [])),
-      'matchSubscriptions': matchSubscriptions.values(),
+      'numSubscriptions': 0,
       'email': reportData.get('email', None),
       'screenshot': reportData.get('screenshot', None) != None,
       'screenshotEdited': reportData.get('screenshotEdited', False),
       'knownIssues': len(reportData.get('knownIssues', [])),
+      'time': reportData.get('time', 0),
     }
     
     recipients = set()
@@ -67,14 +69,22 @@ def updateDigests(dir):
           if email and not email in recipients:
             recipients.add(email)
             emails[email].append(report)
-          report['subscriptions'].append(subscriptions[subscriptionID])
-
+          report['subscriptions'].append(getSubscriptionInfo(subscriptions[subscriptionID]))
+    report['numSubscriptions'] = len(report['subscriptions'])
+          
   for email, reports in emails.iteritems():
     if len(reports) == 0:
       continue
     file = getDigestFilename(dir, email)
     template = get_template(get_config().get('reports', 'htmlDigestTemplate'))
     template.stream({'email': email, 'reports': reports}).dump(file, encoding='utf-8')
+
+def getSubscriptionInfo(subscription):
+  sub = {
+    'name': subscription.name,
+    'type': subscription.type
+  }
+  return sub
 
 def getDigestFilename(dir, email):
   hash = hashlib.md5()
