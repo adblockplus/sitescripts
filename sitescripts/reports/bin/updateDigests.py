@@ -11,6 +11,23 @@ from sitescripts.utils import get_config, get_template, setupStderr
 from sitescripts.reports.utils import calculateReportSecret, get_db, executeQuery
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
+def getReports(startTime):
+  count = 1000
+  offset = 0
+  while True:
+    cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
+    executeQuery(cursor,
+                '''SELECT guid, dump FROM #PFX#reports WHERE ctime >= FROM_UNIXTIME(%s) LIMIT %s OFFSET %s''',
+                (startTime, count, offset))
+    rows = cursor.fetchall()
+    cursor.close()
+    if len(rows) == 0:
+      break
+    for row in rows:
+      yield row
+    offset += len(rows)
+
+
 def updateDigests(dir):
   global currentTime
   
@@ -26,12 +43,7 @@ def updateDigests(dir):
       emails[email] = []
 
   startTime = currentTime - get_config().getint('reports', 'digestDays') * 24*60*60
-  cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
-  executeQuery(cursor,
-              '''SELECT guid, dump FROM #PFX#reports WHERE ctime >= FROM_UNIXTIME(%s)''',
-              (startTime))
-
-  for dbreport in cursor:
+  for dbreport in getReports(startTime):
     reportData = marshal.loads(dbreport['dump'])
 
     matchSubscriptions = {}
@@ -55,9 +67,9 @@ def updateDigests(dir):
       'knownIssues': len(reportData.get('knownIssues', [])),
       'time': reportData.get('time', 0),
     }
-    
+
     recipients = set()
-    
+
     reportType = reportData.get('type', 'unknown')
     if reportType == 'false positive' or reportType == 'false negative':
       for subscription in reportData.get('subscriptions', []):
