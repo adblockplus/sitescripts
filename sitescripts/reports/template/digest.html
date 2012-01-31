@@ -8,6 +8,15 @@
 <title>Issue reports for {{email}}</title>
 <link rel="stylesheet" href="/reports.css" type="text/css" />
 <style type="text/css">
+#filters,
+#reportList
+{
+  width: 100%;
+}
+#filters td
+{
+  border: none;
+}
 #reportTemplate
 {
   display: none;
@@ -41,6 +50,9 @@ var currentPeriod = currentTime - 24 * 3600;
 var currentSort = compareRelevance;
 var onlyWithScreenshot = false;
 var onlyWithEmail = false;
+var onlyWithComment = false;
+var onlyWithoutKnown = false;
+var onlyWithoutStatus = false;
 var sites = {};
 var ready = false;
 
@@ -183,6 +195,9 @@ function updateFilters()
 {
   onlyWithScreenshot = document.getElementById('screenshot').checked;
   onlyWithEmail = document.getElementById('email').checked;
+  onlyWithComment = document.getElementById('comment').checked;
+  onlyWithoutKnown = document.getElementById('known').checked;
+  onlyWithoutStatus = document.getElementById('status').checked;
   populateTable();
 }
 
@@ -191,7 +206,10 @@ function filterReports(element, index, array)
   return (
           element.time >= currentPeriod &&
           (! onlyWithScreenshot || element.screenshot) &&
-          (! onlyWithEmail || element.email != null)
+          (! onlyWithEmail || element.email != null) &&
+          (! onlyWithoutStatus || element.status == "") &&
+          (! onlyWithoutKnown || element.knownIssues == 0) &&
+          (! onlyWithComment || element.comment != "")
          );
 }
 
@@ -249,16 +267,26 @@ function unixtime()
 </script>
 </head>
 <body onload="init()">
-  <p class="header">Issue reports for {{email}}</p>
-  <p>The following reports have been received for your filter list through the Adblock Plus issue reporter:</p>
-
-  <p>
-    for period: <select id="period" onchange="updateDisplayedPeriod()"><option value="24">last 24 hours</option><option value="168">last week</option><option value="8760">all</option></select>
-    sort by: <select id="sort" onchange="updateSortFunction()"><option value="relevance">relevance</option><option value="site">site</option><option value="time">time</option></select>
-    filter:
-    <input type="checkbox" id="screenshot" onclick="updateFilters()"><label for="screenshot"> only with screenshot</label>
-    <input type="checkbox" id="email" onclick="updateFilters()"><label for="email"> only with email</label>
-  </p>
+  <p class="header"> Adblock Plus issue reports for {{email}}</p>
+  <table id="filters">
+    <tr><td>
+      <table>
+        <tr><td>
+          Filters:
+        </td><td>
+          <input type="checkbox" id="email" onclick="updateFilters()"><label for="email"> only with email</label><br/>
+          <input type="checkbox" id="comment" onclick="updateFilters()"><label for="comment"> only with comment</label><br/>
+          <input type="checkbox" id="screenshot" onclick="updateFilters()"><label for="screenshot"> only with screenshot</label><br/>
+        </td><td>
+          <input type="checkbox" id="known" onclick="updateFilters()"><label for="known"> only without known issues</label><br/>
+          <input type="checkbox" id="status" onclick="updateFilters()"><label for="status"> only without status</label><br/>
+        </td></tr>
+      </table>
+    </td><td style="text-align: right; vertical-align: bottom">
+      Period: <select id="period" onchange="updateDisplayedPeriod()"><option value="24">last 24 hours</option><option value="168">last week</option><option value="8760">all</option></select>
+      Sort by: <select id="sort" onchange="updateSortFunction()"><option value="relevance">relevance</option><option value="site">site</option><option value="time">time</option></select>
+    </td></tr>
+  </table>
   <table id="reportList">
     <thead>
       <tr>
