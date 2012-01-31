@@ -140,11 +140,13 @@ function populateTable()
 {
   if (! ready)
     return;
+    
+  var tbody = document.getElementById("reportList").tBodies[0];
 
   // clear table
-  var tbody = document.getElementById("reportList").tBodies[0];
-  while (tbody.lastChild)
-    tbody.removeChild(tbody.lastChild);
+  var range = document.createRange();
+  range.selectNodeContents(tbody);
+  range.deleteContents();
 
   // period and filters
   var r = reports.filter(filterReports);
@@ -162,12 +164,30 @@ function populateTable()
     }
   }
   r.sort(currentSort);
-  
-  // add items
-  for (var i = 0; i < r.length; i++)
+
+  var offset = 0;
+  var count = 1000;
+
+  function addRows()
   {
-    addReportEntry(tbody, r[i]);
+    ready = false;
+    // add items
+    var limit = offset + count;
+    if (limit > r.length)
+      limit = r.length;
+    for (var i = offset; i < limit; i++)
+    {
+      addReportEntry(tbody, r[i]);
+    }
+
+    ready = limit == r.length;
+    if (! ready)
+    {
+      offset += count;
+      setTimeout(addRows, 0);
+    }
   }
+  setTimeout(addRows, 0);
 }
 
 function updateDisplayedPeriod()
@@ -274,7 +294,7 @@ function unixtime()
         <tr><td>
           Filters:
         </td><td>
-          <input type="checkbox" id="email" onclick="updateFilters()"><label for="email"> only with email</label><br/>
+          <input type="checkbox" id="email" onclick="updateFilters()"><label for="email"> only with contact address</label><br/>
           <input type="checkbox" id="comment" onclick="updateFilters()"><label for="comment"> only with comment</label><br/>
           <input type="checkbox" id="screenshot" onclick="updateFilters()"><label for="screenshot"> only with screenshot</label><br/>
         </td><td>
