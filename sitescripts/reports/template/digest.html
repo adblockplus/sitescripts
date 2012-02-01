@@ -41,6 +41,34 @@
 {
   color: #C00000;
 }
+
+#reportList
+{
+  table-layout: fixed;
+}
+#reportTypeColumn,
+#reportTimeColumn
+{
+  width: 10%;
+}
+#reportStatusColumn,
+#reportCommentColumn
+{
+  width: 20%
+}
+#reportContactColumn,
+#reportScreenshotColumn,
+#reportKnownColumn,
+#reportNumSubsColumn,
+#reportLinkColumn
+{
+  width: 5%;
+}
+#reportSiteColumn
+{
+  width: 15%;
+}
+
 </style>
 <script type="text/javascript">
 var reports = {{reports|json(indent=2,ensure_ascii=False)|safe}};
@@ -316,6 +344,18 @@ function unixtime()
     </td></tr>
   </table>
   <table id="reportList">
+    <colgroup>
+      <col id="reportTypeColumn">
+      <col id="reportTimeColumn">
+      <col id="reportStatusColumn">
+      <col id="reportContactColumn">
+      <col id="reportScreenshotColumn">
+      <col id="reportKnownColumn">
+      <col id="reportNumSubsColumn">
+      <col id="reportSiteColumn">
+      <col id="reportCommentColumn">
+      <col id="reportLinkColumn">
+    </colgroup>
     <thead>
       <tr>
         <th>Report type</th>
@@ -330,18 +370,16 @@ function unixtime()
         <th>Link</th>
       </tr>
       <tr id="reportTemplate">
-        <td class="reportType">
-        </td><td class="reportTime">
-        </td><td class="reportStatus">
-        </td><td class="reportContact">
-        </td><td class="reportScreenshot">
-        </td><td class="reportKnown">
-        </td><td class="reportNumSubs">
-        </td><td class="reportSite">
-        </td><td class="reportComment">
-        </td><td class="reportLink">
-        <a class="reportHref">view</a>
-        </td>
+        <td class="reportType"></td>
+        <td class="reportTime"></td>
+        <td class="reportStatus"></td>
+        <td class="reportContact"></td>
+        <td class="reportScreenshot"></td>
+        <td class="reportKnown"></td>
+        <td class="reportNumSubs"></td>
+        <td class="reportSite"></td>
+        <td class="reportComment"></td>
+        <td class="reportLink"><a class="reportHref">view</a></td>
       </tr>
     </thead>
     <tbody>
