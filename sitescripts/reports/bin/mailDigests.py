@@ -5,10 +5,12 @@
 # http://mozilla.org/MPL/2.0/.
 
 import MySQLdb, os, sys, re, marshal
+from datetime import date
 from time import time
+from email.utils import parseaddr
 from sitescripts.utils import get_config, setupStderr
 from sitescripts.templateFilters import formatmime
-from sitescripts.reports.utils import mailDigest, calculateReportSecret, get_db, executeQuery
+from sitescripts.reports.utils import mailDigest, calculateReportSecret, getDigestId, getDigestSecret, get_db, executeQuery
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def loadSubscriptions():
@@ -120,11 +122,13 @@ def sendMail(subscription, groups):
   else:
     email = subscription['email']
 
-  match = re.match(r'^(.*?)\s*<\s*([\x21-x7F]+)\s*>\s*$', email)
-  if match:
-    email = formatmime(match.group(1)) + ' <' + match.group(2) + '>'
+  name, address = parseaddr(email)
+  email = formatmime(name) + ' <' + formatmime(address) + '>'
+  
+  id = getDigestId(address)
+  digestLink = get_config().get('reports', 'urlRoot') + 'digest?id=%s&secret=%s' % (id, getDigestSecret(id, date.today().isocalendar()))
 
-  mailDigest({'email': email, 'subscription': subscription, 'groups': groups})
+  mailDigest({'email': email, 'digestLink': digestLink, 'subscription': subscription, 'groups': groups})
 
 def calculateReportWeight(reportData):
   global currentTime, startTime

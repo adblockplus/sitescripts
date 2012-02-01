@@ -70,6 +70,22 @@ def calculateReportSecret(guid):
   hash.update(guid)
   return hash.hexdigest()
 
+def getDigestId(email):
+  hash = hashlib.md5()
+  hash.update(email)
+  return hash.hexdigest()
+
+def getDigestPath(dir, email):
+  return os.path.join(dir, getDigestId(email) + '.html')
+  
+def getDigestSecret(id, (year, week, weekday)):
+  hash = hashlib.md5()
+  hash.update(get_config().get('reports', 'secret'))
+  hash.update(id)
+  hash.update(str(year))
+  hash.update(str(week))
+  return hash.hexdigest()
+
 @cached(600)
 def get_db():
   database = get_config().get('reports', 'database')

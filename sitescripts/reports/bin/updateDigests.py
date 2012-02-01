@@ -8,7 +8,7 @@ import MySQLdb, hashlib, sys, os, re, marshal
 from time import time
 from email.utils import parseaddr
 from sitescripts.utils import get_config, get_template, setupStderr
-from sitescripts.reports.utils import calculateReportSecret, get_db, executeQuery
+from sitescripts.reports.utils import calculateReportSecret, getDigestPath, get_db, executeQuery
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def getReports(startTime):
@@ -89,7 +89,7 @@ def updateDigests(dir):
   for email, reports in emails.iteritems():
     if len(reports) == 0:
       continue
-    file = getDigestFilename(dir, email)
+    file = getDigestPath(dir, email)
     template = get_template(get_config().get('reports', 'htmlDigestTemplate'))
     template.stream({'email': email, 'reports': reports}).dump(file, encoding='utf-8')
     digests.add(file)
@@ -106,11 +106,6 @@ def getSubscriptionInfo(subscription):
     'type': subscription.type
   }
   return sub
-
-def getDigestFilename(dir, email):
-  hash = hashlib.md5()
-  hash.update(email)
-  return os.path.join(dir, hash.hexdigest() + '.html')
 
 if __name__ == '__main__':
   setupStderr()

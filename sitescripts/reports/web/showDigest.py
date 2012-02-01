@@ -7,6 +7,7 @@
 import re, os, sys, hashlib
 from datetime import date, timedelta
 from urlparse import parse_qs
+from sitescripts.reports.utils import getDigestSecret
 from sitescripts.utils import get_config, get_template, setupStderr
 from sitescripts.web import url_handler
 
@@ -20,8 +21,8 @@ def handleRequest(environ, start_response):
   if not re.match(r'^[\da-f]{32}$', id):
     return showError('Invalid or missing ID', start_response)
   
-  thisweek = getWeekSecret(id, date.today().isocalendar())
-  prevweek = getWeekSecret(id, (date.today()-timedelta(weeks=1)).isocalendar())
+  thisweek = getDigestSecret(id, date.today().isocalendar())
+  prevweek = getDigestSecret(id, (date.today()-timedelta(weeks=1)).isocalendar())
 
   secret = params.get('secret', [''])[0].lower()
   if secret != thisweek and secret != prevweek:
@@ -38,14 +39,6 @@ def handleRequest(environ, start_response):
     return environ['wsgi.file_wrapper'](f, blockSize)
   else:
     return iter(lambda: f.read(blockSize), '')
-
-def getWeekSecret(id, (year, week, weekday)):
-  hash = hashlib.md5()
-  hash.update(get_config().get('reports', 'secret'))
-  hash.update(id)
-  hash.update(str(year))
-  hash.update(str(week))
-  return hash.hexdigest()
 
 def showError(message, start_response):
   template = get_template(get_config().get('reports', 'errorTemplate'))
