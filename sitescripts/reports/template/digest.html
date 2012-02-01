@@ -180,18 +180,15 @@ function populateTable()
       addReportEntry(tbody, r[i]);
     }
 
-    if (limit < r.length)
+    if (populateTableCalls > 1)
     {
-      if (populateTableCalls == 1)
-      {
-        offset += count;
-        setTimeout(addRows, 0);
-      }
-      else
-      {
-        populateTableCalls = 0;
-        setTimeout(populateTable, 0);
-      }
+      populateTableCalls = 0;
+      setTimeout(populateTable, 0);
+    }
+    else if (limit < r.length)
+    {
+      offset += count;
+      setTimeout(addRows, 0);
     }
     else
     {
