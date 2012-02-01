@@ -32,16 +32,18 @@ def updateDigests(dir):
   global currentTime
   
   subs = subscriptionParser.readSubscriptions()
+  defname, defemail = parseaddr(get_config().get('reports', 'defaultSubscriptionRecipient'))
 
   subscriptions = {}
   emails = {}
+  emails[defemail] = []
   for subscription in subs.values():
     for title, url, complete in subscription.variants:
       subscriptions[url] = subscription
     name, email = parseaddr(subscription.email)
     if email != '':
       emails[email] = []
-
+      
   startTime = currentTime - get_config().getint('reports', 'digestDays') * 24*60*60
   for dbreport in getReports(startTime):
     reportData = marshal.loads(dbreport['dump'])
@@ -82,6 +84,10 @@ def updateDigests(dir):
             recipients.add(email)
             emails[email].append(report)
           report['subscriptions'].append(getSubscriptionInfo(subscriptions[subscriptionID]))
+    else:
+      recipients.add(defemail)
+      emails[defemail].append(report)
+      
     report['numSubscriptions'] = len(report['subscriptions'])
 
   # Generate new digests
