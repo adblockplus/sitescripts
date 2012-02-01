@@ -54,8 +54,7 @@ var onlyWithComment = false;
 var onlyWithoutKnown = false;
 var onlyWithoutStatus = false;
 var sites = {};
-var ready = false;
-var populateTableCalls = 0;
+var populateTableCalls = 1;
 
 function addReportEntry(tbody, report)
 {
@@ -133,15 +132,12 @@ function init()
   updateFilters();
   updateDisplayedPeriod();
   updateSortFunction();
-  ready = true;
+  populateTableCalls = 0;
   populateTable();
 }
 
 function populateTable()
 {
-  if (! ready)
-    return;
-  
   populateTableCalls++;
   if (populateTableCalls > 1)
     return;
@@ -175,7 +171,6 @@ function populateTable()
 
   function addRows()
   {
-    ready = false;
     // add items
     var limit = offset + count;
     if (limit > r.length)
@@ -185,8 +180,7 @@ function populateTable()
       addReportEntry(tbody, r[i]);
     }
 
-    ready = limit == r.length;
-    if (! ready)
+    if (limit < r.length)
     {
       if (populateTableCalls == 1)
       {
@@ -196,7 +190,6 @@ function populateTable()
       else
       {
         populateTableCalls = 0;
-        ready = true;
         setTimeout(populateTable, 0);
       }
     }
