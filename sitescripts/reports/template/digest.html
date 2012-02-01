@@ -55,6 +55,7 @@ var onlyWithoutKnown = false;
 var onlyWithoutStatus = false;
 var sites = {};
 var ready = false;
+var populateTableCalls = 0;
 
 function addReportEntry(tbody, report)
 {
@@ -140,7 +141,11 @@ function populateTable()
 {
   if (! ready)
     return;
-    
+  
+  populateTableCalls++;
+  if (populateTableCalls > 1)
+    return;
+  
   var tbody = document.getElementById("reportList").tBodies[0];
 
   // clear table
@@ -183,8 +188,21 @@ function populateTable()
     ready = limit == r.length;
     if (! ready)
     {
-      offset += count;
-      setTimeout(addRows, 0);
+      if (populateTableCalls == 1)
+      {
+        offset += count;
+        setTimeout(addRows, 0);
+      }
+      else
+      {
+        populateTableCalls = 0;
+        ready = true;
+        setTimeout(populateTable, 0);
+      }
+    }
+    else
+    {
+      populateTableCalls = 0;
     }
   }
   setTimeout(addRows, 0);
