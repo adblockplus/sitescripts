@@ -84,26 +84,20 @@ def updateDigests(dir):
           report['subscriptions'].append(getSubscriptionInfo(subscriptions[subscriptionID]))
     report['numSubscriptions'] = len(report['subscriptions'])
 
-  # Collect existing digests
-  digests = set()
-  for filename in os.listdir(dir):
-    file = os.path.join(dir, filename)
-    if os.path.isfile(file) and re.match(r'^[\da-f]{32}\.html$', filename):
-      digests.add(file)
-
   # Generate new digests
+  digests = set()
   for email, reports in emails.iteritems():
     if len(reports) == 0:
       continue
     file = getDigestFilename(dir, email)
     template = get_template(get_config().get('reports', 'htmlDigestTemplate'))
     template.stream({'email': email, 'reports': reports}).dump(file, encoding='utf-8')
-    if file in digests:
-      digests.remove(file)
+    digests.add(file)
   
   # Remove not updated digests which are more then 2 weeks old
-  for file in digests:
-    if os.stat(file).st_mtime < currentTime - 14*24*60*60:
+  for filename in os.listdir(dir):
+    file = os.path.join(dir, filename)
+    if os.path.isfile(file) and file not in digests and re.match(r'^[\da-f]{32}\.html$', filename) and os.stat(file).st_mtime < currentTime - 14*24*60*60:
       os.remove(file)
 
 def getSubscriptionInfo(subscription):
