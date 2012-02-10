@@ -299,9 +299,9 @@ function calculateReportWeight(report)
   var weight = 1.0;
   if (report.type == 'false positive' || report.type == 'false negative')
     weight /= report.subscriptions.length;
-  if (report.screenshot && report.screenshotEdited)
+  if (report.hasscreenshot == 2)
     weight += 0.7;
-  else if (report.screenshot)
+  else if (report.hasscreenshot == 1)
     weight += 0.3;
   if (report.knownIssues > 0)
     weight -= 0.3;
@@ -309,7 +309,7 @@ function calculateReportWeight(report)
     weight -= 0.5;
   else if (/\S/.test(report.comment))
     weight += 0.5;
-  if (report.contact != null)
+  if (report.contact)
     weight += 0.3;
 
   return weight;
