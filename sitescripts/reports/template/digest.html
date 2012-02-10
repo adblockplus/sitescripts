@@ -142,9 +142,9 @@ function addReportEntry(tbody, report)
 
 function truncate(s, n, useWordBoundary)
 {
-  if (s.length <= n)
+  if (!s || s.length <= n)
     return s;
-	var s_ = s.substr(0, n-1);
+  var s_ = s.substr(0, n-1);
   if (useWordBoundary && s_.lastIndexOf(' ') > 0)
     s_ = s_.substr(0, s_.lastIndexOf(' '));
   return  s_ + "…";
@@ -262,9 +262,9 @@ function filterReports(element, index, array)
           element.time >= currentPeriod &&
           (! onlyWithScreenshot || element.screenshot) &&
           (! onlyWithContact || element.contact != null) &&
-          (! onlyWithoutStatus || element.status == "") &&
+          (! onlyWithoutStatus || !element.status) &&
           (! onlyWithoutKnown || element.knownIssues == 0) &&
-          (! onlyWithComment || element.comment != "")
+          (! onlyWithComment || element.comment)
          );
 }
 
@@ -305,9 +305,9 @@ function calculateReportWeight(report)
     weight += 0.3;
   if (report.knownIssues > 0)
     weight -= 0.3;
-  if (report.comment.match(/\btest\b/i))
+  if (/\btest\b/i.test(report.comment))
     weight -= 0.5;
-  else if (report.comment.match(/\S/))
+  else if (/\S/.test(report.comment))
     weight += 0.5;
   if (report.contact != null)
     weight += 0.3;
