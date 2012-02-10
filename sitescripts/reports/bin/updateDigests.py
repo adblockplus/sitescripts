@@ -15,7 +15,7 @@ def getReportSubscriptions(guid):
   cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
   executeQuery(cursor,
               '''SELECT url, hasmatches FROM #PFX#sublists INNER JOIN
-              #PFX#subscriptions ON (ON #PFX#sublists.list = #PFX#subscriptions.id)
+              #PFX#subscriptions ON (#PFX#sublists.list = #PFX#subscriptions.id)
               WHERE report = %s''',
               (guid))
   rows = cursor.fetchall()
