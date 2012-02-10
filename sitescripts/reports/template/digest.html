@@ -260,7 +260,7 @@ function filterReports(element, index, array)
 {
   return (
           element.time >= currentPeriod &&
-          (! onlyWithScreenshot || element.screenshot) &&
+          (! onlyWithScreenshot || element.hasscreenshot) &&
           (! onlyWithContact || element.contact != null) &&
           (! onlyWithoutStatus || !element.status) &&
           (! onlyWithoutKnown || element.knownIssues == 0) &&
