@@ -29,6 +29,10 @@ def saveReport(guid, reportData, isNew=False):
   knownIssues = len(reportData.get('knownIssues', []))
   contact = getUserId(reportData.get('email', None)) if reportData.get('email', None) else None
   
+  if contact != None and isNew:
+    executeQuery(cursor,
+                '''INSERT INTO #PFX#users (id, reports) VALUES (%s, 1) ON DUPLICATE KEY UPDATE reports = reports + 1''',
+                (contact))
   executeQuery(cursor,
               '''INSERT INTO #PFX#reports (guid, type, ctime, site, comment, status, contact, hasscreenshot, knownissues, dump)
                  VALUES (%(guid)s, %(type)s, FROM_UNIXTIME(%(ctime)s), %(site)s, %(comment)s, %(status)s, %(contact)s,
@@ -38,10 +42,6 @@ def saveReport(guid, reportData, isNew=False):
               {'guid': guid, 'type': reportData.get('type', None), 'ctime': reportData['time'], 'site': reportData.get('siteName', None),
                'comment': reportData.get('comment', None), 'status': reportData.get('status', None), 'contact': contact,
                'hasscreenshot': hasScreenshot, 'knownissues': knownIssues, 'dump': dumpstr})
-  if contact != None and isNew:
-    executeQuery(cursor,
-                '''INSERT INTO #PFX#users (id, reports) VALUES (%s, 1) ON DUPLICATE KEY UPDATE reports = reports + 1''',
-                (contact))
   if len(reportData['subscriptions']) > 0:
     for sn in reportData['subscriptions']:
       executeQuery(cursor,
