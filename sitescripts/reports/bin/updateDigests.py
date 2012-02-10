@@ -4,12 +4,24 @@
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
 
-import MySQLdb, hashlib, sys, os, re, marshal
+import MySQLdb, hashlib, sys, os, re
 from time import time
 from email.utils import parseaddr
 from sitescripts.utils import get_config, get_template, setupStderr
 from sitescripts.reports.utils import calculateReportSecret, getDigestPath, get_db, executeQuery
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
+
+def getReportSubscriptions(guid):
+  cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
+  executeQuery(cursor,
+              '''SELECT url, hasmatches FROM #PFX#sublists INNER JOIN
+              #PFX#subscriptions ON (ON #PFX#sublists.list = #PFX#subscriptions.id)
+              WHERE report = %s''',
+              (guid))
+  rows = cursor.fetchall()
+  cursor.close()
+  return rows
+
 
 def getReports(startTime):
   count = 1000
@@ -17,7 +29,9 @@ def getReports(startTime):
   while True:
     cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
     executeQuery(cursor,
-                '''SELECT guid, dump FROM #PFX#reports WHERE ctime >= FROM_UNIXTIME(%s) LIMIT %s OFFSET %s''',
+                '''SELECT guid, type, UNIX_TIMESTAMP(ctime) AS ctime, status, site, contact,
+                comment, hasscreenshot, knownissues
+                FROM #PFX#reports WHERE ctime >= FROM_UNIXTIME(%s) LIMIT %s OFFSET %s''',
                 (startTime, count, offset))
     rows = cursor.fetchall()
     cursor.close()
@@ -46,50 +60,41 @@ def updateDigests(dir):
       
   startTime = currentTime - get_config().getint('reports', 'digestDays') * 24*60*60
   for dbreport in getReports(startTime):
-    reportData = marshal.loads(dbreport['dump'])
-
-    matchSubscriptions = {}
-    for filters in reportData.get('filters', []):
-      for url in filters.get('subscriptions', []):
-        if url in subscriptions:
-          matchSubscriptions[url] = True
-
     report = {
       'guid': dbreport['guid'],
-      'status': reportData.get('status', 'unknown'),
+      'status': dbreport['status'],
       'url': get_config().get('reports', 'urlRoot') + dbreport['guid'] + '#secret=' + calculateReportSecret(dbreport['guid']),
-      'site': reportData.get('siteName', 'unknown'),
-      'comment': reportData.get('comment', ''),
-      'type': reportData.get('type', 'unknown'),
+      'site': dbreport['site'],
+      'comment': dbreport['comment'],
+      'type': dbreport['type'],
       'subscriptions': [],
-      'numSubscriptions': 0,
-      'email': reportData.get('email', None),
-      'screenshot': reportData.get('screenshot', None) != None,
-      'screenshotEdited': reportData.get('screenshotEdited', False),
-      'knownIssues': len(reportData.get('knownIssues', [])),
-      'time': reportData.get('time', 0),
+      'contact': dbreport['contact'],
+      'hasscreenshot': dbreport['hasscreenshot'],
+      'knownIssues': dbreport['knownissues'],
+      'time': dbreport['ctime'],
     }
 
     recipients = set()
+    reportSubscriptions = getReportSubscriptions(dbreport['guid'])
 
-    reportType = reportData.get('type', 'unknown')
-    if reportType == 'false positive' or reportType == 'false negative':
-      for subscription in reportData.get('subscriptions', []):
-        subscriptionID = subscription.get('id', 'unknown')
+    if dbreport['type'] == 'false positive' or dbreport['type'] == 'false negative':
+      for subscription in reportSubscriptions:
+        subscriptionID = subscription.get('url', 'unknown')
         # Send false negatives to all subscription authors, false positives
         # only to subscriptions with matching filters
-        if subscriptionID in subscriptions and (reportType == 'false negative' or subscriptionID in matchSubscriptions):
+        if subscriptionID in subscriptions and (dbreport['type'] == 'false negative' or subscription.get('hasmatches', 0) > 0):
           name, email = parseaddr(subscriptions[subscriptionID].email)
           if email and not email in recipients:
             recipients.add(email)
             emails[email].append(report)
           report['subscriptions'].append(getSubscriptionInfo(subscriptions[subscriptionID]))
     else:
+      for subscription in reportSubscriptions:
+        subscriptionID = subscription.get('url', 'unknown')
+        report['subscriptions'].append(getSubscriptionInfo(subscriptions[subscriptionID]))
       recipients.add(defemail)
       emails[defemail].append(report)
       
-    report['numSubscriptions'] = len(report['subscriptions'])
-
   # Generate new digests
   digests = set()
   for email, reports in emails.iteritems():

@@ -77,7 +77,7 @@ var currentTime = unixtime();
 var currentPeriod = currentTime - 24 * 3600;
 var currentSort = compareRelevance;
 var onlyWithScreenshot = false;
-var onlyWithEmail = false;
+var onlyWithContact = false;
 var onlyWithComment = false;
 var onlyWithoutKnown = false;
 var onlyWithoutStatus = false;
@@ -103,17 +103,16 @@ function addReportEntry(tbody, report)
   if (s != report.status)
     status.title = report.status;
 
-  if (report.email != null)
+  if (report.contact != null)
   {
     var contact = element.getElementsByClassName("reportContact")[0];
     contact.textContent = "✓";
-    contact.title = report.email;
   }
 
-  if (report.screenshot)
+  if (report.hasscreenshot)
   {
     var screenshot = element.getElementsByClassName("reportScreenshot")[0];
-    screenshot.textContent = (report.screenshotEdited ? "✔" : "✓");
+    screenshot.textContent = (report.hasscreenshot == 2 ? "✔" : "✓");
   }
 
   if (report.knownIssues > 0)
@@ -123,7 +122,7 @@ function addReportEntry(tbody, report)
   }
 
   var numSubs = element.getElementsByClassName("reportNumSubs")[0];
-  numSubs.textContent = report.numSubscriptions;
+  numSubs.textContent = report.subscriptions.length;
   numSubs.title = report.subscriptions.map(function(x) {return x.name;}).join(", ");
 
   var href = element.getElementsByClassName("reportHref")[0];
@@ -250,7 +249,7 @@ function updateSortFunction()
 function updateFilters()
 {
   onlyWithScreenshot = document.getElementById('screenshot').checked;
-  onlyWithEmail = document.getElementById('email').checked;
+  onlyWithContact = document.getElementById('contact').checked;
   onlyWithComment = document.getElementById('comment').checked;
   onlyWithoutKnown = document.getElementById('known').checked;
   onlyWithoutStatus = document.getElementById('status').checked;
@@ -262,7 +261,7 @@ function filterReports(element, index, array)
   return (
           element.time >= currentPeriod &&
           (! onlyWithScreenshot || element.screenshot) &&
-          (! onlyWithEmail || element.email != null) &&
+          (! onlyWithContact || element.contact != null) &&
           (! onlyWithoutStatus || element.status == "") &&
           (! onlyWithoutKnown || element.knownIssues == 0) &&
           (! onlyWithComment || element.comment != "")
@@ -310,7 +309,7 @@ function calculateReportWeight(report)
     weight -= 0.5;
   else if (report.comment.match(/\S/))
     weight += 0.5;
-  if (report.email != null)
+  if (report.contact != null)
     weight += 0.3;
 
   return weight;
@@ -330,7 +329,7 @@ function unixtime()
         <tr><td>
           Filters:
         </td><td>
-          <input type="checkbox" id="email" onclick="updateFilters()"><label for="email"> only with contact address</label><br/>
+          <input type="checkbox" id="contact" onclick="updateFilters()"><label for="contact"> only with contact address</label><br/>
           <input type="checkbox" id="comment" onclick="updateFilters()"><label for="comment"> only with comment</label><br/>
           <input type="checkbox" id="screenshot" onclick="updateFilters()"><label for="screenshot"> only with screenshot</label><br/>
         </td><td>

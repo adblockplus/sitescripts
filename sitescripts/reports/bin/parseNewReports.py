@@ -89,7 +89,7 @@ def processReport(xmlFile):
     del reportData['email']
 
   validateData(reportData)
-  saveReport(guid, reportData)
+  saveReport(guid, reportData, True)
   os.remove(xmlFile)
 
 def processElementStart(name, attributes):

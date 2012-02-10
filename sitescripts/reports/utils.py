@@ -19,15 +19,29 @@ def getReport(guid):
   reportData = marshal.loads(report[0])
   return reportData
 
-def saveReport(guid, reportData):
+def saveReport(guid, reportData, isNew=False):
   dumpstr = marshal.dumps(reportData)
   cursor = get_db().cursor()
+  if reportData.get('screenshot', None) != None:
+    hasScreenshot = 2 if reportData.get('screenshotEdited', False) else 1
+  else:
+    hasScreenshot = 0
+  knownIssues = len(reportData.get('knownIssues', []))
+  contact = getUserId(reportData.get('email', None)) if reportData.get('email', None) else None
+  
   executeQuery(cursor,
-              '''INSERT INTO #PFX#reports (guid, type, ctime, site, dump)
-                 VALUES (%s, %s, FROM_UNIXTIME(%s), %s, %s) ON DUPLICATE KEY
-                 UPDATE type = %s, site = %s, dump = %s''',
-              (guid, reportData.get('type', None), reportData['time'], reportData.get('siteName', None),
-               dumpstr, reportData.get('type', None), reportData.get('siteName', None), dumpstr))
+              '''INSERT INTO #PFX#reports (guid, type, ctime, site, comment, status, contact, hasscreenshot, knownissues, dump)
+                 VALUES (%(guid)s, %(type)s, FROM_UNIXTIME(%(ctime)s), %(site)s, %(comment)s, %(status)s, %(contact)s,
+                 %(hasscreenshot)s, %(knownissues)s, %(dump)s) ON DUPLICATE KEY
+                 UPDATE type = %(type)s, site = %(site)s, comment = %(comment)s, status = %(status)s,
+                 contact = %(contact)s, hasscreenshot = %(hasscreenshot)s, knownissues = %(knownissues)s, dump = %(dump)s''',
+              {'guid': guid, 'type': reportData.get('type', None), 'ctime': reportData['time'], 'site': reportData.get('siteName', None),
+               'comment': reportData.get('comment', None), 'status': reportData.get('status', None), 'contact': contact,
+               'hasscreenshot': hasScreenshot, 'knownissues': knownIssues, 'dump': dumpstr})
+  if contact != None and isNew:
+    executeQuery(cursor,
+                '''INSERT INTO #PFX#users (id, reports) VALUES (%s, 1) ON DUPLICATE KEY UPDATE reports = reports + 1''',
+                (contact))
   if len(reportData['subscriptions']) > 0:
     for sn in reportData['subscriptions']:
       executeQuery(cursor,
@@ -35,9 +49,11 @@ def saveReport(guid, reportData):
                   (sn['id']))
       id = cursor.fetchone()
       if id != None:
+        filterMatch = lambda f: any(u == sn['id'] for u in f.get('subscriptions', []))
+        hasMatches = any(filterMatch(f) for f in reportData.get('filters', []))
         executeQuery(cursor,
-               '''INSERT IGNORE INTO #PFX#sublists (report, list) VALUES (%s, %s)''',
-               (guid, id[0]))
+               '''INSERT IGNORE INTO #PFX#sublists (report, list, hasmatches) VALUES (%s, %s, %s)''',
+               (guid, id[0], hasMatches))
 
   get_db().commit()
 
@@ -68,6 +84,12 @@ def calculateReportSecret(guid):
   hash = hashlib.md5()
   hash.update(get_config().get('reports', 'secret'))
   hash.update(guid)
+  return hash.hexdigest()
+
+def getUserId(email):
+  hash = hashlib.md5()
+  hash.update(get_config().get('reports', 'secret'))
+  hash.update(email)
   return hash.hexdigest()
 
 def getDigestId(email):
