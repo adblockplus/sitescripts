@@ -25,8 +25,8 @@ the line start:
 {{'[' -}}
 {{ {'false positive': 'f', 'false negative': 'm', 'other': 'o'}.get(report.type, 'u') -}}
 {{ '+' if subscription in report.matchSubscriptions else ' ' -}}
-{{ 'e' if report.email else ' ' -}}
-{{ 'S' if report.screenshot and report.screenshotEdited else 's' if report.screenshot else ' ' -}}
+{{ 'e' if report.contact else ' ' -}}
+{{ 'S' if report.hasscreenshot == 2 else 's' if report.hasscreenshot  == 1 else ' ' -}}
 {{ 'k' if report.knownIssues > 0 else ' ' -}}
 {{ report.numSubscriptions if report.numSubscriptions < 10 else 9 -}}
 {{'] ' -}}

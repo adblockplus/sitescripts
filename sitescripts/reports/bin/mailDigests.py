@@ -10,7 +10,7 @@ from time import time
 from email.utils import parseaddr
 from sitescripts.utils import get_config, setupStderr
 from sitescripts.templateFilters import formatmime
-from sitescripts.reports.utils import mailDigest, calculateReportSecret, getDigestId, getDigestSecret, get_db, executeQuery
+from sitescripts.reports.utils import mailDigest, getReports, getReportSubscriptions, calculateReportSecret, getDigestId, getDigestSecret
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def loadSubscriptions():
@@ -37,50 +37,42 @@ def scanReports():
   global fakeSubscription, interval, subscriptions, startTime
 
   result = []
-  cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
-  executeQuery(cursor,
-              '''SELECT guid, dump FROM #PFX#reports WHERE ctime >= FROM_UNIXTIME(%s)''',
-              (startTime))
 
-  for report in cursor:
-    reportData = marshal.loads(report['dump'])
-
+  for dbreport in getReports(startTime):
     matchSubscriptions = {}
-    for filter in reportData.get('filters', []):
-      for url in filter.get('subscriptions', []):
-        if url in subscriptions:
-          matchSubscriptions[url] = subscriptions[url]
-
     recipients = []
-    reportType = reportData.get('type', 'unknown')
-    if reportType == 'false positive' or reportType == 'false negative':
-      for subscription in reportData.get('subscriptions', []):
-        subscriptionID = subscription.get('id', 'unknown')
+    reportSubscriptions = getReportSubscriptions(dbreport['guid'])
+    if dbreport['type'] == 'false positive' or dbreport['type'] == 'false negative':
+      for subscription in reportSubscriptions:
+        subscriptionID = subscription.get('url', 'unknown')
+        if subscription.get('hasmatches', 0) > 0:
+          matchSubscriptions[subscriptionID] = subscriptions[subscriptionID]
         # Send false negatives to all subscription authors, false positives
         # only to subscriptions with matching filters
-        if subscriptionID in subscriptions and (reportType == 'false negative' or subscriptionID in matchSubscriptions):
+        if subscriptionID in subscriptions and (dbreport['type'] == 'false negative' or subscription.get('hasmatches', 0) > 0):
           recipients.append(subscriptions[subscriptionID])
     elif interval != 'week':
       # Send type "other" to fake subscription - daily reports
       recipients.append(fakeSubscription)
+      subscriptionID = fakeSubscription.get('url', 'unknown')
 
     if len(recipients) == 0:
       continue
 
     report = {
-      'url': get_config().get('reports', 'urlRoot') + report['guid'] + '#secret=' + calculateReportSecret(report['guid']),
-      'weight': calculateReportWeight(reportData),
-      'site': reportData.get('siteName', 'unknown'),
+      'url': get_config().get('reports', 'urlRoot') + dbreport['guid'] + '#secret=' + calculateReportSecret(dbreport['guid']),
+      'weight': calculateReportWeight(dbreport, reportSubscriptions),
+      'site': dbreport['site'],
       'subscriptions': recipients,
-      'comment': re.sub(r'[\x00-\x20]', r' ', reportData.get('comment', '')),
-      'type': reportData.get('type', 'unknown'),
-      'numSubscriptions': len(reportData.get('subscriptions', [])),
+      'comment': re.sub(r'[\x00-\x20]', r' ', dbreport['comment']) if dbreport['comment'] != None else '',
+      'type': dbreport['type'],
+      'numSubscriptions': len(reportSubscriptions),
       'matchSubscriptions': matchSubscriptions.values(),
-      'email': reportData.get('email', None),
-      'screenshot': reportData.get('screenshot', None) != None,
-      'screenshotEdited': reportData.get('screenshotEdited', False),
-      'knownIssues': len(reportData.get('knownIssues', [])),
+      'contact': dbreport['contact'],
+      'hasscreenshot': dbreport['hasscreenshot'],
+      'knownIssues': dbreport['knownissues'],
     }
+
     result.append(report)
   return result
 
@@ -130,26 +122,27 @@ def sendMail(subscription, groups):
 
   mailDigest({'email': email, 'digestLink': digestLink, 'subscription': subscription, 'groups': groups})
 
-def calculateReportWeight(reportData):
+def calculateReportWeight(report, subscriptions):
   global currentTime, startTime
 
   weight = 1.0
-  if reportData.get('type', 'unknown') == 'false positive' or reportData.get('type', 'unknown') == 'false negative':
-    weight /= len(reportData.get('subscriptions', []))
-  if 'screenshot' in reportData and reportData.get('screenshotEdited', False):
+  if report['type'] == 'false positive' or report['type'] == 'false negative':
+    weight /= len(subscriptions)
+  if report['hasscreenshot'] == 1:
     weight += 0.7
-  elif 'screenshot' in reportData:
+  elif report['hasscreenshot'] == 2:
     weight += 0.3
-  if len(reportData.get('knownIssues', [])) > 0:
+  if report['knownissues'] > 0:
     weight -= 0.3
-  if re.search(r'\btest\b', reportData.get('comment', ''), re.IGNORECASE):
-    weight -= 0.5
-  elif re.search(r'\S', reportData.get('comment', '')):
-    weight += 0.5
-  if 'email' in reportData:
+  if report['comment'] != None:
+    if re.search(r'\btest\b', report['comment'], re.IGNORECASE):
+      weight -= 0.5
+    elif re.search(r'\S', report['comment']):
+      weight += 0.5
+  if report['contact'] != None:
     weight += 0.3
 
-  weight += (reportData.get('time', 0) - startTime) / (currentTime - startTime) * 0.2
+  weight += (report['ctime'] - startTime) / (currentTime - startTime) * 0.2
   return weight
 
 if __name__ == '__main__':

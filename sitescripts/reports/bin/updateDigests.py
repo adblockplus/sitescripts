@@ -8,39 +8,8 @@ import MySQLdb, hashlib, sys, os, re
 from time import time
 from email.utils import parseaddr
 from sitescripts.utils import get_config, get_template, setupStderr
-from sitescripts.reports.utils import calculateReportSecret, getDigestPath, get_db, executeQuery
+from sitescripts.reports.utils import getReports, getReportSubscriptions, calculateReportSecret, getDigestPath
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
-
-def getReportSubscriptions(guid):
-  cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
-  executeQuery(cursor,
-              '''SELECT url, hasmatches FROM #PFX#sublists INNER JOIN
-              #PFX#subscriptions ON (#PFX#sublists.list = #PFX#subscriptions.id)
-              WHERE report = %s''',
-              (guid))
-  rows = cursor.fetchall()
-  cursor.close()
-  return rows
-
-
-def getReports(startTime):
-  count = 1000
-  offset = 0
-  while True:
-    cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
-    executeQuery(cursor,
-                '''SELECT guid, type, UNIX_TIMESTAMP(ctime) AS ctime, status, site, contact,
-                comment, hasscreenshot, knownissues
-                FROM #PFX#reports WHERE ctime >= FROM_UNIXTIME(%s) LIMIT %s OFFSET %s''',
-                (startTime, count, offset))
-    rows = cursor.fetchall()
-    cursor.close()
-    if len(rows) == 0:
-      break
-    for row in rows:
-      yield row
-    offset += len(rows)
-
 
 def updateDigests(dir):
   global currentTime
