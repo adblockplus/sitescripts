@@ -168,7 +168,7 @@ if __name__ == '__main__':
     startTime = currentTime - 24*60*60
 
   fakeSubscription = {'url': 'https://fake.adblockplus.org', 'name': get_config().get('reports', 'defaultSubscriptionName'), 'email': get_config().get('reports', 'defaultSubscriptionRecipient')}
-  (subscriptions, subscriptionList) = loadSubscriptions()
+  subscriptions, subscriptionList = loadSubscriptions()
   subscriptionList.append(fakeSubscription)
   reports = scanReports()
   sendNotifications(reports)
