@@ -45,12 +45,13 @@ def scanReports():
     if dbreport['type'] == 'false positive' or dbreport['type'] == 'false negative':
       for subscription in reportSubscriptions:
         subscriptionID = subscription.get('url', 'unknown')
-        if subscription.get('hasmatches', 0) > 0:
-          matchSubscriptions[subscriptionID] = subscriptions[subscriptionID]
-        # Send false negatives to all subscription authors, false positives
-        # only to subscriptions with matching filters
-        if subscriptionID in subscriptions and (dbreport['type'] == 'false negative' or subscription.get('hasmatches', 0) > 0):
-          recipients.append(subscriptions[subscriptionID])
+        if subscriptionID in subscriptions:
+          if subscription.get('hasmatches', 0) > 0:
+            matchSubscriptions[subscriptionID] = subscriptions[subscriptionID]
+          # Send false negatives to all subscription authors, false positives
+          # only to subscriptions with matching filters
+          if dbreport['type'] == 'false negative' or subscription.get('hasmatches', 0) > 0:
+            recipients.append(subscriptions[subscriptionID])
     elif interval != 'week':
       # Send type "other" to fake subscription - daily reports
       recipients.append(fakeSubscription)
