@@ -30,7 +30,8 @@ def processReports():
   for report in getReports():
     guid = report.get('guid', None)
     reportData = getReport(guid)
-    saveReport(guid, reportData)
+    if 'screenshot' in reportData:
+      saveReport(guid, reportData)
 
 if __name__ == '__main__':
   setupStderr()
