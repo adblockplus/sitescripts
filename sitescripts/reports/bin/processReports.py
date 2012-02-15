@@ -16,7 +16,7 @@ def getReports():
   while True:
     cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
     executeQuery(cursor,
-                '''SELECT guid FROM #PFX#reports WHERE status IS NULL LIMIT %s OFFSET %s''',
+                '''SELECT guid FROM #PFX#reports WHERE hasscreenshot > 0 LIMIT %s OFFSET %s''',
                 (count, offset))
     rows = cursor.fetchall()
     cursor.close()
@@ -30,7 +30,7 @@ def processReports():
   for report in getReports():
     guid = report.get('guid', None)
     reportData = getReport(guid)
-    saveReport(guid, reportData, True)
+    saveReport(guid, reportData)
 
 if __name__ == '__main__':
   setupStderr()

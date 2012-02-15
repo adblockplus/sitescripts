@@ -82,7 +82,7 @@
       {% if subscriptions -%}
       <li class="tab" id="subscriptionsTab" onclick="selectTab('subscriptions');">Subscriptions</li>
       {% endif %}
-      {% if screenshot -%}
+      {% if hasscreenshot -%}
       <li class="tab" id="screenshotTab" onclick="selectTab('screenshot');">Screenshot</li>
       {% endif %}
       {% if extensions -%}
@@ -207,10 +207,10 @@
       </div>
       {%- endif %}
   
-      {% if screenshot -%}
+      {% if hasscreenshot -%}
       <div id="screenshotBox">
         <p class="header">Page screenshot:</p>
-        <p><img src="{{screenshot}}"/></p>
+        <p><img src="{{guid}}.png"/></p>
       </div>
       {%- endif %}
   

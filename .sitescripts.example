@@ -31,6 +31,7 @@ defaultSubscriptionName=Adblock Plus
 defaultSubscriptionRecipient=Somebody <user@example.com>
 errorTemplate=reports/template/error.html
 submitResponseTemplate=reports/template/submitSuccess.html
+pngOptimizerPath=/path/to/optipng -o2 -quiet -force
 database=db
 dbuser=user
 dbpassword=password

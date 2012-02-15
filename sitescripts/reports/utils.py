@@ -4,7 +4,7 @@
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
 
-import hashlib, MySQLdb, os, re, marshal
+import hashlib, base64, MySQLdb, os, re, marshal, subprocess
 from sitescripts.utils import get_config, cached, get_template, sendMail
 
 def getReportSubscriptions(guid):
@@ -49,14 +49,20 @@ def getReport(guid):
   return reportData
 
 def saveReport(guid, reportData, isNew=False):
-  dumpstr = marshal.dumps(reportData)
   cursor = get_db().cursor()
-  if reportData.get('screenshot', None) != None:
-    hasScreenshot = 2 if reportData.get('screenshotEdited', False) else 1
+  screenshot = reportData.get('screenshot', None)
+  if screenshot != None:
+    reportData['hasscreenshot'] = 2 if reportData.get('screenshotEdited', False) else 1
+    try:
+      saveScreenshot(guid, screenshot)
+    except TypeError:
+      reportData['hasscreenshot'] = 0
+    del reportData['screenshot']
   else:
-    hasScreenshot = 0
+    reportData['hasscreenshot'] = 0
   knownIssues = len(reportData.get('knownIssues', []))
   contact = getUserId(reportData.get('email', None)) if reportData.get('email', None) else None
+  dumpstr = marshal.dumps(reportData)
   
   if contact != None and isNew:
     executeQuery(cursor,
@@ -70,7 +76,7 @@ def saveReport(guid, reportData, isNew=False):
                  contact = %(contact)s, hasscreenshot = %(hasscreenshot)s, knownissues = %(knownissues)s, dump = %(dump)s''',
               {'guid': guid, 'type': reportData.get('type', None), 'ctime': reportData['time'], 'site': reportData.get('siteName', None),
                'comment': reportData.get('comment', None), 'status': reportData.get('status', None), 'contact': contact,
-               'hasscreenshot': hasScreenshot, 'knownissues': knownIssues, 'dump': dumpstr})
+               'hasscreenshot': reportData.get('hasscreenshot', 0), 'knownissues': knownIssues, 'dump': dumpstr})
   if len(reportData['subscriptions']) > 0:
     for sn in reportData['subscriptions']:
       executeQuery(cursor,
@@ -86,6 +92,7 @@ def saveReport(guid, reportData, isNew=False):
 
   get_db().commit()
 
+  reportData['guid'] = guid
   file = os.path.join(get_config().get('reports', 'dataPath'), guid[0], guid[1], guid[2], guid[3], guid + '.html')
   dir = os.path.dirname(file)
   if not os.path.exists(dir):
@@ -102,6 +109,26 @@ def removeReport(guid):
   file = os.path.join(get_config().get('reports', 'dataPath'), guid[0], guid[1], guid[2], guid[3], guid + '.html')
   if os.path.isfile(file):
     os.remove(file)
+  file = os.path.join(get_config().get('reports', 'dataPath'), guid[0], guid[1], guid[2], guid[3], guid + '.png')
+  if os.path.isfile(file):
+    os.remove(file)
+
+def saveScreenshot(guid, screenshot):
+  prefix = 'data:image/png;base64,'
+  if not screenshot.startswith(prefix):
+    raise TypeError('Screenshot is not a PNG image')
+  data = base64.b64decode(screenshot[len(prefix):])
+  file = os.path.join(get_config().get('reports', 'dataPath'), guid[0], guid[1], guid[2], guid[3], guid + '.png')
+  dir = os.path.dirname(file)
+  if not os.path.exists(dir):
+    os.makedirs(dir)
+  f = open(file, 'wb')
+  f.write(data)
+  f.close()
+  if get_config().has_option('reports', 'pngOptimizerPath'):
+    cmd = get_config().get('reports', 'pngOptimizerPath').split()
+    cmd.append(file)
+    subprocess.call(cmd)
 
 def mailDigest(templateData):
   sendMail(get_config().get('reports', 'mailDigestTemplate'), templateData)
