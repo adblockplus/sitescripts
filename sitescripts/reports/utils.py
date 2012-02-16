@@ -58,8 +58,6 @@ def saveReport(guid, reportData, isNew=False):
     except TypeError:
       reportData['hasscreenshot'] = 0
     del reportData['screenshot']
-  else:
-    reportData['hasscreenshot'] = 0
   knownIssues = len(reportData.get('knownIssues', []))
   contact = getUserId(reportData.get('email', None)) if reportData.get('email', None) else None
   dumpstr = marshal.dumps(reportData)
