@@ -157,6 +157,7 @@ function init()
   {
     reports[i].weight = calculateReportWeight(reports[i]);
   }
+  restorePersistentSettings();
   updateFilters();
   updateDisplayedPeriod();
   updateSortFunction();
@@ -231,6 +232,7 @@ function updateDisplayedPeriod()
   var select = document.getElementById("period");
   var option = select.options[select.selectedIndex].value;
   currentPeriod = currentTime - parseInt(option) * 3600;
+  persistSettings();
   populateTable();
 }
 
@@ -244,6 +246,7 @@ function updateSortFunction()
     currentSort = compareSite;
   else if (option == "time")
     currentSort = compareTime;
+  persistSettings();
   populateTable();
 }
 
@@ -255,7 +258,56 @@ function updateFilters()
   onlyWithComment = document.getElementById('comment').checked;
   onlyWithoutKnown = document.getElementById('known').checked;
   onlyWithoutStatus = document.getElementById('status').checked;
+  persistSettings();
   populateTable();
+}
+
+function persistSettings()
+{
+  window.localStorage.onlyWithScreenshot = onlyWithScreenshot;
+  window.localStorage.onlyWithModScreenshot = onlyWithModScreenshot;
+  window.localStorage.onlyWithContact = onlyWithContact;
+  window.localStorage.onlyWithComment = onlyWithComment;
+  window.localStorage.onlyWithoutKnown = onlyWithoutKnown;
+  window.localStorage.onlyWithoutStatus = onlyWithoutStatus;
+  var select = document.getElementById("sort");
+  window.localStorage.currentSort = select.options[select.selectedIndex].value;
+  select = document.getElementById("period");
+  window.localStorage.currentPeriod = select.options[select.selectedIndex].value;
+}
+
+function restorePersistentSettings()
+{
+  onlyWithScreenshot = window.localStorage.onlyWithScreenshot === 'true';
+  onlyWithModScreenshot = window.localStorage.onlyWithModScreenshot === 'true';
+  onlyWithContact = window.localStorage.onlyWithContact === 'true';
+  onlyWithComment = window.localStorage.onlyWithComment === 'true';
+  onlyWithoutKnown = window.localStorage.onlyWithoutKnown === 'true';
+  onlyWithoutStatus = window.localStorage.onlyWithoutStatus === 'true';
+  document.getElementById('screenshot').checked = onlyWithScreenshot;
+  document.getElementById('modscreenshot').checked = onlyWithModScreenshot;
+  document.getElementById('contact').checked = onlyWithContact;
+  document.getElementById('comment').checked = onlyWithComment;
+  document.getElementById('known').checked = onlyWithoutKnown;
+  document.getElementById('status').checked = onlyWithoutStatus;
+  var select = document.getElementById("sort");
+  for (var i=0; i< select.length; i++)
+  {
+    if (select.options[i].value == window.localStorage.currentSort)
+    {
+      select.selectedIndex = i;
+      break;
+    }
+  }
+  select = document.getElementById("period");
+  for (var i=0; i< select.length; i++)
+  {
+    if (select.options[i].value == window.localStorage.currentPeriod)
+    {
+      select.selectedIndex = i;
+      break;
+    }
+  }
 }
 
 function filterReports(element, index, array)
