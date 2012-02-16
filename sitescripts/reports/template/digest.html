@@ -77,6 +77,7 @@ var currentTime = unixtime();
 var currentPeriod = currentTime - 24 * 3600;
 var currentSort = compareRelevance;
 var onlyWithScreenshot = false;
+var onlyWithModScreenshot = false;
 var onlyWithContact = false;
 var onlyWithComment = false;
 var onlyWithoutKnown = false;
@@ -249,6 +250,7 @@ function updateSortFunction()
 function updateFilters()
 {
   onlyWithScreenshot = document.getElementById('screenshot').checked;
+  onlyWithModScreenshot = document.getElementById('modscreenshot').checked;
   onlyWithContact = document.getElementById('contact').checked;
   onlyWithComment = document.getElementById('comment').checked;
   onlyWithoutKnown = document.getElementById('known').checked;
@@ -261,6 +263,7 @@ function filterReports(element, index, array)
   return (
           element.time >= currentPeriod &&
           (! onlyWithScreenshot || element.hasscreenshot) &&
+          (! onlyWithModScreenshot || element.hasscreenshot == 2) &&
           (! onlyWithContact || element.contact != null) &&
           (! onlyWithoutStatus || !element.status) &&
           (! onlyWithoutKnown || element.knownIssues == 0) &&
@@ -331,7 +334,9 @@ function unixtime()
         </td><td>
           <input type="checkbox" id="contact" onclick="updateFilters()"><label for="contact"> only with contact address</label><br/>
           <input type="checkbox" id="comment" onclick="updateFilters()"><label for="comment"> only with comment</label><br/>
+        </td><td>
           <input type="checkbox" id="screenshot" onclick="updateFilters()"><label for="screenshot"> only with screenshot</label><br/>
+          <input type="checkbox" id="modscreenshot" onclick="updateFilters()"><label for="modscreenshot"> only with modified screenshot</label><br/>
         </td><td>
           <input type="checkbox" id="known" onclick="updateFilters()"><label for="known"> only without known issues</label><br/>
           <input type="checkbox" id="status" onclick="updateFilters()"><label for="status"> only without status</label><br/>
