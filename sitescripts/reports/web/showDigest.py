@@ -4,8 +4,8 @@
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
 
-import re, os, sys, hashlib
-from datetime import date, timedelta
+import re, os, sys, hashlib, Cookie
+from datetime import date, timedelta, datetime
 from urlparse import parse_qs
 from sitescripts.reports.utils import getDigestSecret
 from sitescripts.utils import get_config, get_template, setupStderr
@@ -25,14 +25,28 @@ def handleRequest(environ, start_response):
   prevweek = getDigestSecret(id, (date.today()-timedelta(weeks=1)).isocalendar())
 
   secret = params.get('secret', [''])[0].lower()
+  if not secret:
+    try:
+      cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
+      secret = cookies[id].value
+    except (Cookie.CookieError, KeyError):
+      return showError('No digest secret', start_response)
+
   if secret != thisweek and secret != prevweek:
     return showError('Wrong secret', start_response)
 
   path = os.path.join(get_config().get('reports', 'digestPath'), id + '.html')
   if not os.path.exists(path):
     return showError('Digest doesn\'t exist', start_response)
-
-  start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
+    
+  cookies = Cookie.SimpleCookie()
+  cookies[id] = secret
+  cookies[id]['path'] = '/'
+  cookies[id]['secure'] = True
+  cookies[id]['httponly'] = True
+  expiration = datetime.utcnow() + timedelta(weeks=2)
+  cookies[id]['expires'] = expiration.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
+  start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8'), ('Set-Cookie', cookies[id].OutputString())])
   blockSize = 4096
   f = open(path)
   if 'wsgi.file_wrapper' in environ:

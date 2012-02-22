@@ -8,7 +8,7 @@ import MySQLdb, hashlib, sys, os, re
 from time import time
 from email.utils import parseaddr
 from sitescripts.utils import get_config, get_template, setupStderr
-from sitescripts.reports.utils import getReports, getReportSubscriptions, calculateReportSecret, getDigestPath
+from sitescripts.reports.utils import getReports, getReportSubscriptions, calculateReportSecret, getDigestPath, getDigestId
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def updateDigests(dir):
@@ -71,7 +71,7 @@ def updateDigests(dir):
       continue
     file = getDigestPath(dir, email)
     template = get_template(get_config().get('reports', 'htmlDigestTemplate'))
-    template.stream({'email': email, 'reports': reports}).dump(file, encoding='utf-8')
+    template.stream({'id': getDigestId(email), 'email': email, 'reports': reports}).dump(file, encoding='utf-8')
     digests.add(file)
   
   # Remove not updated digests which are more then 2 weeks old
