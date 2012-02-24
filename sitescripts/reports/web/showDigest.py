@@ -24,8 +24,11 @@ def handleRequest(environ, start_response):
   thisweek = getDigestSecret(id, date.today().isocalendar())
   prevweek = getDigestSecret(id, (date.today()-timedelta(weeks=1)).isocalendar())
 
+  redirect = False
   secret = params.get('secret', [''])[0].lower()
-  if not secret:
+  if secret:
+    redirect = True
+  else:
     try:
       cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
       secret = cookies[id].value
@@ -46,13 +49,17 @@ def handleRequest(environ, start_response):
   cookies[id]['httponly'] = True
   expiration = datetime.utcnow() + timedelta(weeks=2)
   cookies[id]['expires'] = expiration.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
-  start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8'), ('Set-Cookie', cookies[id].OutputString())])
-  blockSize = 4096
-  f = open(path)
-  if 'wsgi.file_wrapper' in environ:
-    return environ['wsgi.file_wrapper'](f, blockSize)
+  if redirect:
+    start_response('302 Found', [('Location', '/digest?id=' + id), ('Set-Cookie', cookies[id].OutputString())])
+    return []
   else:
-    return iter(lambda: f.read(blockSize), '')
+    start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8'), ('Set-Cookie', cookies[id].OutputString())])
+    blockSize = 4096
+    f = open(path)
+    if 'wsgi.file_wrapper' in environ:
+      return environ['wsgi.file_wrapper'](f, blockSize)
+    else:
+      return iter(lambda: f.read(blockSize), '')
 
 def showError(message, start_response):
   template = get_template(get_config().get('reports', 'errorTemplate'))

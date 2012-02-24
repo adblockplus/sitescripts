@@ -153,11 +153,6 @@ function truncate(s, n, useWordBoundary)
   
 function init()
 {
-  if (typeof window.history.replaceState == 'function')
-  {
-    history.replaceState({}, window.title, '/digest?id='+'{{id}}');
-  }
-
   for (var i = 0; i < reports.length; i++)
   {
     reports[i].weight = calculateReportWeight(reports[i]);
