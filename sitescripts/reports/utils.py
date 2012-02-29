@@ -143,12 +143,12 @@ def calculateReportSecret(guid):
 def getUserId(email):
   hash = hashlib.md5()
   hash.update(get_config().get('reports', 'secret'))
-  hash.update(email)
+  hash.update(email.encode('utf-8'))
   return hash.hexdigest()
 
 def getDigestId(email):
   hash = hashlib.md5()
-  hash.update(email)
+  hash.update(email.encode('utf-8'))
   return hash.hexdigest()
 
 def getDigestPath(dir, email):

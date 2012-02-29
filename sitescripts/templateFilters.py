@@ -163,6 +163,9 @@ def getmax(iterable, attribute=None):
   else:
     return max(iterable, key=lambda item: item[attribute])[attribute]
 
+def toJSON(value, **args):
+  return re.sub(r'</script>', r'<\/script>', json.dumps(value, **args))
+
 filters = {
   'formattime': formattime,
   'timerelative': formatrelativetime,
@@ -181,5 +184,5 @@ filters = {
   'bytes': formatbytes,
   'sum': getsum,
   'max': getmax,
-  'json': json.dumps
+  'json': toJSON,
 }
