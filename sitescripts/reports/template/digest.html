@@ -6,346 +6,238 @@
 <html lang="en">
 <head>
 <title>Issue reports for {{email}}</title>
-<link rel="stylesheet" href="/reports.css" type="text/css" />
+<link type="text/css" href="/lib/jquery/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
+<link type="text/css" href="/lib/slickgrid/slick.grid.css" rel="stylesheet" />
 <style type="text/css">
-#filters,
-#reportList
+*
 {
+  font-family: arial, sans-serif;
+  font-size: 9pt;
+}
+#header
+{
+  font-size: 12pt;
+}
+#tip
+{
+  float: right;
+  border-radius: 3px;
+  padding: 2px;
+  border: 1px solid #aaa;
+  background-color: #f8f8f8;
+  margin: 0 0 10px;
+}
+#tip .ui-icon
+{
+  float: left;
+  margin-right: 2px;
+}
+#reports
+{
+  clear: right;
   width: 100%;
+  height: 400px;
+  background: white;
+  outline: 0;
+  border: 1px solid gray;
 }
-#filters td
+.selected
 {
-  border: none;
+  background-color: #eee;
 }
-#reportTemplate
-{
-  display: none;
-}
-.reportTime
-{
-  text-align: right;
-}
-.reportScreenshot,
-.reportContact,
-.reportKnown,
-.reportNumSubs
+.slick-header-column,
+.slick-headerrow-column
 {
   text-align: center;
 }
-.reportScreenshot,
-.reportContact
+.slick-headerrow-column
+{
+  margin: 0;
+  padding: 1px;
+  background: #87ceeb;
+}
+.slick-headerrow-column input,
+.slick-headerrow-column select
+{
+  margin: 0;
+  padding: 0;
+}
+.cell-contact,
+.cell-screenshot
 {
   color: #00C000;
 }
-.reportKnown
+.cell-screenshot,
+.cell-contact,
+.cell-known,
+.cell-subscriptions,
+.cell-url
+{
+  text-align: center;
+}
+.cell-known
 {
   color: #C00000;
 }
-
-#reportList
+.cell-time
 {
-  table-layout: fixed;
+  text-align: right;
 }
-#reportTypeColumn,
-#reportTimeColumn
-{
-  width: 10%;
-}
-#reportStatusColumn,
-#reportCommentColumn
-{
-  width: 20%
-}
-#reportContactColumn,
-#reportScreenshotColumn,
-#reportKnownColumn,
-#reportNumSubsColumn,
-#reportLinkColumn
-{
-  width: 5%;
-}
-#reportSiteColumn
-{
-  width: 15%;
-}
-
 </style>
+<script type="text/javascript" src="/lib/jquery/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="/lib/jquery/jquery-ui-1.8.18.custom.min.js"></script>
+<script type="text/javascript" src="/lib/jquery/jquery.event.drag-2.0.min.js"></script>
+<script type="text/javascript" src="/lib/slickgrid/slick.core.js"></script>
+<script type="text/javascript" src="/lib/slickgrid/slick.grid.js"></script>
+<script type="text/javascript" src="/lib/slickgrid/plugins/slick.rowselectionmodel.js"></script>
+<script type="text/javascript" src="/lib/slickgrid/plugins/slick.autotooltips.js"></script>
+<script type="text/javascript" src="/lib/reportsview.js"></script>
 <script type="text/javascript">
 var reports = {{reports|json(indent=2,ensure_ascii=False)|safe}};
 
-var currentTime = unixtime();
-var currentPeriod = currentTime - 24 * 3600;
-var currentSort = compareRelevance;
-var onlyWithScreenshot = false;
-var onlyWithModScreenshot = false;
-var onlyWithContact = false;
-var onlyWithComment = false;
-var onlyWithoutKnown = false;
-var onlyWithoutStatus = false;
-var sites = {};
-var populateTableCalls = 1;
-
-function addReportEntry(tbody, report)
+for (var i = 0; i < reports.length; i++)
 {
-  var template = document.getElementById("reportTemplate");
-  var element = template.cloneNode(true);
-  element.removeAttribute("id");
-  
-  var type = element.getElementsByClassName("reportType")[0];
-  type.textContent = report.type;
-
-  var time = element.getElementsByClassName("reportTime")[0];
-  time.textContent = new Date(report.time * 1000).toLocaleDateString();
-  time.title = new Date(report.time * 1000).toLocaleString();
-
-  var status = element.getElementsByClassName("reportStatus")[0];
-  var s = truncate(report.status, 25, true);
-  status.textContent = s;
-  if (s != report.status)
-    status.title = report.status;
-
-  if (report.contact != null)
-  {
-    var contact = element.getElementsByClassName("reportContact")[0];
-    contact.textContent = "✓";
-  }
-
-  if (report.hasscreenshot)
-  {
-    var screenshot = element.getElementsByClassName("reportScreenshot")[0];
-    screenshot.textContent = (report.hasscreenshot == 2 ? "✔" : "✓");
-  }
-
-  if (report.knownIssues > 0)
-  {
-    var known = element.getElementsByClassName("reportKnown")[0];
-    known.textContent = "✓";
-  }
-
-  var numSubs = element.getElementsByClassName("reportNumSubs")[0];
-  numSubs.textContent = report.subscriptions.length;
-  numSubs.title = report.subscriptions.map(function(x) {return x.name;}).join(", ");
-
-  var href = element.getElementsByClassName("reportHref")[0];
-  href.href = report.url;
-
-  var site = element.getElementsByClassName("reportSite")[0];
-  site.textContent = report.site;
-
-  var comment = element.getElementsByClassName("reportComment")[0];
-  var c = truncate(report.comment, 25, true);
-  comment.textContent = c;
-  if (c != report.comment)
-    comment.title = report.comment;
-
-  tbody.appendChild(element);
+  reports[i].weight = calculateReportWeight(reports[i]);
 }
 
-function truncate(s, n, useWordBoundary)
+var grid;
+var columns =
+  [
+    { id: "weight", name: "Relevance", field: "weight", sortable: true, width: 20 },
+    { id: "type", name: "Report type", field: "type", sortable: true, width: 50, filter: ReportFilters.Type },
+    { id: "time", name: "Time", field: "time", cssClass: "cell-time", sortable: true, width: 50, formatter: ReportFormatters.Time, filter: ReportFilters.TimePeriod },
+    { id: "status", name: "Status", field: "status", sortable: true, filter: ReportFilters.YesNo },
+    { id: "contact", name: "Contact", field: "contact", cssClass: "cell-contact", sortable: true, width: 30, formatter: ReportFormatters.Checkmark, filter: ReportFilters.Checkbox },
+    { id: "screenshot", name: "Screenshot", field: "hasscreenshot", cssClass: "cell-screenshot", sortable: true, width: 30, formatter: ReportFormatters.Screenshot, filter: ReportFilters.Screenshot },
+    { id: "known", name: "Known", field: "knownIssues", cssClass: "cell-known", sortable: true, width: 30, formatter: ReportFormatters.Checkmark, filter: ReportFilters.YesNo },
+    { id: "subs", name: "Subscriptions", field: "subscriptions", cssClass: "cell-subscriptions", sortable: true, width: 30, formatter: ReportFormatters.Subcsriptions, filter: ReportFilters.Subscriptions },
+    { id: "site", name: "Site", field: "site", sortable: true, filter: ReportFilters.Text },
+    { id: "comment", name: "Comment", field: "comment", sortable: false, filter: ReportFilters.YesNo },
+    { id: "url", name: "Link", field: "url", cssClass: "cell-url", sortable: false, width: 30, formatter: ReportFormatters.Link }
+  ];
+
+var columnFilters = {};
+for (var i = 0; i < columns.length; i++)
 {
-  if (!s || s.length <= n)
-    return s;
-  var s_ = s.substr(0, n-1);
-  if (useWordBoundary && s_.lastIndexOf(' ') > 0)
-    s_ = s_.substr(0, s_.lastIndexOf(' '));
-  return  s_ + "…";
+  if (columns[i].filter)
+  {
+    columnFilters[columns[i].id] = new columns[i].filter(columns[i]);
+  }
 }
   
-function init()
-{
-  for (var i = 0; i < reports.length; i++)
+var options =
   {
-    reports[i].weight = calculateReportWeight(reports[i]);
-  }
+    forceFitColumns: true,
+    enableColumnReorder: false,
+    fullWidthRows: true,
+    // autoHeight: true,
+    editable: false,
+    enableCellNavigation: true,
+    enableColumnReorder: false,
+    multiColumnSort: true,
+    showHeaderRow: true
+  };
+
+$(function ()
+{
+  dataView = new ReportsView();
+  grid = new Slick.Grid("#reports", dataView, columns, options);
+  grid.setSelectionModel(new Slick.RowSelectionModel());
+  grid.registerPlugin(new Slick.AutoTooltips());
+
+  // wire up model events to drive the grid
+  dataView.onRowCountChanged.subscribe(function (e, args)
+  {
+    grid.updateRowCount();
+    grid.render();
+  });
+
+  dataView.onRowsChanged.subscribe(function (e, args)
+  {
+    grid.invalidateRows(args.rows);
+    grid.render();
+  });
+
+  grid.onSort.subscribe(function (e, args)
+  {
+    dataView.sort(args.sortCols);
+    grid.invalidate();
+    grid.render();
+  });
+  
+  grid.onColumnsReordered.subscribe(function (e, args)
+  {
+    updateHeaderRow();
+  });
+
+  grid.onColumnsResized.subscribe(function (e, args)
+  {
+    updateHeaderRow();
+  });
+
+  $(grid.getHeaderRow()).delegate(":input", "change keyup", function (e)
+  {
+    persistSettings();
+    dataView.refresh();
+  });
+
+  dataView.beginUpdate();
+  dataView.setItems(reports);
+  dataView.setFilter(filter);
+  updateHeaderRow();
   restorePersistentSettings();
-  updateFilters();
-  updateDisplayedPeriod();
-  updateSortFunction();
-  populateTableCalls = 0;
-  populateTable();
-}
+  dataView.endUpdate();  
+});
 
-function populateTable()
+function updateHeaderRow()
 {
-  populateTableCalls++;
-  if (populateTableCalls > 1)
-    return;
-  
-  var tbody = document.getElementById("reportList").tBodies[0];
-
-  // clear table
-  var range = document.createRange();
-  range.selectNodeContents(tbody);
-  range.deleteContents();
-
-  // period and filters
-  var r = reports.filter(filterReports);
-  
-  // sort
-  if (currentSort == compareSite)
+  for (var i = 0; i < columns.length; i++)
   {
-    sites = {};
-    for (var i = 0; i < r.length; i++)
+    var header = grid.getHeaderRowColumn(columns[i].id);
+    var filter = columnFilters[columns[i].id];
+    $(header).empty();
+    if (filter)
     {
-      if (! sites[r[i].site])
-        sites[r[i].site] = 1;
-      else
-        sites[r[i].site]++;
-    }
-  }
-  r.sort(currentSort);
-
-  var offset = 0;
-  var count = 1000;
-
-  function addRows()
-  {
-    // add items
-    var limit = offset + count;
-    if (limit > r.length)
-      limit = r.length;
-    for (var i = offset; i < limit; i++)
-    {
-      addReportEntry(tbody, r[i]);
-    }
-
-    if (populateTableCalls > 1)
-    {
-      populateTableCalls = 0;
-      setTimeout(populateTable, 0);
-    }
-    else if (limit < r.length)
-    {
-      offset += count;
-      setTimeout(addRows, 0);
+      filter.update(header);
+      $(filter.get()).appendTo(header);
     }
     else
     {
-      populateTableCalls = 0;
+      $("<span>&nbsp;</span>").appendTo(header);
     }
   }
-  setTimeout(addRows, 0);
 }
 
-function updateDisplayedPeriod()
+function filter(item)
 {
-  var select = document.getElementById("period");
-  var option = select.options[select.selectedIndex].value;
-  currentPeriod = currentTime - parseInt(option) * 3600;
-  persistSettings();
-  populateTable();
-}
-
-function updateSortFunction()
-{
-  var select = document.getElementById("sort");
-  var option = select.options[select.selectedIndex].value;
-  if (option == "relevance")
-    currentSort = compareRelevance;
-  else if (option == "site")
-    currentSort = compareSite;
-  else if (option == "time")
-    currentSort = compareTime;
-  persistSettings();
-  populateTable();
-}
-
-function updateFilters()
-{
-  onlyWithScreenshot = document.getElementById('screenshot').checked;
-  onlyWithModScreenshot = document.getElementById('modscreenshot').checked;
-  onlyWithContact = document.getElementById('contact').checked;
-  onlyWithComment = document.getElementById('comment').checked;
-  onlyWithoutKnown = document.getElementById('known').checked;
-  onlyWithoutStatus = document.getElementById('status').checked;
-  persistSettings();
-  populateTable();
+  for (var columnId in columnFilters)
+  {
+    if (columnId !== undefined && columnFilters[columnId])
+    {
+      var c = grid.getColumns()[grid.getColumnIndex(columnId)];
+      if (! columnFilters[columnId].filter(item[c.field]))
+        return false;
+    }
+  }
+  return true;
 }
 
 function persistSettings()
 {
-  window.localStorage.onlyWithScreenshot = onlyWithScreenshot;
-  window.localStorage.onlyWithModScreenshot = onlyWithModScreenshot;
-  window.localStorage.onlyWithContact = onlyWithContact;
-  window.localStorage.onlyWithComment = onlyWithComment;
-  window.localStorage.onlyWithoutKnown = onlyWithoutKnown;
-  window.localStorage.onlyWithoutStatus = onlyWithoutStatus;
-  var select = document.getElementById("sort");
-  window.localStorage.currentSort = select.options[select.selectedIndex].value;
-  select = document.getElementById("period");
-  window.localStorage.currentPeriod = select.options[select.selectedIndex].value;
+  for (var columnId in columnFilters)
+  {
+    if (columnId !== undefined && columnFilters[columnId])
+      columnFilters[columnId].persist();
+  }
 }
 
 function restorePersistentSettings()
 {
-  onlyWithScreenshot = window.localStorage.onlyWithScreenshot === 'true';
-  onlyWithModScreenshot = window.localStorage.onlyWithModScreenshot === 'true';
-  onlyWithContact = window.localStorage.onlyWithContact === 'true';
-  onlyWithComment = window.localStorage.onlyWithComment === 'true';
-  onlyWithoutKnown = window.localStorage.onlyWithoutKnown === 'true';
-  onlyWithoutStatus = window.localStorage.onlyWithoutStatus === 'true';
-  document.getElementById('screenshot').checked = onlyWithScreenshot;
-  document.getElementById('modscreenshot').checked = onlyWithModScreenshot;
-  document.getElementById('contact').checked = onlyWithContact;
-  document.getElementById('comment').checked = onlyWithComment;
-  document.getElementById('known').checked = onlyWithoutKnown;
-  document.getElementById('status').checked = onlyWithoutStatus;
-  var select = document.getElementById("sort");
-  for (var i=0; i< select.length; i++)
+  for (var columnId in columnFilters)
   {
-    if (select.options[i].value == window.localStorage.currentSort)
-    {
-      select.selectedIndex = i;
-      break;
-    }
+    if (columnId !== undefined && columnFilters[columnId])
+      columnFilters[columnId].restore();
   }
-  select = document.getElementById("period");
-  for (var i=0; i< select.length; i++)
-  {
-    if (select.options[i].value == window.localStorage.currentPeriod)
-    {
-      select.selectedIndex = i;
-      break;
-    }
-  }
-}
-
-function filterReports(element, index, array)
-{
-  return (
-          element.time >= currentPeriod &&
-          (! onlyWithScreenshot || element.hasscreenshot) &&
-          (! onlyWithModScreenshot || element.hasscreenshot == 2) &&
-          (! onlyWithContact || element.contact != null) &&
-          (! onlyWithoutStatus || !element.status) &&
-          (! onlyWithoutKnown || element.knownIssues == 0) &&
-          (! onlyWithComment || element.comment)
-         );
-}
-
-function compareSite(a,b)
-{
-  if (sites[a.site] != sites[b.site])
-    return sites[b.site] - sites[a.site];
-  if (a.site < b.site)
-    return -1;
-  if (a.site > b.site)
-    return 1;
-  return compareRelevance(a,b);
-}
-
-function compareRelevance(a,b)
-{
-  if (a.weight < b.weight)
-     return 1;
-  if (a.weight > b.weight)
-    return -1;
-  return compareTime(a, b);
-}
-
-function compareTime(a,b)
-{
-  return b.time - a.time;
 }
 
 function calculateReportWeight(report)
@@ -369,77 +261,11 @@ function calculateReportWeight(report)
 
   return weight;
 }
-
-function unixtime()
-{
-  return parseInt(new Date().getTime()/1000);
-}
 </script>
 </head>
-<body onload="init()">
-  <p class="header"> Adblock Plus issue reports for {{email}}</p>
-  <table id="filters">
-    <tr><td>
-      <table>
-        <tr><td>
-          Filters:
-        </td><td>
-          <input type="checkbox" id="contact" onclick="updateFilters()"><label for="contact"> only with contact address</label><br/>
-          <input type="checkbox" id="comment" onclick="updateFilters()"><label for="comment"> only with comment</label><br/>
-        </td><td>
-          <input type="checkbox" id="screenshot" onclick="updateFilters()"><label for="screenshot"> only with screenshot</label><br/>
-          <input type="checkbox" id="modscreenshot" onclick="updateFilters()"><label for="modscreenshot"> only with modified screenshot</label><br/>
-        </td><td>
-          <input type="checkbox" id="known" onclick="updateFilters()"><label for="known"> only without known issues</label><br/>
-          <input type="checkbox" id="status" onclick="updateFilters()"><label for="status"> only without status</label><br/>
-        </td></tr>
-      </table>
-    </td><td style="text-align: right; vertical-align: bottom">
-      Period: <select id="period" onchange="updateDisplayedPeriod()"><option value="24">last 24 hours</option><option value="168">last week</option><option value="8760">all</option></select>
-      Sort by: <select id="sort" onchange="updateSortFunction()"><option value="relevance">relevance</option><option value="site">site</option><option value="time">time</option></select>
-    </td></tr>
-  </table>
-  <table id="reportList">
-    <colgroup>
-      <col id="reportTypeColumn">
-      <col id="reportTimeColumn">
-      <col id="reportStatusColumn">
-      <col id="reportContactColumn">
-      <col id="reportScreenshotColumn">
-      <col id="reportKnownColumn">
-      <col id="reportNumSubsColumn">
-      <col id="reportSiteColumn">
-      <col id="reportCommentColumn">
-      <col id="reportLinkColumn">
-    </colgroup>
-    <thead>
-      <tr>
-        <th>Report type</th>
-        <th>Time</th>
-        <th>Status</th>
-        <th title="Has contact address">Contact</th>
-        <th>Screenshot</th>
-        <th title="Matches known issues">Known</th>
-        <th title="Number of filter subscriptions">Subscriptions</th>
-        <th>Site</th>
-        <th>Comment</th>
-        <th>Link</th>
-      </tr>
-      <tr id="reportTemplate">
-        <td class="reportType"></td>
-        <td class="reportTime"></td>
-        <td class="reportStatus"></td>
-        <td class="reportContact"></td>
-        <td class="reportScreenshot"></td>
-        <td class="reportKnown"></td>
-        <td class="reportNumSubs"></td>
-        <td class="reportSite"></td>
-        <td class="reportComment"></td>
-        <td class="reportLink"><a class="reportHref">view</a></td>
-      </tr>
-    </thead>
-    <tbody>
-    </tbody>
-  </table>
+<body>
+  <div id="tip"><span class="ui-icon ui-icon-lightbulb"></span>Use Shift key to sort by multiple columns.</div>
+  <div id="header">Adblock Plus issue reports for {{email}}</div>  
+  <div id="reports"></div>
 </body>
 </html>
