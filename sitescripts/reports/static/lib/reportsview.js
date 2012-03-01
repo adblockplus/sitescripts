@@ -20,7 +20,7 @@
       "Screenshot": ScreenshotFormatter,
       "Checkmark": CheckmarkFormatter,
       "Link": UrlFormatter,
-      "Subcsriptions": SubscriptionFormatter
+      "Subscriptions": SubscriptionFormatter
     }
   });
 
