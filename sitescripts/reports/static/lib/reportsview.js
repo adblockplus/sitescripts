@@ -60,7 +60,7 @@
   
   function UrlFormatter(row, cell, value, columnDef, dataContext)
   {
-    return "<a href=\"" + value + "\">view</a>";
+    return "<a href=\"" + encodeEntities(value) + "\">view</a>";
   }
 
   function SubscriptionFormatter(row, cell, value, columnDef, dataContext)
