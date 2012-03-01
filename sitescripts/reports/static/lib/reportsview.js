@@ -45,7 +45,7 @@
   
   function NumberFormatter(row, cell, value, columnDef, dataContext)
   {
-    return value.toFixed(1);
+    return parseFloat(value).toFixed(1);
   }
 
   function TimeFormatter(row, cell, value, columnDef, dataContext)
