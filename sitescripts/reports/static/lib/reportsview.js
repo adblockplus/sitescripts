@@ -15,6 +15,7 @@
   {
     "ReportFormatters":
     {
+      "Number": NumberFormatter,
       "Time": TimeFormatter,
       "Screenshot": ScreenshotFormatter,
       "Checkmark": CheckmarkFormatter,
@@ -42,6 +43,11 @@
     return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
   
+  function NumberFormatter(row, cell, value, columnDef, dataContext)
+  {
+    return value.toFixed(1);
+  }
+
   function TimeFormatter(row, cell, value, columnDef, dataContext)
   {
     var date = new Date(value * 1000);

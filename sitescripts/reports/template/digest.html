@@ -104,7 +104,7 @@ var grid;
 var columns =
   [
     { id: "weight", name: "Relevance", field: "weight", sortable: true, width: 20 },
-    { id: "type", name: "Report type", field: "type", sortable: true, width: 50, filter: ReportFilters.Type },
+    { id: "type", name: "Report type", field: "type", sortable: true, width: 50, formatter: ReportFormatters.Number, filter: ReportFilters.Type },
     { id: "time", name: "Time", field: "time", cssClass: "cell-time", sortable: true, width: 50, formatter: ReportFormatters.Time, filter: ReportFilters.TimePeriod },
     { id: "status", name: "Status", field: "status", sortable: true, filter: ReportFilters.YesNo },
     { id: "contact", name: "Contact", field: "contact", cssClass: "cell-contact", sortable: true, width: 30, formatter: ReportFormatters.Checkmark, filter: ReportFilters.YesNo },
