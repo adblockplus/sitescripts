@@ -93,13 +93,7 @@
 <script type="text/javascript" src="/lib/slickgrid/plugins/slick.autotooltips.js"></script>
 <script type="text/javascript" src="/lib/reportsview.js"></script>
 <script type="text/javascript">
-var reports = {{reports|json(ensure_ascii=False,separators=(',', ':'))|safe}};
-
-for (var i = 0; i < reports.length; i++)
-{
-  reports[i].weight = calculateReportWeight(reports[i]);
-}
-
+var reports;
 var grid;
 var columns =
   [
@@ -140,6 +134,12 @@ var options =
 
 $(function ()
 {
+  reports = JSON.parse(document.body.getAttribute("data-reports"));
+  for (var i = 0; i < reports.length; i++)
+  {
+    reports[i].weight = calculateReportWeight(reports[i]);
+  }
+
   dataView = new ReportsView();
   grid = new Slick.Grid("#reports", dataView, columns, options);
   grid.setSelectionModel(new Slick.RowSelectionModel());
@@ -242,9 +242,8 @@ function restorePersistentSettings()
 
 function calculateReportWeight(report)
 {
-//  var startTime
   var weight = 1.0;
-  if (report.type == 'false positive' || report.type == 'false negative')
+  if (report.type == "false positive" || report.type == "false negative")
     weight /= report.subscriptions.length;
   if (report.hasscreenshot == 2)
     weight += 0.7;
@@ -263,7 +262,7 @@ function calculateReportWeight(report)
 }
 </script>
 </head>
-<body>
+<body data-reports="{{reports|json(ensure_ascii=False,separators=(',', ':'))}}">
   <div id="tip"><span class="ui-icon ui-icon-lightbulb"></span>Use Shift key to sort by multiple columns.</div>
   <div id="header">Adblock Plus issue reports for {{email}}</div>  
   <div id="reports"></div>
