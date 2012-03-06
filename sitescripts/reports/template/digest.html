@@ -93,7 +93,7 @@
 <script type="text/javascript" src="/lib/slickgrid/plugins/slick.autotooltips.js"></script>
 <script type="text/javascript" src="/lib/reportsview.js"></script>
 <script type="text/javascript">
-var reports = {{reports|json(indent=2,ensure_ascii=False)|safe}};
+var reports = {{reports|json(ensure_ascii=False,separators=(',', ':'))|safe}};
 
 for (var i = 0; i < reports.length; i++)
 {
