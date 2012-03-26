@@ -292,4 +292,35 @@ function initTables()
   }
 }
 
+function toLocalDate(str)
+{
+  if (!/^(\d+)-(\d+)-(\d+)\s+(.*)/.test(str))
+    return str;
+
+  var mon = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][RegExp.$2 - 1];
+  var date = new Date(RegExp.$3 + " " + mon + " " + RegExp.$1 + " " + RegExp.$4);
+  return date.toLocaleString();
+}
+
+function changeDates()
+{
+  var row = document.getElementById("timeRow");
+  if (row && row.cells && row.cells.length >= 2)
+    row.cells[1].textContent = toLocalDate(row.cells[1].textContent);
+
+  var classes = ["subscriptionLastDownloadAttempt", "subscriptionLastDownloadSuccess", "subscriptionExpiration"];
+  for (var i = 0; i < classes.length; i++)
+  {
+    var nodes = document.getElementsByClassName(classes[i]);
+    for (var j = 0; j < nodes.length; j++)
+    {
+      var spans = nodes[j].getElementsByTagName("span");
+      for (var k = 0; k < spans.length; k++)
+        if (spans[k].hasAttribute("title"))
+          spans[k].setAttribute("title", toLocalDate(spans[k].getAttribute("title")));
+    }
+  }
+}
+
 window.addEventListener("DOMContentLoaded", initTables, false);
+window.addEventListener("DOMContentLoaded", changeDates, false);
