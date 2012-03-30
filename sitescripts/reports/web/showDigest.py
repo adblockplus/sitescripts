@@ -7,7 +7,7 @@
 import re, os, sys, hashlib, Cookie
 from datetime import date, timedelta, datetime
 from urlparse import parse_qs
-from sitescripts.reports.utils import getDigestSecret
+from sitescripts.reports.utils import getDigestSecret, getDigestSecret_compat
 from sitescripts.utils import get_config, get_template, setupStderr
 from sitescripts.web import url_handler
 
@@ -23,6 +23,8 @@ def handleRequest(environ, start_response):
   
   thisweek = getDigestSecret(id, date.today().isocalendar())
   prevweek = getDigestSecret(id, (date.today()-timedelta(weeks=1)).isocalendar())
+  thisweek_compat = getDigestSecret_compat(id, date.today().isocalendar())
+  prevweek_compat = getDigestSecret_compat(id, (date.today()-timedelta(weeks=1)).isocalendar())
 
   redirect = False
   secret = params.get('secret', [''])[0].lower()
@@ -35,7 +37,7 @@ def handleRequest(environ, start_response):
     except (Cookie.CookieError, KeyError):
       return showError('No digest secret', start_response)
 
-  if secret != thisweek and secret != prevweek:
+  if secret != thisweek and secret != prevweek and secret != thisweek_compat and secret != prevweek_compat:
     return showError('Wrong secret', start_response)
 
   path = os.path.join(get_config().get('reports', 'digestPath'), id + '.html')

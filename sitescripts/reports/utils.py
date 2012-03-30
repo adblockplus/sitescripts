@@ -4,7 +4,7 @@
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
 
-import hashlib, base64, MySQLdb, os, re, marshal, subprocess
+import hashlib, hmac, base64, MySQLdb, os, re, marshal, subprocess
 from sitescripts.utils import get_config, cached, get_template, sendMail
 
 def getReportSubscriptions(guid):
@@ -135,16 +135,16 @@ def sendUpdateNotification(templateData):
   sendMail(get_config().get('reports', 'notificationTemplate'), templateData)
 
 def calculateReportSecret(guid):
+  return hmac.new(get_config().get('reports', 'secret'), guid).hexdigest()
+
+def calculateReportSecret_compat(guid):
   hash = hashlib.md5()
   hash.update(get_config().get('reports', 'secret'))
   hash.update(guid)
   return hash.hexdigest()
 
 def getUserId(email):
-  hash = hashlib.md5()
-  hash.update(get_config().get('reports', 'secret'))
-  hash.update(email.encode('utf-8'))
-  return hash.hexdigest()
+  return hmac.new(get_config().get('reports', 'secret'), email.encode('utf-8')).hexdigest()
 
 def getDigestId(email):
   hash = hashlib.md5()
@@ -155,6 +155,12 @@ def getDigestPath(dir, email):
   return os.path.join(dir, getDigestId(email) + '.html')
   
 def getDigestSecret(id, (year, week, weekday)):
+  mac = hmac.new(get_config().get('reports', 'secret'), id)
+  mac.update(str(year))
+  mac.update(str(week))
+  return mac.hexdigest()
+
+def getDigestSecret_compat(id, (year, week, weekday)):
   hash = hashlib.md5()
   hash.update(get_config().get('reports', 'secret'))
   hash.update(id)
