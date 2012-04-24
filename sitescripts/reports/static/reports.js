@@ -110,8 +110,8 @@ function updateTemplates()
   for (var i = 0; i < templates.length; i++)
   {
     var displayText = templates[i];
-    if (displayText.length > 50)
-      displayText = displayText.substr(0, 25) + "..." + displayText.substr(displayText.length - 25, displayText.length);
+    if (displayText.length > 150)
+      displayText = displayText.substr(0, 75) + "..." + displayText.substr(displayText.length - 75, displayText.length);
     templatesField.add(new Option(displayText, templates[i], false, false), null);
   }
   updateTemplateButtons();
