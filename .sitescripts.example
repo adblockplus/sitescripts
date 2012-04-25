@@ -102,6 +102,7 @@ tempFile=%(root)s/tmp/subscriptionStats.ini
 [subscriptionDownloads]
 easylist_repository=%(root)s/hg/easylist
 easylistgermany_repository=%(root)s/hg/easylistgermany
+malwaredomains_repository=%(root)s/hg/malwaredomains
 outdir=%(root)s/data/easylist
 cvsroot=:pserver:guest@mozdev.org:/cvs
 cvsdir=adblockplus/www/easylist
