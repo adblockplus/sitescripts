@@ -208,6 +208,10 @@ def writeTPL(filePath, lines):
         line = match.group(1)
         options = match.group(2).replace('_', '-').lower().split(',')
 
+        # Remove first-party only exceptions, we will allow an ad server everywhere otherwise
+        if isException and '~third-party' in options:
+          hasUnsupportedOptions = True
+
         # A number of options are not supported in MSIE but can be safely ignored, remove them
         options = filter(lambda o: not o in ('', 'third-party', '~third-party', 'match-case', '~match-case', '~other', '~donottrack'), options)
 
