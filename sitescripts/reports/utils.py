@@ -55,7 +55,7 @@ def saveReport(guid, reportData, isNew=False):
     reportData['hasscreenshot'] = 2 if reportData.get('screenshotEdited', False) else 1
     try:
       saveScreenshot(guid, screenshot)
-    except TypeError:
+    except (TypeError, UnicodeEncodeError):
       reportData['hasscreenshot'] = 0
     del reportData['screenshot']
   knownIssues = len(reportData.get('knownIssues', []))
