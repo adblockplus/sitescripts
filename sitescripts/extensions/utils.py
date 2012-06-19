@@ -125,7 +125,7 @@ class Configuration(object):
   keyFile = _defineLocalProperty('key', '')
   name = _defineLocalProperty('name')
   galleryID = _defineLocalProperty('galleryID', '')
-  downloadPage = _defineLocalProperty('downloadPage')
+  downloadPage = _defineLocalProperty('downloadPage', '')
   experimental = _defineLocalProperty('experimental', '')
 
   latestRevision = _defineNightlyProperty('latestRevision')

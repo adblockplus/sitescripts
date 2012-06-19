@@ -15,7 +15,10 @@
   functional yet.
   {%- endif %}
   Use them at your own risk, see <a href="/en/development-builds">development builds introduction</a> for more
-  information. Latest <em>stable {{config.name}} release</em> can be downloaded from
+  information.
+
+  {%if config.galleryID or config.downloadPage -%}
+  Latest <em>stable {{config.name}} release</em> can be downloaded from
   {% if config.type == 'gecko' and config.galleryID -%}
     <a href="https://addons.mozilla.org/addon/{{config.galleryID}}/">addons.mozilla.org</a>
   {%- elif config.type == 'chrome' and config.galleryID -%}
@@ -24,6 +27,7 @@
     <a href="{{config.downloadPage}}">its installation page</a>
   {%- endif -%}
   .
+  {%- endif %}
 
   {%- if config.type == 'chrome' and config.experimental -%}
     <br /><br />
