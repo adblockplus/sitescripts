@@ -100,7 +100,19 @@ def processSubscriptionFile(sourceName, sourceDirs, targetDir, file, timeout):
     raise Exception('This is not a valid Adblock Plus subscription file.')
 
   lines = resolveIncludes(sourceName, sourceDirs, filePath, lines, timeout)
-  lines = filter(lambda l: l != '' and not re.search(r'!\s*checksum[\s\-:]+([\w\+\/=]+)', l, re.I), lines)
+  seen = set(('checksum'))
+  def checkLine(line):
+    if line == '':
+      return False
+    match = re.search(r'^\s*!\s*(Redirect|Homepage|Title|Checksum)\s*:', line, re.M | re.I)
+    if not match:
+      return True
+    key = match.group(1).lower()
+    if key in seen:
+      return False
+    seen.add(key)
+    return True
+  lines = filter(checkLine, lines)
 
   writeTPL(os.path.join(targetDir, os.path.splitext(file)[0] + '.tpl'), lines)
 
