@@ -197,6 +197,13 @@ def processText(text):
       reportData['option_privateBrowsing'] = (text == 'true')
     elif attributes.get('id', None) == 'subscriptionsAutoUpdate':
       reportData['option_subscriptionsAutoUpdate'] = (text == 'true')
+    elif attributes.get('id', None) == 'javascript':
+      reportData['option_javascript'] = (text == 'true')
+    elif attributes.get('id', None) == 'cookieBehavior':
+      try:
+        reportData['option_cookieBehavior'] = int(text)
+      except:
+        pass
   elif name == 'screenshot':
     if 'screenshot' in reportData:
       reportData['screenshot'] += text

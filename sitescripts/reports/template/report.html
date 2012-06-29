@@ -55,7 +55,9 @@
           Tabs on Flash and Java: {{ {True: 'yes', False: 'no'}.get(option_objecttabs, 'unknown') }},
           Collapse blocked elements: {{ {True: 'yes', False: 'no'}.get(option_collapse, 'unknown') }},
           Private browsing: {{ {True: 'yes', False: 'no'}.get(option_privateBrowsing, 'unknown') }},
-          Automatic subscription updates: {{ {True: 'yes', False: 'no'}.get(option_subscriptionsAutoUpdate, 'unknown') }}
+          Automatic subscription updates: {{ {True: 'yes', False: 'no'}.get(option_subscriptionsAutoUpdate, 'unknown') }},
+          JavaScript enabled: {{ {True: 'yes', False: 'no'}.get(option_javascript, 'unknown') }},
+          Cookies enabled: {{ {0: 'yes', 1: 'first-party only', 2: 'no', 3: 'P3P policy'}.get(option_cookieBehavior, 'unknown') }}
         </td>
       </tr>
       {% if comment -%}
