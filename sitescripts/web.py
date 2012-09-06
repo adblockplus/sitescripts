@@ -25,3 +25,4 @@ import reports.web.showDigest
 import extensions.web.translationCheck
 import tasks.web.tasks
 import formmail.web.formmail
+import crawler.web.crawler
