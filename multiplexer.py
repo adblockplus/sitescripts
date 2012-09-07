@@ -5,21 +5,21 @@
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
 
-from flask import Flask, request
+import flask
 from sitescripts.web import handlers
 from urlparse import urlparse
 
-app = Flask(__name__)
+app = flask.Flask(__name__)
 
 @app.route("/<path:path>")
 def multiplex(path):
-  request_url = urlparse(request.url)
+  request_url = urlparse(flask.request.url)
   request_path = request_url.path
   if request_path in handlers:
-    if 'SERVER_ADDR' not in request.environ:
-      request.environ['SERVER_ADDR'] = request.environ['SERVER_NAME']
+    if 'SERVER_ADDR' not in flask.request.environ:
+      flask.request.environ['SERVER_ADDR'] = flask.request.environ['SERVER_NAME']
     return handlers[request_path]
-  return lambda environ, start_response: start_response(404, [])
+  return flask.abort(404)
 
 if __name__ == "__main__":
   app.run(debug=True)
