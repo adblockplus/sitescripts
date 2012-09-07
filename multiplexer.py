@@ -19,7 +19,7 @@ def multiplex(path):
     if 'SERVER_ADDR' not in request.environ:
       request.environ['SERVER_ADDR'] = request.environ['SERVER_NAME']
     return handlers[request_path]
-  return ""
+  return lambda environ, start_response: start_response(404, [])
 
 if __name__ == "__main__":
   app.run(debug=True)
