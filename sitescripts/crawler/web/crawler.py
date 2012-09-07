@@ -36,6 +36,7 @@ def crawlable_urls(environ, start_response):
 def crawler_run(environ, start_response):
   cursor = get_cursor()
   execute_query(cursor, "INSERT INTO crawler_runs () VALUES ()")
+  start_response("200 OK", [("Content-Type", "text/plain")])
   return str(cursor.lastrowid)
 
 def find_site_id(site_url):
