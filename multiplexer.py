@@ -16,11 +16,9 @@ def multiplex(path):
   request_url = urlparse(request.url)
   request_path = request_url.path
   if request_path in handlers:
-    # TODO: Some more environ entries are required for all scripts to work.
-    environ = {"QUERY_STRING": request_url.query}
-    # TODO: Actually return the supplied status/headers.
-    start_response = lambda status, headers: None
-    return handlers[request_path](environ, start_response)
+    if 'SERVER_ADDR' not in request.environ:
+      request.environ['SERVER_ADDR'] = request.environ['SERVER_NAME']
+    return handlers[request_path]
   return ""
 
 if __name__ == "__main__":
