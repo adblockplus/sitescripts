@@ -16,12 +16,9 @@ def get_db():
 def get_cursor():
   return get_db().cursor(MySQLdb.cursors.DictCursor)
 
-def execute_query(cursor, query, args=None):
-  cursor.execute(query, args)
-
 def fetch_crawlable_urls():
   cursor = get_cursor()
-  execute_query(cursor, "SELECT url from crawler_sites")
+  cursor.execute("SELECT url from crawler_sites")
   results = cursor.fetchall()
   urls = [result["url"] for result in results]
   return urls
@@ -35,13 +32,13 @@ def crawlable_urls(environ, start_response):
 @url_handler("/crawlerRun")
 def crawler_run(environ, start_response):
   cursor = get_cursor()
-  execute_query(cursor, "INSERT INTO crawler_runs () VALUES ()")
+  cursor.execute("INSERT INTO crawler_runs () VALUES ()")
   start_response("200 OK", [("Content-Type", "text/plain")])
   return str(cursor.lastrowid)
 
 def find_site_id(site_url):
   cursor = get_cursor()
-  execute_query(cursor, "SELECT id FROM crawler_sites WHERE url = %s", site_url)
+  cursor.execute("SELECT id FROM crawler_sites WHERE url = %s", site_url)
   return cursor.fetchall()[0]["id"]
 
 @url_handler("/crawlerData")
@@ -52,7 +49,7 @@ def crawler_data(environ, start_response):
   request_url = params["request_url"][0]
   document_url = params["document_url"][0]
   cursor = get_cursor()
-  execute_query(cursor, """
+  cursor.execute("""
 INSERT INTO crawler_data (run, site, request_url, document_url)
 VALUES (%s, %s, %s, %s)""",
                 (run_id, site_id, request_url, document_url))
