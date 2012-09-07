@@ -7,7 +7,6 @@ app = Flask(__name__)
 @app.route('/<path:path>')
 def multiplex(path):
   request_url = urlparse(request.url)
-  print request_url.query
   request_path = request_url.path
   if request_path in handlers:
     # TODO: Some more environ entries are required for all scripts to work.
