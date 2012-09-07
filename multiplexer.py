@@ -6,15 +6,15 @@ app = Flask(__name__)
 
 @app.route('/<path:path>')
 def multiplex(path):
-  requestUrl = urlparse(request.url)
-  print requestUrl.query
-  requestPath = requestUrl.path
-  if requestPath in handlers:
+  request_url = urlparse(request.url)
+  print request_url.query
+  request_path = request_url.path
+  if request_path in handlers:
     # TODO: Some more environ entries are required for all scripts to work.
-    environ = {'QUERY_STRING': requestUrl.query}
+    environ = {'QUERY_STRING': request_url.query}
     # TODO: Actually return the supplied status/headers.
     start_response = lambda status, headers: None
-    return handlers[requestPath](environ, start_response)
+    return handlers[request_path](environ, start_response)
   return ''
 
 if __name__ == '__main__':
