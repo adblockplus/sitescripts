@@ -1,7 +1,7 @@
 import MySQLdb, os
 from sitescripts.utils import cached, get_config
 from sitescripts.web import url_handler
-from urlparse import parse_qs
+from urlparse import parse_qsl
 
 @cached(600)
 def get_db():
@@ -37,20 +37,22 @@ def crawler_run(environ, start_response):
   return str(cursor.lastrowid)
 
 def find_site_id(site_url):
+  normalized_url = site_url.strip("/")
+  print normalized_url
   cursor = get_cursor()
-  cursor.execute("SELECT id FROM crawler_sites WHERE url = %s", site_url)
+  cursor.execute("SELECT id FROM crawler_sites WHERE url = %s", normalized_url)
   return cursor.fetchall()[0]["id"]
 
 @url_handler("/crawlerData")
 def crawler_data(environ, start_response):
-  params = parse_qs(environ["QUERY_STRING"])
-  run_id = params["run"][0]
-  site_id = find_site_id(params["site"][0])
-  url = params["url"][0]
+  params = dict(parse_qsl(environ["QUERY_STRING"]))
+  run_id = params["run"]
+  site_id = find_site_id(params["site"])
+  url = params["url"]
   cursor = get_cursor()
   cursor.execute("""
 INSERT INTO crawler_data (run, site, url)
 VALUES (%s, %s, %s)""",
-                (run_id, site_id, url))
+                 (run_id, site_id, url))
   start_response("200 OK", [("Content-Type", "text/plain")])
   return ""
