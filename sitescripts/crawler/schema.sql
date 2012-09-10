@@ -21,6 +21,5 @@ CREATE TABLE crawler_data (
        FOREIGN KEY (run) REFERENCES crawler_runs (id),
        site INT NOT NULL,
        FOREIGN KEY (site) REFERENCES crawler_sites (id),
-       request_url VARCHAR(255) NOT NULL,
-       document_url VARCHAR(255) NOT NULL
+       url VARCHAR(255) NOT NULL
 );

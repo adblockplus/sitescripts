@@ -46,12 +46,11 @@ def crawler_data(environ, start_response):
   params = parse_qs(environ["QUERY_STRING"])
   run_id = params["run"][0]
   site_id = find_site_id(params["site"][0])
-  request_url = params["request_url"][0]
-  document_url = params["document_url"][0]
+  url = params["url"][0]
   cursor = get_cursor()
   cursor.execute("""
-INSERT INTO crawler_data (run, site, request_url, document_url)
-VALUES (%s, %s, %s, %s)""",
-                (run_id, site_id, request_url, document_url))
+INSERT INTO crawler_data (run, site, url)
+VALUES (%s, %s, %s)""",
+                (run_id, site_id, url))
   start_response("200 OK", [("Content-Type", "text/plain")])
   return ""
