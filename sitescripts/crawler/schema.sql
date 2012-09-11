@@ -21,5 +21,6 @@ CREATE TABLE crawler_data (
        FOREIGN KEY (run) REFERENCES crawler_runs (id),
        site INT NOT NULL,
        FOREIGN KEY (site) REFERENCES crawler_sites (id),
-       url VARCHAR(255) NOT NULL
+       url VARCHAR(255) NOT NULL,
+       filtered BOOLEAN NOT NULL
 );

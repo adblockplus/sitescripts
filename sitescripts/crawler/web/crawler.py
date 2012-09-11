@@ -47,10 +47,11 @@ def crawler_data(environ, start_response):
   run_id = params["run"]
   site_id = find_site_id(params["site"])
   url = params["url"]
+  filtered = params["filtered"] == "true"
   cursor = get_cursor()
   cursor.execute("""
-INSERT INTO crawler_data (run, site, url)
-VALUES (%s, %s, %s)""",
-                 (run_id, site_id, url))
+INSERT INTO crawler_data (run, site, url, filtered)
+VALUES (%s, %s, %s, %s)""",
+                 (run_id, site_id, url, filtered))
   start_response("200 OK", [("Content-Type", "text/plain")])
   return ""
