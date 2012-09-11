@@ -37,10 +37,8 @@ def crawler_run(environ, start_response):
   return str(cursor.lastrowid)
 
 def find_site_id(site_url):
-  normalized_url = site_url.strip("/")
-  print normalized_url
   cursor = get_cursor()
-  cursor.execute("SELECT id FROM crawler_sites WHERE url = %s", normalized_url)
+  cursor.execute("SELECT id FROM crawler_sites WHERE url = %s", site_url)
   return cursor.fetchall()[0]["id"]
 
 @url_handler("/crawlerData")
