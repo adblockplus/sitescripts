@@ -15,8 +15,9 @@ Nightly builds generation script
 """
 
 import sys, os, os.path, subprocess, ConfigParser, traceback, json, hashlib
-import tempfile, re, shutil, urlparse
+import tempfile, re, shutil, urlparse, pipes
 from datetime import datetime
+from xml.dom.minidom import parse as parseXml
 from sitescripts.utils import get_config, setupStderr, get_template
 from sitescripts.extensions.utils import compareVersions, Configuration
 import buildtools.packager as packager
@@ -117,6 +118,24 @@ class NightlyBuild(object):
         minVersion, maxVersion = metadata.get('compat', key).split('/')
         self.compat.append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
 
+  def readAndroidMetadata(self):
+    """
+      Read Android-specific metadata from AndroidManifest.xml file.
+    """
+    manifestFile = open(os.path.join(self.tempdir, 'AndroidManifest.xml'), 'r')
+    manifest = parseXml(manifestFile)
+    manifestFile.close()
+
+    root = manifest.documentElement
+    self.version = root.attributes["android:versionName"].value
+    while self.version.count('.') < 2:
+      self.version += '.0'
+    self.version = '%s.%s' % (self.version, self.revision)
+
+    usesSdk = manifest.getElementsByTagName('uses-sdk')[0]
+    self.minSdkVersion = usesSdk.attributes["android:minSdkVersion"].value
+    self.basename = os.path.basename(self.config.repository)
+
   def readChromeMetadata(self):
     """
       Read Chrome-specific metadata from manifest.json file. It will also
@@ -157,12 +176,15 @@ class NightlyBuild(object):
     baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
     if not os.path.exists(baseDir):
       os.makedirs(baseDir)
-    if self.config.type != 'chrome':
-      manifestPath = os.path.join(baseDir, "update.rdf")
-      templateName = 'geckoUpdateManifest'
-    else:
+    if self.config.type == 'chrome':
       manifestPath = os.path.join(baseDir, "updates.xml")
       templateName = 'chromeUpdateManifest'
+    elif self.config.type == 'android':
+      manifestPath = os.path.join(baseDir, "updates.xml")
+      templateName = 'androidUpdateManifest'
+    else:
+      manifestPath = os.path.join(baseDir, "update.rdf")
+      templateName = 'geckoUpdateManifest'
 
     template = get_template(get_config().get('extensions', templateName))
     template.stream({'extensions': [self]}).dump(manifestPath)
@@ -178,13 +200,29 @@ class NightlyBuild(object):
     outputPath = os.path.join(baseDir, outputFile)
     self.updateURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + outputFile + '?update')
 
-    if self.config.type != 'chrome':
-      packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile)
-    else:
+    if self.config.type == 'android':
+      apkFile = open(outputPath, 'wb')
+      try:
+        port = get_config().get('extensions', 'androidBuildPort')
+      except ConfigParser.NoOptionError:
+        port = '22'
+      buildCommand = ['ssh', '-p', port, get_config().get('extensions', 'androidBuildHost')]
+      buildCommand += map(pipes.quote, ['/home/android/bin/makedebugbuild.py', '--revision', self.revision, '--version', self.version, '--stdout'])
+      process = subprocess.Popen(buildCommand, stdout=apkFile, stderr=None)
+      status = process.wait()
+      apkFile.close()
+      if status:
+        # clear broken output if any
+        # exception will be raised later
+        if os.path.exists(outputPath):
+          os.remove(outputPath)
+    elif self.config.type == 'chrome':
       buildCommand = ['python', os.path.join(self.tempdir, 'build.py'), '-k', self.config.keyFile, '-b', self.revision, outputPath]
       if self.config.experimental:
         buildCommand[-1:0] = ['--experimental']
       subprocess.Popen(buildCommand, stdout=subprocess.PIPE).communicate()
+    else:
+      packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile)
 
     if not os.path.exists(outputPath):
       raise Exception("Build failed, output file hasn't been created")
@@ -275,10 +313,12 @@ class NightlyBuild(object):
         self.copyRepository()
 
         # get meta data from the repository
-        if self.config.type != 'chrome':
-          self.readMetadata()
-        else:
+        if self.config.type == 'android':
+          self.readAndroidMetadata()
+        elif self.config.type == 'chrome':
           self.readChromeMetadata()
+        else:
+          self.readMetadata()
 
         # create development build
         self.build()

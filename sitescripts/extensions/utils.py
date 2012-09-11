@@ -152,6 +152,8 @@ class Configuration(object):
       self.packageSuffix = '.crx'
     elif self.type == 'kmeleon':
       self.packageSuffix = '.zip'
+    elif self.type == 'android':
+      self.packageSuffix = '.apk'
 
     if self.nightlyConfig and not self.nightlyConfig.has_section(self.repositoryName):
       self.nightlyConfig.add_section(self.repositoryName)
