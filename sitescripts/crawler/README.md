@@ -3,7 +3,7 @@ crawler
 
 Backend for the Adblock Plus Crawler. It provides the following URLs:
 
-* */crawlableUrls* - Return a list of sites to be crawled
+* */crawlableSites* - Return a list of sites to be crawled
 * */crawlerRun, /crawlerData* - Receive data on filtered elements
 
 Database setup

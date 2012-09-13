@@ -16,17 +16,17 @@ def get_db():
 def get_cursor():
   return get_db().cursor(MySQLdb.cursors.DictCursor)
 
-def fetch_crawlable_urls():
+def fetch_crawlable_sites():
   cursor = get_cursor()
   cursor.execute("SELECT url from crawler_sites")
   results = cursor.fetchall()
-  urls = [result["url"] for result in results]
-  return urls
+  sites = [result["url"] for result in results]
+  return sites
 
-@url_handler("/crawlableUrls")
+@url_handler("/crawlableSites")
 @basic_auth
-def crawlable_urls(environ, start_response):
-  urls = fetch_crawlable_urls()
+def crawlable_sites(environ, start_response):
+  urls = fetch_crawlable_sites()
   start_response("200 OK", [("Content-Type", "text/plain")])
   return "\n".join(urls)
 
