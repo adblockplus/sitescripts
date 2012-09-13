@@ -13,6 +13,7 @@ def hg(args):
 def extract_urls(filter_list_dir):
   os.chdir(filter_list_dir)
   process = hg(["log", "--template", "{desc}\n"])
+  urls = set([])
 
   while True:
     line = process.stdout.readline()
@@ -24,8 +25,15 @@ def extract_urls(filter_list_dir):
       continue
 
     url = matches.group(1).strip()
+    urls.add(url)
+
+  return urls
+
+def print_statements(urls):
+  for url in urls:
     print "INSERT INTO crawler_sites (url) VALUES ('" + url + "');"
 
 if __name__ == "__main__":
   filter_list_dir = get_config().get("crawler", "filter_list_repository")
-  extract_urls(filter_list_dir)
+  urls = extract_urls(filter_list_dir)
+  print_statements(urls)
