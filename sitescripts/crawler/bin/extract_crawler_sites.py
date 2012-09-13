@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding: utf-8
 
 # This Source Code is subject to the terms of the Mozilla Public License
@@ -6,19 +5,13 @@
 # http://mozilla.org/MPL/2.0/.
 
 import os, re, subprocess
+from sitescripts.utils import get_config
 
 def hg(args):
   return subprocess.Popen(["hg"] + args, stdout = subprocess.PIPE)
 
-def update_filter_list(filter_list):
-  if os.path.isdir(filter_list):
-    hg(["pull", "--cwd", filter_list]).communicate()
-    hg(["update", "--cwd", filter_list]).communicate()
-  else:
-    url = "https://hg.adblockplus.org/" + filter_list
-    hg(["clone", url, filter_list]).communicate()
-
-def extract_urls():
+def extract_urls(filter_list_dir):
+  os.chdir(filter_list_dir)
   process = hg(["log", "--template", "{desc}\n"])
 
   while True:
@@ -34,6 +27,5 @@ def extract_urls():
     print "INSERT INTO crawler_sites (url) VALUES ('" + url + "');"
 
 if __name__ == "__main__":
-  update_filter_list("easylist")
-  os.chdir("easylist")
-  extract_urls()
+  filter_list_dir = get_config().get("crawler", "filter_list_repository")
+  extract_urls(filter_list_dir)
