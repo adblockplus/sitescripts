@@ -1,6 +1,6 @@
 import MySQLdb, os
 from sitescripts.utils import cached, get_config
-from sitescripts.web import url_handler
+from sitescripts.web import url_handler, basic_auth
 from urlparse import parse_qsl
 
 @cached(600)
@@ -24,12 +24,14 @@ def fetch_crawlable_urls():
   return urls
 
 @url_handler("/crawlableUrls")
+@basic_auth
 def crawlable_urls(environ, start_response):
   urls = fetch_crawlable_urls()
   start_response("200 OK", [("Content-Type", "text/plain")])
   return "\n".join(urls)
 
 @url_handler("/crawlerRun")
+@basic_auth
 def crawler_run(environ, start_response):
   cursor = get_cursor()
   cursor.execute("INSERT INTO crawler_runs () VALUES ()")
@@ -42,6 +44,7 @@ def find_site_id(site_url):
   return cursor.fetchall()[0]["id"]
 
 @url_handler("/crawlerData")
+@basic_auth
 def crawler_data(environ, start_response):
   params = dict(parse_qsl(environ["QUERY_STRING"]))
   run_id = params["run"]

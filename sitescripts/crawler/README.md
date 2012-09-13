@@ -14,10 +14,17 @@ Just execute the statements in _schema.sql_.
 Configuration
 -------------
 
-Make sure that _database_, _dbuser_ and _dbpassword_ is configured
-correctly in _/etc/sitescripts_ or _.sitescripts_.
+Just add an empty _crawler_ section to _/etc/sitescripts_ or _.sitescripts_.
 
-Then add an empty _crawler_ section.
+Also make sure that the following keys are configured in the _DEFAULT_
+section:
+
+* _database_
+* _dbuser_
+* _dbpassword_
+* _basic\_auth\_realm_
+* _basic\_auth\_username_
+* _basic\_auth\_password_
 
 Extracting crawler sites
 ------------------------
