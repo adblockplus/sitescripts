@@ -11,7 +11,7 @@ from urlparse import urlparse
 
 app = flask.Flask(__name__)
 
-@app.route("/<path:path>")
+@app.route("/<path:path>", methods = ["GET", "POST"])
 def multiplex(path):
   request_url = urlparse(flask.request.url)
   request_path = request_url.path
