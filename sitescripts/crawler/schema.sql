@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS crawler_data;
 CREATE TABLE crawler_sites (
        id INT NOT NULL AUTO_INCREMENT,
        PRIMARY KEY (id),
-       url VARCHAR(255) NOT NULL
+       url VARCHAR(512) NOT NULL
 );
 
 CREATE TABLE crawler_runs (
@@ -21,6 +21,6 @@ CREATE TABLE crawler_data (
        FOREIGN KEY (run) REFERENCES crawler_runs (id),
        site INT NOT NULL,
        FOREIGN KEY (site) REFERENCES crawler_sites (id),
-       url VARCHAR(255) NOT NULL,
+       url VARCHAR(512) NOT NULL,
        filtered BOOLEAN NOT NULL
 );
