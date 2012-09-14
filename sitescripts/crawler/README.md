@@ -6,6 +6,11 @@ Backend for the Adblock Plus Crawler. It provides the following URLs:
 * */crawlableSites* - Return a list of sites to be crawled
 * */crawlerRun, /crawlerData* - Receive data on filtered elements
 
+Required packages
+-----------------
+
+* [simplejson](http://pypi.python.org/pypi/simplejson/)
+
 Database setup
 --------------
 
