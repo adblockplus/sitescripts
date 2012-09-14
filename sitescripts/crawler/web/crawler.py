@@ -3,7 +3,7 @@ from sitescripts.utils import cached, get_config
 from sitescripts.web import url_handler, basic_auth
 
 @cached(600)
-def get_db():
+def _get_db():
   database = get_config().get("crawler", "database")
   dbuser = get_config().get("crawler", "dbuser")
   dbpasswd = get_config().get("crawler", "dbpassword")
@@ -13,9 +13,9 @@ def get_db():
     return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database, use_unicode=True, charset="utf8")
 
 def get_cursor():
-  return get_db().cursor(MySQLdb.cursors.DictCursor)
+  return _get_db().cursor(MySQLdb.cursors.DictCursor)
 
-def fetch_crawlable_sites():
+def _fetch_crawlable_sites():
   cursor = get_cursor()
   cursor.execute("SELECT url from crawler_sites")
   results = cursor.fetchall()
@@ -25,16 +25,16 @@ def fetch_crawlable_sites():
 @url_handler("/crawlableSites")
 @basic_auth
 def crawlable_sites(environ, start_response):
-  urls = fetch_crawlable_sites()
+  urls = _fetch_crawlable_sites()
   start_response("200 OK", [("Content-Type", "text/plain")])
   return "\n".join(urls)
 
-def find_site_id(site_url):
+def _find_site_id(site_url):
   cursor = get_cursor()
   cursor.execute("SELECT id FROM crawler_sites WHERE url = %s", site_url)
   return cursor.fetchall()[0]["id"]
 
-def read_multipart_lines(environ, line_callback):
+def _read_multipart_lines(environ, line_callback):
   data_file = environ["wsgi.input"]
   current_line = 0
 
@@ -54,13 +54,13 @@ def read_multipart_lines(environ, line_callback):
 
     line_callback(line)
 
-def create_run():
+def _create_run():
   cursor = get_cursor()
   cursor.execute("INSERT INTO crawler_runs () VALUES ()")
   return cursor.lastrowid
 
-def insert_data(run_id, site, url, filtered):
-  site_id = find_site_id(site)
+def _insert_data(run_id, site, url, filtered):
+  site_id = _find_site_id(site)
   cursor = get_cursor()
   cursor.execute("""
 INSERT INTO crawler_data (run, site, url, filtered)
@@ -72,9 +72,9 @@ VALUES (%s, %s, %s, %s)""",
 def crawler_data(environ, start_response):
   def line_callback(line):
     url, site, filtered = simplejson.loads(line)
-    insert_data(run_id, site, url, filtered)
+    _insert_data(run_id, site, url, filtered)
 
-  run_id = create_run()
-  read_multipart_lines(environ, line_callback)
+  run_id = _create_run()
+  _read_multipart_lines(environ, line_callback)
   start_response("200 OK", [("Content-Type", "text/plain")])
   return ""
