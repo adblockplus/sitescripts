@@ -42,6 +42,7 @@ def authenticate(f, environ, start_response):
 
 import openid.web.server
 import subscriptions.web.fallback
+import crashes.web.submitCrash
 import reports.web.submitReport
 import reports.web.updateReport
 import reports.web.showDigest
