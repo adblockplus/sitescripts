@@ -24,14 +24,15 @@ def registerUrlHandler(url, func):
 def basic_auth(f):
   return lambda environ, start_response: authenticate(f, environ, start_response)
 
-def authenticate(f, environ, start_response):
+def authenticate(f, environ, start_response, config_section = "DEFAULT"):
   if "HTTP_AUTHORIZATION" in environ:
     auth = environ["HTTP_AUTHORIZATION"].split()
     if len(auth) == 2:
       if auth[0].lower() == "basic":
         username, password = base64.b64decode(auth[1]).split(":")
-        expected_username = get_config().get("DEFAULT", "basic_auth_username")
-        expected_password = get_config().get("DEFAULT", "basic_auth_password")
+        config = get_config()
+        expected_username = config.get(config_section, "basic_auth_username")
+        expected_password = config.get(config_section, "basic_auth_password")
         if username == expected_username and password == expected_password:
           return f(environ, start_response)
 
