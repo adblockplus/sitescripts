@@ -5,7 +5,8 @@ DROP TABLE IF EXISTS crawler_data;
 CREATE TABLE crawler_sites (
        id INT NOT NULL AUTO_INCREMENT,
        PRIMARY KEY (id),
-       url VARCHAR(512) NOT NULL
+       url VARCHAR(512) NOT NULL,
+       UNIQUE (url)
 );
 
 CREATE TABLE crawler_runs (
