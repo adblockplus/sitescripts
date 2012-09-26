@@ -65,7 +65,7 @@ def _insert_data(run_id, site, url, filtered):
   cursor.execute("""
 INSERT INTO crawler_data (run, site, url, filtered)
 VALUES (%s, %s, %s, %s)""",
-                 (run_id, site_id, url, filtered))  
+                 (run_id, site_id, url, filtered))
 
 @url_handler("/crawlerData")
 @basic_auth
