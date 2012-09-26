@@ -15,11 +15,7 @@ def extract_urls(filter_list_dir):
   process = hg(["log", "--template", "{desc}\n"])
   urls = set([])
 
-  while True:
-    line = process.stdout.readline()
-    if line == "":
-      break
-
+  for line in process.stdout:
     matches = re.match(r"[A-Z]:.*(https?://\S*)", line)
     if not matches:
       continue
