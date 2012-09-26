@@ -83,8 +83,11 @@ VALUES (%s, %s, %s, %s)""",
 @basic_auth
 def crawler_data(environ, start_response):
   def line_callback(line):
-    url, site, filtered = simplejson.loads(line)
-    _insert_data(run_id, site, url, filtered)
+    try:
+      url, site, filtered = simplejson.loads(line)
+      _insert_data(run_id, site, url, filtered)
+    except simplejson.JSONDecodeError:
+      print >>sys.stderr, "Unable to parse JSON from '%s'" % line
 
   run_id = _create_run()
   _read_multipart_lines(environ, line_callback)
