@@ -1,4 +1,4 @@
-import MySQLdb, os, simplejson, sys
+import MySQLdb, os, re, simplejson, sys
 from sitescripts.utils import cached, get_config
 from sitescripts.web import url_handler, basic_auth
 
@@ -39,23 +39,28 @@ def _find_site_id(site_url):
 
 def _read_multipart_lines(environ, line_callback):
   data_file = environ["wsgi.input"]
-  current_line = 0
+  boundary = re.search(r"boundary=(.*)", environ["CONTENT_TYPE"]).group(1)
+  boundary_passed = False
+  header_passed = False
 
-  while True:
-    line = data_file.readline().strip()
-    current_line += 1
+  for line in data_file:
+    line = line.strip()
 
-    if current_line == 1:
-      boundary = line
+    if not boundary_passed:
+      if line == "--" + boundary:
+        boundary_passed = True
       continue
 
-    if current_line < 5 or not line:
+    if not header_passed:
+      if not line:
+        header_passed = True
       continue
 
-    if line.startswith(boundary):
+    if line == "--" + boundary + "--":
       break
 
-    line_callback(line)
+    if line:
+      line_callback(line)
 
 def _create_run():
   cursor = get_cursor()
