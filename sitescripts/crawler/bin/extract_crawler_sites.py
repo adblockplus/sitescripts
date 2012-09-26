@@ -4,7 +4,7 @@
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
 
-import os, re, subprocess
+import MySQLdb, os, re, subprocess
 from sitescripts.utils import get_config
 
 def hg(args):
@@ -27,7 +27,8 @@ def extract_urls(filter_list_dir):
 
 def print_statements(urls):
   for url in urls:
-    print "INSERT INTO crawler_sites (url) VALUES ('" + url + "');"
+    escaped_url = MySQLdb.escape_string(url)
+    print "INSERT INTO crawler_sites (url) VALUES ('" + escaped_url + "');"
 
 if __name__ == "__main__":
   filter_list_dir = get_config().get("crawler", "filter_list_repository")
