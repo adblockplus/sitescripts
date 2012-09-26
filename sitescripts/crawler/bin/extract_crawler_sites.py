@@ -16,7 +16,7 @@ def extract_urls(filter_list_dir):
   urls = set([])
 
   for line in process.stdout:
-    matches = re.match(r"[A-Z]:.*(https?://\S*)", line)
+    matches = re.match(r".*\b(https?://\S*)", line)
     if not matches:
       continue
 
