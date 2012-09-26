@@ -20,7 +20,7 @@ def extract_urls(filter_list_dir):
     if line == "":
       break
 
-    matches = re.match(r"[A-Z]:.*(https?://.*)", line)
+    matches = re.match(r"[A-Z]:.*(https?://\S*)", line)
     if not matches:
       continue
 
