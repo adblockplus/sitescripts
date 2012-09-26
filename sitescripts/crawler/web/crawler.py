@@ -1,4 +1,4 @@
-import MySQLdb, os, simplejson
+import MySQLdb, os, simplejson, sys
 from sitescripts.utils import cached, get_config
 from sitescripts.web import url_handler, basic_auth
 
@@ -34,7 +34,8 @@ def crawlable_sites(environ, start_response):
 def _find_site_id(site_url):
   cursor = get_cursor()
   cursor.execute("SELECT id FROM crawler_sites WHERE url = %s", site_url)
-  return cursor.fetchall()[0]["id"]
+  result = cursor.fetchone()
+  return result["id"] if result else None
 
 def _read_multipart_lines(environ, line_callback):
   data_file = environ["wsgi.input"]
@@ -63,6 +64,10 @@ def _create_run():
 
 def _insert_data(run_id, site, url, filtered):
   site_id = _find_site_id(site)
+  if site_id is None:
+    print >>sys.stderr, "Unable to find site '%s' in the database" % site
+    return
+
   cursor = get_cursor()
   cursor.execute("""
 INSERT INTO crawler_data (run, site, url, filtered)
