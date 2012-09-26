@@ -8,9 +8,11 @@ def _get_db():
   dbuser = get_config().get("crawler", "dbuser")
   dbpasswd = get_config().get("crawler", "dbpassword")
   if os.name == "nt":
-    return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database, use_unicode=True, charset="utf8", named_pipe=True)
+    return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
+                           use_unicode=True, charset="utf8", named_pipe=True)
   else:
-    return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database, use_unicode=True, charset="utf8")
+    return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
+                           use_unicode=True, charset="utf8")
 
 def get_cursor():
   return _get_db().cursor(MySQLdb.cursors.DictCursor)
