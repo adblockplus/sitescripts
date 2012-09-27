@@ -21,9 +21,11 @@ def registerUrlHandler(url, func):
     raise Exception('A handler for url %s is already registered' % url)
   handlers[url] = func
 
-def basic_auth(f, config_section = "DEFAULT"):
-  def decorator(environ, start_response):
-    return authenticate(f, environ, start_response, config_section)
+def basic_auth(config_section = "DEFAULT"):
+  def decorator(function):
+    def authenticating_wrapper(environ, start_response):
+      return authenticate(function, environ, start_response, config_section)
+    return authenticating_wrapper
   return decorator
 
 def authenticate(f, environ, start_response, config_section):

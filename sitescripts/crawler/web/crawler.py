@@ -25,7 +25,7 @@ def _fetch_crawlable_sites():
   return sites
 
 @url_handler("/crawlableSites")
-@basic_auth
+@basic_auth("crawler")
 def crawlable_sites(environ, start_response):
   urls = _fetch_crawlable_sites()
   start_response("200 OK", [("Content-Type", "text/plain")])
