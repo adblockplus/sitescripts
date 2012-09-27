@@ -39,7 +39,15 @@ def _find_site_id(site_url):
 
 def _read_multipart_lines(environ, line_callback):
   data_file = environ["wsgi.input"]
-  boundary = re.search(r"boundary=(.*)", environ["CONTENT_TYPE"]).group(1)
+  content_type = environ["CONTENT_TYPE"]
+  if not content_type:
+    raise ValueError("Content-Type missing from header")
+
+  match = re.search(r"boundary=(.*)", content_type)
+  if not match:
+    raise ValueError("Multipart form data or boundary declaration missing")
+
+  boundary = match.group(1)
   boundary_passed = False
   header_passed = False
 
@@ -61,6 +69,8 @@ def _read_multipart_lines(environ, line_callback):
 
     if line:
       line_callback(line)
+
+  return True
 
 def _create_run():
   cursor = get_cursor()
@@ -90,6 +100,10 @@ def crawler_data(environ, start_response):
       print >>sys.stderr, "Unable to parse JSON from '%s'" % line
 
   run_id = _create_run()
-  _read_multipart_lines(environ, line_callback)
-  start_response("200 OK", [("Content-Type", "text/plain")])
-  return ""
+  try:
+    _read_multipart_lines(environ, line_callback)
+    start_response("200 OK", [("Content-Type", "text/plain")])
+    return ""
+  except ValueError as e:
+    start_response("401 Bad Request", [("Content-Type", "text/plain")])
+    return e
