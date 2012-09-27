@@ -39,7 +39,7 @@ def _find_site_id(site_url):
 
 def _read_multipart_lines(environ, line_callback):
   data_file = environ["wsgi.input"]
-  content_type = environ["CONTENT_TYPE"]
+  content_type = environ.get("CONTENT_TYPE")
   if not content_type:
     raise ValueError("Content-Type missing from header")
 
