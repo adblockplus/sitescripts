@@ -21,10 +21,12 @@ def registerUrlHandler(url, func):
     raise Exception('A handler for url %s is already registered' % url)
   handlers[url] = func
 
-def basic_auth(f):
-  return lambda environ, start_response: authenticate(f, environ, start_response)
+def basic_auth(f, config_section = "DEFAULT"):
+  def decorator(environ, start_response):
+    return authenticate(f, environ, start_response, config_section)
+  return decorator
 
-def authenticate(f, environ, start_response, config_section = "DEFAULT"):
+def authenticate(f, environ, start_response, config_section):
   if "HTTP_AUTHORIZATION" in environ:
     auth = environ["HTTP_AUTHORIZATION"].split()
     if len(auth) == 2:
