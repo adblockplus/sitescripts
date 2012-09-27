@@ -70,8 +70,6 @@ def _read_multipart_lines(environ, line_callback):
     if line:
       line_callback(line)
 
-  return True
-
 def _create_run():
   cursor = get_cursor()
   cursor.execute("INSERT INTO crawler_runs () VALUES ()")
