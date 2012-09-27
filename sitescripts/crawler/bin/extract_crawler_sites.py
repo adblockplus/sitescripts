@@ -16,11 +16,11 @@ def extract_urls(filter_list_dir):
   urls = set([])
 
   for line in process.stdout:
-    matches = re.match(r".*\b(https?://\S*)", line)
-    if not matches:
+    match = re.search(r"\b(https?://\S*)", line)
+    if not match:
       continue
 
-    url = matches.group(1).strip()
+    url = match.group(1).strip()
     urls.add(url)
 
   return urls
