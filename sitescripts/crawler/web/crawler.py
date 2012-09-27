@@ -88,7 +88,7 @@ VALUES (%s, %s, %s, %s)""",
                  (run_id, site_id, url, filtered))
 
 @url_handler("/crawlerData")
-@basic_auth
+@basic_auth("crawler")
 def crawler_data(environ, start_response):
   def line_callback(line):
     try:
