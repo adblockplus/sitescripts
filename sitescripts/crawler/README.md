@@ -39,6 +39,6 @@ point to the local Mercurial repository of a filter list.
 
 Then execute the following:
 
-    python -m sitescripts.crawler.bin.extract_crawler_sites > crawler_sites.sql
+    python -m sitescripts.crawler.bin.extract_sites > sites.sql
 
-Now you can execute the insert statements from _crawler\_sites.sql_.
+Now you can execute the insert statements from _crawler.sql_.
