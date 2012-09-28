@@ -42,3 +42,17 @@ Then execute the following:
     python -m sitescripts.crawler.bin.extract_sites > sites.sql
 
 Now you can execute the insert statements from _crawler.sql_.
+
+Extracting domain-specific filters
+--------------------------------
+
+Make _filter\_list\_repository_ in the _crawler_ configuration section
+point to the local Mercurial repository of a filter list.
+
+You also have to set _domain\_specific\_filter\_files_ to a comma
+separated list of files in the filter list repository that contain
+domain-specific rules.
+
+Then execute the following:
+
+    python -m sitescripts.crawler.bin.extract_filters > filters.sql
