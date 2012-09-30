@@ -14,11 +14,11 @@ def _get_db():
     return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
                            use_unicode=True, charset="utf8")
 
-def get_cursor():
+def _get_cursor():
   return _get_db().cursor(MySQLdb.cursors.DictCursor)
 
 def _fetch_crawlable_sites():
-  cursor = get_cursor()
+  cursor = _get_cursor()
   cursor.execute("SELECT url from crawler_sites")
   results = cursor.fetchall()
   sites = [result["url"] for result in results]
@@ -32,7 +32,7 @@ def crawlable_sites(environ, start_response):
   return "\n".join(urls)
 
 def _find_site_id(site_url):
-  cursor = get_cursor()
+  cursor = _get_cursor()
   cursor.execute("SELECT id FROM crawler_sites WHERE url = %s", site_url)
   result = cursor.fetchone()
   return result["id"] if result else None
@@ -71,7 +71,7 @@ def _read_multipart_lines(environ, line_callback):
       line_callback(line)
 
 def _create_run():
-  cursor = get_cursor()
+  cursor = _get_cursor()
   cursor.execute("INSERT INTO crawler_runs () VALUES ()")
   return cursor.lastrowid
 
@@ -81,7 +81,7 @@ def _insert_data(run_id, site, url, filtered):
     print >>sys.stderr, "Unable to find site '%s' in the database" % site
     return
 
-  cursor = get_cursor()
+  cursor = _get_cursor()
   cursor.execute("""
 INSERT INTO crawler_data (run, site, url, filtered)
 VALUES (%s, %s, %s, %s)""",
