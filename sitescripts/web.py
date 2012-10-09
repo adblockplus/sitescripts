@@ -55,3 +55,4 @@ import extensions.web.translationCheck
 import tasks.web.tasks
 import formmail.web.formmail
 import crawler.web.crawler
+import urlfixer.web.submitData
