@@ -39,6 +39,9 @@ def syncFiles(name, settings, syncState):
       '-I', os.path.join(repo, path),
       '-X', os.path.join(repo, '.hg_archival.txt'),
       '-X', os.path.join(repo, '.hgtags'),
+      '-X', os.path.join(repo, '.hgignore'),
+      '-X', os.path.join(repo, '.hgsub'),
+      '-X', os.path.join(repo, '.hgsubstate'),
       '-S', tempdir]
 
     subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
