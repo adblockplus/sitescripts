@@ -20,7 +20,7 @@ from datetime import datetime
 from xml.dom.minidom import parse as parseXml
 from sitescripts.utils import get_config, setupStderr, get_template
 from sitescripts.extensions.utils import compareVersions, Configuration
-import buildtools.packager as packager
+import buildtools.packagerGecko as packager
 
 MAX_BUILDS = 50
 
@@ -30,7 +30,7 @@ class NightlyBuild(object):
     Performs the build process for an extension,
     generating changelogs and documentation.
   """
-  
+
   def __init__(self, config):
     """
       Creates a NightlyBuild instance; we are simply
@@ -45,7 +45,7 @@ class NightlyBuild(object):
     self.tempdir = None
     self.outputFilename = None
     self.changelogFilename = None
-    
+
   def hasChanges(self):
     return self.revision != self.previousRevision
 

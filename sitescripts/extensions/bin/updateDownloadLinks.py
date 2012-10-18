@@ -1,5 +1,5 @@
 # coding: utf-8
- 
+
 # This Source Code is subject to the terms of the Mozilla Public License
 # version 2.0 (the "License"). You can obtain a copy of the License at
 # http://mozilla.org/MPL/2.0/.
@@ -8,7 +8,7 @@
 Update the list of extenstions
 ==============================
 
-  This script generates a list of extensions and saves these with download links 
+  This script generates a list of extensions and saves these with download links
   and version information
 """
 
@@ -18,7 +18,7 @@ from ConfigParser import SafeConfigParser
 from StringIO import StringIO
 from sitescripts.utils import get_config, get_template
 from sitescripts.extensions.utils import compareVersions, Configuration
-from buildtools.packager import KNOWN_APPS
+from buildtools.packagerGecko import KNOWN_APPS
 
 def urlencode(value):
   return urllib.quote(value.encode('utf-8'), '')
@@ -65,7 +65,7 @@ def getGoogleDownloadLink(galleryID):
     return (updateTag.getAttribute('codebase'), updateTag.getAttribute('version'))
   else:
     return (None, None)
-  
+
 def getLocalLink(repo):
   """
   gets the link for the newest download of an add-on in the local downloads
@@ -73,7 +73,7 @@ def getLocalLink(repo):
   """
   dir = repo.downloadsDirectory
   url = repo.downloadsURL
-  
+
   highestURL = None
   highestVersion = None
   prefix = os.path.basename(repo.repository) + '-'
