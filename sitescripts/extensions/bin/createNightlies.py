@@ -144,9 +144,8 @@ class NightlyBuild(object):
 
     # Calculate extension ID from public key
     # (see http://supercollider.dk/2010/01/calculating-chrome-extension-id-from-your-private-key-233)
-    sys.path.append(self.tempdir)
-    build = __import__('build')
-    publicKey = build.getPublicKey(self.config.keyFile)
+    import buildtools.packagerChrome as packager
+    publicKey = packager.getPublicKey(self.config.keyFile)
     hash = hashlib.sha256()
     hash.update(publicKey)
     self.extensionID = hash.hexdigest()[0:32]
