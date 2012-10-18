@@ -20,7 +20,6 @@ from datetime import datetime
 from xml.dom.minidom import parse as parseXml
 from sitescripts.utils import get_config, setupStderr, get_template
 from sitescripts.extensions.utils import compareVersions, Configuration
-import buildtools.packagerGecko as packager
 
 MAX_BUILDS = 50
 
@@ -108,6 +107,7 @@ class NightlyBuild(object):
       and parse id, version, basename and the compat section
       out of the file
     """
+    import buildtools.packagerGecko as packager
     metadata = packager.readMetadata(self.tempdir)
     self.extensionID = metadata.get("general", "id")
     self.version = '%s.%s' % (metadata.get("general", "version"), self.revision)
@@ -217,11 +217,10 @@ class NightlyBuild(object):
         if os.path.exists(outputPath):
           os.remove(outputPath)
     elif self.config.type == 'chrome':
-      buildCommand = ['python', os.path.join(self.tempdir, 'build.py'), '-k', self.config.keyFile, '-b', self.revision, outputPath]
-      if self.config.experimental:
-        buildCommand[-1:0] = ['--experimental']
-      subprocess.Popen(buildCommand, stdout=subprocess.PIPE).communicate()
+      import buildtools.packagerChrome as packager
+      packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile, experimentalAPI=self.config.experimental)
     else:
+      import buildtools.packagerGecko as packager
       packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile)
 
     if not os.path.exists(outputPath):
