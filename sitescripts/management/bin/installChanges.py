@@ -42,7 +42,7 @@ def syncFiles(name, settings, syncState):
       '-X', os.path.join(repo, '.hgignore'),
       '-X', os.path.join(repo, '.hgsub'),
       '-X', os.path.join(repo, '.hgsubstate'),
-      '-S', tempdir]
+      tempdir]
 
     subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
     srcdir = os.path.normpath(os.path.join(tempdir, path))
