@@ -23,7 +23,7 @@ def handleRequest(environ, start_response):
         raise Exception('Invalid locale name, use something like "pt-BR" or "fr"')
 
       data = downloadLanguage(locale, get_config().get('extensions', 'abp_babelzilla_extension'))
-      checkResult = checkLanguage(locale, data, get_config().get('extensions', 'abp_repository'), get_config().get('extensions', 'buildRepository'))
+      checkResult = checkLanguage(locale, data, get_config().get('extensions', 'abp_repository'))
       return showCheckResult(locale, checkResult, start_response)
     else:
       return showForm(start_response)
@@ -38,16 +38,11 @@ def downloadLanguage(locale, extensionID):
   except Exception, e:
     raise Exception('Failed to download locale. %s' % str(e))
 
-def checkLanguage(locale, data, repository, buildRepository):
+def checkLanguage(locale, data, repository):
   tempdir = tempfile.mkdtemp(prefix='adblockplus')
   try:
-    command = ['hg', 'archive',  '-R', repository, '-r', 'default', tempdir]
+    command = ['hg', 'archive',  '-R', repository, '-r', 'default', '-S', tempdir]
     subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
-    try:
-      command = ['hg', 'archive', '-R', buildRepository, '-r', 'default', os.path.join(tempdir, 'buildtools')]
-      subprocess.Popen(command).communicate()
-    except:
-      pass
     localeDir = os.path.join(tempdir, 'chrome', 'locale', locale)
     if not os.path.exists(localeDir):
       os.mkdir(localeDir)
