@@ -111,6 +111,48 @@ def removeReport(guid):
   if os.path.isfile(file):
     os.remove(file)
 
+@cached(3600)
+def getUserUsefulnessScore(contact):
+  if contact == None:
+    return 0
+
+  cursor = get_db().cursor()
+  # source from http://www.evanmiller.org/how-not-to-sort-by-average-rating.html
+  executeQuery(cursor,
+              '''SELECT ((positive + 1.9208) / (positive + negative)
+                        - 1.96 * SQRT((positive * negative) / (positive + negative) + 0.9604) / (positive + negative))
+                        / (1 + 3.8416 / (positive + negative)) AS score FROM #PFX#users WHERE id = %s''',
+              (contact))
+  score = cursor.fetchone()
+  if score == None:
+    return 0
+
+  if score[0] == None: # no score yet
+    return 0.3
+  else:
+    return 4 * score[0]
+
+def updateUserUsefulness(contact, newusefulness, oldusefulness):
+  new = int(newusefulness)
+  old = int(oldusefulness)
+  if new == old:
+    return
+  positive = 0
+  negative = 0
+  if old > 0:
+    positive -= 1
+  elif old < 0:
+    negative -= 1
+  if new > 0:
+    positive += 1
+  elif new < 0:
+    negative += 1
+  cursor = get_db().cursor()
+  executeQuery(cursor,
+              '''UPDATE #PFX#users SET negative = negative + %s, positive = positive + %s WHERE id = %s''',
+              (negative, positive, contact))
+  get_db().commit()
+
 def saveScreenshot(guid, screenshot):
   prefix = 'data:image/png;base64,'
   if not screenshot.startswith(prefix):

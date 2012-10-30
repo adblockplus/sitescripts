@@ -15,6 +15,10 @@
         <td class="label">Status:</td>
         <td id="statusCell">{% if status %}{{status|keepnewlines}}{% else %}unknown{% endif %}</td>
       </tr>
+      <tr id="usefulnessRow">
+        <td class="label">Usefulness:</td>
+        <td id="usefulnessCell" value="{{usefulness}}">{{ {'0': 'not established', '1': 'useful', '-1': 'useless'}.get(usefulness, 'not established') }}</td>
+      </tr>
       <tr id="mainURLRow">
         <td class="label">Website:</td>
         <td>{{main_url|url}}

@@ -67,7 +67,7 @@ def processReport(xmlFile):
     return
 
   source = open(xmlFile, 'rb')
-  reportData = {'status': '',  'warnings': {}, 'requests': [], 'filters': [], 'subscriptions': [], 'extensions': [], 'errors': [], 'time': time()}
+  reportData = {'status': '', 'usefulness': 0, 'warnings': {}, 'requests': [], 'filters': [], 'subscriptions': [], 'extensions': [], 'errors': [], 'time': time()}
   tagStack = []
 
   parser = ParserCreate()

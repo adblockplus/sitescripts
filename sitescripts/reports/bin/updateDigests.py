@@ -8,7 +8,7 @@ import MySQLdb, hashlib, sys, os, re
 from time import time
 from email.utils import parseaddr
 from sitescripts.utils import get_config, get_template, setupStderr
-from sitescripts.reports.utils import getReports, getReportSubscriptions, calculateReportSecret, getDigestPath
+from sitescripts.reports.utils import getReports, getReportSubscriptions, calculateReportSecret, getDigestPath, getUserUsefulnessScore
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def updateDigests(dir):
@@ -38,6 +38,7 @@ def updateDigests(dir):
       'type': dbreport['type'],
       'subscriptions': [],
       'contact': dbreport['contact'],
+      'score': getUserUsefulnessScore(dbreport['contact']),
       'hasscreenshot': dbreport['hasscreenshot'],
       'knownIssues': dbreport['knownissues'],
       'time': dbreport['ctime'],

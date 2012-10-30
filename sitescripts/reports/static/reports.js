@@ -29,6 +29,33 @@ function escapeHTML(value)
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+function setRadio(radio, value)
+{
+  for (var i = 0; i < radio.length; i++)
+  {
+    if (radio[i].value == value)
+      radio[i].checked = true;
+    else
+      radio[i].checked = false;
+  }
+}
+
+function setRadioListener(radio, listener)
+{
+  for (var i = 0; i < radio.length; i++)
+    radio[i].addEventListener("click", listener, false);
+}
+
+function getCheckedRadio(radio)
+{
+  for (var i = 0; i < radio.length; i++)
+  {
+    if (radio[i].checked)
+      return radio[i];
+  }
+  return undefined;
+}
+
 function saveSecret(guid, secret)
 {
   var secrets = localStorage.secrets;
@@ -48,7 +75,7 @@ function setSecret(guid, secret)
   var statusCell = document.getElementById("statusCell");
   if (statusCell)
     status = statusCell.textContent;
-
+  
   var div = document.createElement("div");
   div.className = "updateLink"
   var link = document.createElement("a");
@@ -67,7 +94,7 @@ function setSecret(guid, secret)
     if (document.getElementById("emailCell"))
       notifyBox = '<span id="notifyField"><input type="checkbox" id="notify" name="notify" value="1" /> <label for="notify">Notify user</label></span>';
 
-    div.innerHTML = '<form action="/updateReport" method="POST">' +
+    div.innerHTML = '<form id="updateForm" action="/updateReport" method="POST">' +
       '<input type="hidden" name="secret" value="' + escapeHTML(secret) + '" />' +
       '<input type="hidden" name="guid" value="' + escapeHTML(guid) + '" />' +
       '<p>' +
@@ -76,7 +103,8 @@ function setSecret(guid, secret)
       '</p>' +
       '<p>' +
         'Enter new status:' + notifyBox + '<br />' +
-        '<textarea id="statusField" name="status" oninput="updateTemplateButtons();"></textarea>' +
+        '<textarea id="statusField" name="status" oninput="updateTemplateButtons();"></textarea>' + 
+        '<br />Usefulness: <input type="radio" name="usefulness" value="0" checked="checked" /> not established <input type="radio" name="usefulness" value="1" /> useful <input type="radio" name="usefulness" value="-1" /> useless' +
       '</p>' +
       '<div>' +
         '<button id="addTemplateButton" type="button" onclick="addTemplate();">Add as template</button>' +
@@ -84,19 +112,33 @@ function setSecret(guid, secret)
         '<input type="submit" value="Change status"/>' +
       '</div>' +
     '</form>';
+    var radios = document.getElementById("updateForm").elements.usefulness;
     document.getElementById("templatesField").addEventListener("change", function()
     {
       if (this.selectedIndex > 0)
       {
-        document.getElementById("statusField").value = this.options[this.selectedIndex].value;
+	var template = this.options[this.selectedIndex].value.split("\1");
+        var displayText = template[template.length - 1];
+        if (template.length > 1)
+          setRadio(radios, template[0]);
+        document.getElementById("statusField").value = displayText;
         var notifyField = document.getElementById("notify");
         if (notifyField)
           notifyField.checked = true;
         updateTemplateButtons();
       }
     }, false);
+
     var statusField = document.getElementById("statusField");
     statusField.value = status;
+
+    var usefulness = 0;
+    var usefulnessCell = document.getElementById("usefulnessCell");
+    if (usefulnessCell)
+      usefulness = usefulnessCell.getAttribute("value");
+    setRadio(radios, usefulness);
+    setRadioListener(radios, updateTemplates);
+
     updateTemplates();
     statusField.focus();
   }
@@ -109,9 +151,16 @@ function updateTemplates()
     templatesField.remove(1);
   for (var i = 0; i < templates.length; i++)
   {
-    var displayText = templates[i];
+    var template = templates[i].split("\1");
+    var displayText = template[template.length - 1];
     if (displayText.length > 150)
       displayText = displayText.substr(0, 75) + "..." + displayText.substr(displayText.length - 75, displayText.length);
+    if (template.length > 1)
+    {
+      usefulnessText = template[0] > 0 ? "useful" : template[0] < 0 ? "useless" : null;
+      if (usefulnessText != null)
+        displayText = "[" + usefulnessText + "] " + displayText;
+    }
     templatesField.add(new Option(displayText, templates[i], false, false), null);
   }
   updateTemplateButtons();
@@ -120,10 +169,19 @@ function updateTemplates()
 function updateTemplateButtons()
 {
   var currentText = document.getElementById("statusField").value;
+  var usefulnessValue = "0";
+  var usefulnessButton = getCheckedRadio(document.getElementById("updateForm").elements.usefulness);
+  if (usefulnessButton)
+    usefulnessValue = usefulnessButton.value;
+
   var options = document.getElementById("templatesField").options;
   for (var i = 1; i < options.length; i++)
   {
-    if (options[i].value == currentText)
+    var template = options[i].value.split("\1");
+    var text = template[template.length - 1];
+    var usefulness = template.length > 1 ? template[0] : "0";
+      
+    if (text == currentText && usefulness == usefulnessValue)
     {
       document.getElementById("templatesField").selectedIndex = i;
       document.getElementById("addTemplateButton").style.display = "none";
@@ -140,7 +198,13 @@ function updateTemplateButtons()
 
 function addTemplate()
 {
-  templates.push(document.getElementById("statusField").value);
+  var usefulnessValue = "0";
+  var usefulnessButton = getCheckedRadio(document.getElementById("updateForm").elements.usefulness);
+  if (usefulnessButton)
+    usefulnessValue = usefulnessButton.value;
+
+  var value =  usefulnessValue + "\1" + document.getElementById("statusField").value;
+  templates.push(value);
   templates.sort();
   localStorage.templates = templates.join("\0");
   updateTemplates();
@@ -149,9 +213,18 @@ function addTemplate()
 function removeTemplate()
 {
   var currentText = document.getElementById("statusField").value;
+  var usefulnessValue = "0";
+  var usefulnessButton = getCheckedRadio(document.getElementById("updateForm").elements.usefulness);
+  if (usefulnessButton)
+    usefulnessValue = usefulnessButton.value;
   for (var i = 0; i < templates.length; i++)
-    if (templates[i] == currentText)
+  {
+    var template = templates[i].split("\1");
+    var text = template[template.length - 1];
+    var usefulness = template.length > 1 ? template[0] : "0";
+    if (text == currentText && usefulness == usefulnessValue)
       templates.splice(i--, 1);
+  }
   localStorage.templates = templates.join("\0");
   updateTemplates();
 }

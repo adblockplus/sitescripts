@@ -8,7 +8,7 @@ import re, os, sys, random
 from urlparse import parse_qsl
 from sitescripts.utils import get_config, get_template, setupStderr
 from sitescripts.web import url_handler
-from sitescripts.reports.utils import calculateReportSecret, calculateReportSecret_compat, getReport, saveReport, sendUpdateNotification
+from sitescripts.reports.utils import calculateReportSecret, calculateReportSecret_compat, getReport, saveReport, sendUpdateNotification, getUserId, updateUserUsefulness
 
 @url_handler('/updateReport')
 def handleRequest(environ, start_response):
@@ -43,6 +43,11 @@ def handleRequest(environ, start_response):
   reportData['status'] = params.get('status', '')
   if len(reportData['status']) > 1024:
     reportData['status'] = reportData['status'][:1024]
+
+  oldusefulness = reportData['usefulness']
+  reportData['usefulness'] = params.get('usefulness', '0')
+  if ('email' in reportData):
+    updateUserUsefulness(getUserId(reportData['email']), reportData['usefulness'], oldusefulness)
 
   saveReport(guid, reportData)
 

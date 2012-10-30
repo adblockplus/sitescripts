@@ -14,31 +14,27 @@ siteScriptsPath = sitescripts.__path__[0]
 class cached(object):
   """
     Decorator that caches a function's return value for a given number of seconds.
-    Note that this can only be used with functions that take no arguments.
+    Note that this only works if the string representation of the parameters is
+    always unique.
   """
-
   def __init__(self, timeout):
     self.timeout = timeout
-    self.func = None
-    self.lastUpdate = None
-    self.lastResult = None
+    self.lastResult = {}
+    self.lastUpdate = {}
 
-  def __call__(self, *args):
-    if len(args) == 1:
-      # We got called with the function to be decorated - remember the function
-      # and return the same object again
-      self.func = args[0]
-      return self
-    else:
+  def __call__(self, func):
+    def wrapped(*args, **kwargs):
+      key = str(kwargs)
       currentTime = time()
-      if self.lastUpdate == None or currentTime - self.lastUpdate > self.timeout:
-        self.lastResult = self.func()
-        self.lastUpdate = currentTime
-      return self.lastResult
+      if (args, key) not in self.lastUpdate or currentTime - self.lastUpdate[args, key] > self.timeout:
+        self.lastResult[args, key] = func(*args, **kwargs)
+        self.lastUpdate[args, key] = currentTime
+      return self.lastResult[args, key]
+    self.func = func
+    return wrapped
 
   def __repr__(self):
-    """Return the function's docstring"""
-    return self.func.__doc__
+    return repr(self.func)
 
 @cached(3600)
 def get_config():

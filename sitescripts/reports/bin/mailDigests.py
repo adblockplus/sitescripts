@@ -10,7 +10,7 @@ from time import time
 from email.utils import parseaddr
 from sitescripts.utils import get_config, setupStderr
 from sitescripts.templateFilters import formatmime
-from sitescripts.reports.utils import mailDigest, getReports, getReportSubscriptions, calculateReportSecret, getDigestId, getDigestSecret
+from sitescripts.reports.utils import mailDigest, getReports, getReportSubscriptions, calculateReportSecret, getDigestId, getDigestSecret, getUserUsefulnessScore
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
 def loadSubscriptions():
@@ -141,7 +141,7 @@ def calculateReportWeight(report, subscriptions):
     elif re.search(r'\S', report['comment']):
       weight += 0.5
   if report['contact'] != None:
-    weight += 0.3
+    weight += getUserUsefulnessScore(report['contact'])
 
   weight += (report['ctime'] - startTime) / (currentTime - startTime) * 0.2
   return weight

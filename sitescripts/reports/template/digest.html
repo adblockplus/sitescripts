@@ -256,7 +256,7 @@ function calculateReportWeight(report)
   else if (/\S/.test(report.comment))
     weight += 0.5;
   if (report.contact)
-    weight += 0.3;
+    weight += report.score;
 
   return weight;
 }
