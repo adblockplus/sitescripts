@@ -44,7 +44,7 @@ def handleRequest(environ, start_response):
   if len(reportData['status']) > 1024:
     reportData['status'] = reportData['status'][:1024]
 
-  oldusefulness = reportData['usefulness']
+  oldusefulness = reportData.get('usefulness', '0')
   reportData['usefulness'] = params.get('usefulness', '0')
   if ('email' in reportData):
     updateUserUsefulness(getUserId(reportData['email']), reportData['usefulness'], oldusefulness)
