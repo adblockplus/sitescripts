@@ -1,0 +1,38 @@
+<!--
+  - This file is part of the Adblock Plus web scripts,
+  - Copyright (C) 2006-2012 Eyeo GmbH
+  -
+  - Adblock Plus is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License version 3 as
+  - published by the Free Software Foundation.
+  -
+  - Adblock Plus is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>User profile</title>
+</head>
+<body>
+  <h2>Statistics:</h2>
+  <table>
+    <tr><td>Number of reports:</td><td>{{reports}}</td></tr>
+    <tr><td>Marked as useful:</td><td>{{positive}}</td></tr>
+    <tr><td>Marked as not useful:</td><td>{{negative}}</td></tr>
+  </table>
+  {% if reportlist -%}
+  <h2>Latest reports:</h2>
+  <p>
+    {%- for report in reportlist -%}
+    <a href="/{{report.guid}}">{{report.guid}}</a><br />
+    {%- endfor -%}
+  </p>
+  {% endif -%}
+</body>
+</html>

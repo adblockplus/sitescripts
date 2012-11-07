@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, codecs, subprocess, sitescripts
+import os, sys, re, codecs, subprocess, sitescripts
 from time import time
 from tempfile import mkstemp
 from ConfigParser import SafeConfigParser
@@ -84,6 +84,12 @@ def setupStderr(stream=sys.stderr):
     the stream passed in if any.
   """
   sys.stderr = codecs.getwriter('utf8')(stream)
+
+def anonymizeMail(email):
+  """
+    Anonymizes email to look like a**.n***@g****.c**
+  """
+  return re.sub(r'(?<=[^.@])[^.@]', '*', email)
 
 def sendMail(template, data):
   """

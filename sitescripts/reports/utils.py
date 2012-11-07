@@ -16,7 +16,7 @@
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
 import hashlib, hmac, base64, MySQLdb, os, re, marshal, subprocess
-from sitescripts.utils import get_config, cached, get_template, sendMail
+from sitescripts.utils import get_config, cached, get_template, anonymizeMail, sendMail
 
 def getReportSubscriptions(guid):
   cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
@@ -46,6 +46,17 @@ def getReports(startTime):
     for row in rows:
       yield row
     offset += len(rows)
+
+def getReportsForUser(contact):
+  cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
+  executeQuery(cursor,
+              '''SELECT guid, type, UNIX_TIMESTAMP(ctime) AS ctime, status, site, contact,
+              comment, hasscreenshot, knownissues
+              FROM #PFX#reports WHERE contact = %s ORDER BY ctime DESC LIMIT 100''',
+              (contact))
+  rows = cursor.fetchall()
+  cursor.close()
+  return rows
 
 def getReport(guid):
   cursor = get_db().cursor()
@@ -102,6 +113,13 @@ def saveReport(guid, reportData, isNew=False):
   get_db().commit()
 
   reportData['guid'] = guid
+  if contact:
+    email = reportData['email']
+    email = re.sub(r' at ', r'@', email)
+    email = re.sub(r' dot ', r'.', email)
+    reportData['email'] = anonymizeMail(email)
+    reportData['uid'] = contact
+
   file = os.path.join(get_config().get('reports', 'dataPath'), guid[0], guid[1], guid[2], guid[3], guid + '.html')
   dir = os.path.dirname(file)
   if not os.path.exists(dir):
@@ -121,6 +139,14 @@ def removeReport(guid):
   file = os.path.join(get_config().get('reports', 'dataPath'), guid[0], guid[1], guid[2], guid[3], guid + '.png')
   if os.path.isfile(file):
     os.remove(file)
+
+def getUser(contact):
+  cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
+  executeQuery(cursor,
+              '''SELECT reports, positive, negative FROM #PFX#users WHERE id = %s''',
+              (contact))
+  user = cursor.fetchone()
+  return user
 
 @cached(3600)
 def getUserUsefulnessScore(contact):

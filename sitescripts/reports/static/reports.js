@@ -134,6 +134,9 @@ function setSecret(guid, secret)
 
     var usefulness = 0;
     var usefulnessCell = document.getElementById("usefulnessCell");
+    if (statusCell && statusCell.hasAttribute("usefulness"))
+      usefulness = statusCell.getAttribute("usefulness");
+    // backcompatibility, should remove in future
     if (usefulnessCell)
       usefulness = usefulnessCell.getAttribute("value");
     setRadio(radios, usefulness);

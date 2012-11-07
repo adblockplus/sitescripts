@@ -26,11 +26,7 @@
     <table id="overview">
       <tr id="statusRow">
         <td class="label">Status:</td>
-        <td id="statusCell">{% if status %}{{status|keepnewlines}}{% else %}unknown{% endif %}</td>
-      </tr>
-      <tr id="usefulnessRow">
-        <td class="label">Usefulness:</td>
-        <td id="usefulnessCell" value="{{usefulness}}">{{ {'0': 'not established', '1': 'useful', '-1': 'useless'}.get(usefulness, 'not established') }}</td>
+        <td id="statusCell" usefulness="{{usefulness}}">{% if status %}{{status|keepnewlines}}{% else %}unknown{% endif %}</td>
       </tr>
       <tr id="mainURLRow">
         <td class="label">Website:</td>
@@ -86,7 +82,7 @@
       {% if email -%}
       <tr id="emailRow">
         <td class="label">Email:</td>
-        <td id="emailCell">{{email}}</td>
+        <td id="emailCell"><a href="/user/{{uid}}">{{email}}</a></td>
       </tr>
       {% endif -%}
     </table>
