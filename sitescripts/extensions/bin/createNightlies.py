@@ -370,6 +370,10 @@ def main():
   # and generate changelogs and documentations for each:
   data = None
   for repo in Configuration.getRepositoryConfigurations(nightlyConfig):
+    # No Opera build automation yet
+    if repo.type == 'opera':
+      continue
+
     build = None
     try:
       build = NightlyBuild(repo)

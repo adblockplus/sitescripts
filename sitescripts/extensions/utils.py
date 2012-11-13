@@ -161,6 +161,8 @@ class Configuration(object):
       self.packageSuffix = '.xpi'
     elif self.type == 'chrome':
       self.packageSuffix = '.crx'
+    elif self.type == 'opera':
+      self.packageSuffix = '.oex'
     elif self.type == 'kmeleon':
       self.packageSuffix = '.zip'
     elif self.type == 'android':

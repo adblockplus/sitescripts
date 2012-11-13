@@ -23,7 +23,7 @@ Update the list of extenstions
   and version information
 """
 
-import os, urllib, urlparse, subprocess, time
+import os, re, urllib, urllib2, urlparse, subprocess, time
 import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
@@ -77,6 +77,26 @@ def getGoogleDownloadLink(galleryID):
   else:
     return (None, None)
 
+def getOperaDownloadLink(galleryID):
+  """
+  gets download link for an Opera add-on from the Opera Addons site
+  """
+  class HeadRequest(urllib2.Request):
+    def get_method(self):
+      return "HEAD"
+
+  url = 'https://addons.opera.com/extensions/download/%s/' % urlencode(galleryID)
+  response = urllib2.urlopen(HeadRequest(url))
+  content_disposition = response.info().dict.get('content-disposition', None)
+  if content_disposition != None:
+    match = re.search(r'filename=\S+-([\d.]+)-\d+\.oex$', content_disposition)
+  else:
+    match = None;
+  if match:
+    return (url, match.group(1))
+  else:
+    return (None, None)
+
 def getLocalLink(repo):
   """
   gets the link for the newest download of an add-on in the local downloads
@@ -109,6 +129,8 @@ def getDownloadLink(repo):
     (galleryURL, galleryVersion) = getMozillaDownloadLink(repo.galleryID)
   elif repo.type == "chrome" and repo.galleryID:
     (galleryURL, galleryVersion) = getGoogleDownloadLink(repo.galleryID)
+  elif repo.type == "opera" and repo.galleryID:
+    (galleryURL, galleryVersion) = getOperaDownloadLink(repo.galleryID)
 
   (downloadsURL, downloadsVersion) = getLocalLink(repo)
   if galleryVersion == None or (downloadsVersion != None and
