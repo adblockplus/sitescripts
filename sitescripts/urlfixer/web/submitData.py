@@ -22,7 +22,7 @@ from sitescripts.utils import cached, get_config, setupStderr
 
 @url_handler("/submitData")
 def submit_data(environ, start_response):
-  setupStderr(environ['wsgi.errors'])
+  setupStderr(environ["wsgi.errors"])
 
   if environ["REQUEST_METHOD"].upper() != "POST":
     return showError("Unsupported request method", start_response)
@@ -60,7 +60,6 @@ def showError(message, start_response):
   start_response("400 Processing Error", [("Content-Type", "text/plain; charset=utf-8")])
   return [message.encode("utf-8")]
 
-@cached(600)
 def _get_db():
   database = get_config().get("urlfixer", "database")
   dbuser = get_config().get("urlfixer", "dbuser")
