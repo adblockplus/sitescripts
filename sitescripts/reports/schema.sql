@@ -13,6 +13,7 @@ CREATE TABLE `users` (
   `reports` int(10) unsigned NOT NULL DEFAULT '0',
   `positive` int(10) unsigned NOT NULL DEFAULT '0',
   `negative` int(10) unsigned NOT NULL DEFAULT '0',
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
