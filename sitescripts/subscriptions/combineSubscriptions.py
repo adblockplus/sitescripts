@@ -111,7 +111,7 @@ def processSubscriptionFile(sourceName, sourceDirs, targetDir, file, timeout):
     raise Exception('This is not a valid Adblock Plus subscription file.')
 
   lines = resolveIncludes(sourceName, sourceDirs, filePath, lines, timeout)
-  seen = set(('checksum'))
+  seen = set(['checksum'])
   def checkLine(line):
     if line == '':
       return False
