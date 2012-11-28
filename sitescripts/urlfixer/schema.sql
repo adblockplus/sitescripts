@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS corrections;
 CREATE TABLE domains(
   id INT NOT NULL AUTO_INCREMENT,
   domain VARCHAR(50) NOT NULL,
+  forceinclusion TINYINT(1) DEFAULT NULL,
   PRIMARY KEY(id),
   UNIQUE(domain)
 );
