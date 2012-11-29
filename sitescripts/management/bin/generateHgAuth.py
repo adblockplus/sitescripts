@@ -41,7 +41,6 @@ def generateData(authRepo):
         'keytype': 'rsa',
         'disabled': False,
         'trusted': False,
-        'mirror': False,
         'repos': []
       }
       for option in options:
@@ -51,8 +50,6 @@ def generateData(authRepo):
           user['disabled'] = True
         elif option == 'trusted':
           user['trusted'] = True
-        elif option == 'mirror':
-          user['mirror'] = True
         else:
           print >>sys.stderr, 'Unknown user option: %s' % option
       user['key'] = re.sub(r'\s', '', tarFile.extractfile(fileInfo).read())
@@ -80,7 +77,7 @@ def generateData(authRepo):
       continue
     yield 'no-pty,environment="HGUSER=%s",environment="HGREPOS=%s" %s %s\n' % (
       user['name'] if not user['trusted'] else '',
-      ' '.join(user['repos']) if not user['mirror'] else '*',
+      ' '.join(user['repos']),
       'ssh-rsa' if user['keytype'] == 'rsa' else 'ssh-dss',
       user['key']
     )
