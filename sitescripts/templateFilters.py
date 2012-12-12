@@ -135,6 +135,7 @@ def rjust(value, width=80):
   return unicode(value).rjust(width)
 
 def ltruncate(value, length=255, end='...'):
+  value = unicode(value)
   if len(value) <= length:
     return value
   return end + value[len(value) - length:len(value)]
