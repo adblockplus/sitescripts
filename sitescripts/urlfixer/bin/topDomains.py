@@ -28,7 +28,7 @@ STATUS_TYPO = 2
 STATUS_CORRECTION = 3
 STATUS_FALSE_POSITIVE = 4
 
-def getTopDomains(count=10000):
+def getTopDomains(count=5000):
   db = _get_db()
   cursor = db.cursor(MySQLdb.cursors.DictCursor)
   cursor.execute("SELECT id, domain, forceinclusion FROM domains")
