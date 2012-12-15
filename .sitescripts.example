@@ -70,6 +70,7 @@ deobfuscator_repository=%(root)s/hg/jsdeobfuscator
 deobfuscator_name=JavaScript Deobfuscator
 deobfuscator_galleryID=javascript-deobfuscator
 buildRepository=%(root)s/hg/buildtools
+jsdocRepository=%(root)s/hg/jsdoc-toolkit
 nightliesData=%(root)s/data/nightlies
 nightliesDirectory=%(root)s/www/devbuilds
 nightliesURL=https://adblockplus.org/devbuilds/

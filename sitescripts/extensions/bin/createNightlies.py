@@ -296,17 +296,25 @@ class NightlyBuild(object):
     template.stream({'config': self.config, 'links': links}).dump(outputPath)
 
   def updateDocs(self):
-    if not os.path.exists(os.path.join(self.tempdir, 'generateDocs.pl')):
+    if not self.config.type == 'gecko':
       return
 
-    outputPath = os.path.join(self.config.docsDirectory, self.basename)
-    currentPath = os.getcwd()
+    docsdir = tempfile.mkdtemp(prefix='jsdoc')
+    command = ['hg', 'archive', '-R', get_config().get('extensions', 'jsdocRepository'), '-r', 'default', docsdir]
+    subprocess.Popen(command).communicate()
+
     try:
-      os.chdir(self.tempdir)
-      buildCommand = ['perl', 'generateDocs.pl', outputPath]
-      subprocess.Popen(buildCommand, stdout=subprocess.PIPE).communicate()
+      outputPath = os.path.join(self.config.docsDirectory, self.basename)
+      command = ['perl', os.path.join(docsdir, 'jsrun.pl'),
+        '-t=' + os.path.join(docsdir, 'templates', 'jsdoc'),
+        '-d=' + outputPath,
+        '-a',
+        '-p',
+        '-x=js',
+        os.path.join(self.tempdir, 'lib')]
+      subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
     finally:
-      os.chdir(currentPath)
+      shutil.rmtree(docsdir, ignore_errors=True)
 
   def run(self):
     """
