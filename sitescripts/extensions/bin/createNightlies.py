@@ -149,7 +149,7 @@ class NightlyBuild(object):
 
   def readChromeMetadata(self):
     """
-      Read Chrome-specific metadata from manifest.json file. It will also
+      Read Chrome-specific metadata from metadata file. This will also
       calculate extension ID from the private key.
     """
 
@@ -162,22 +162,19 @@ class NightlyBuild(object):
     self.extensionID = hash.hexdigest()[0:32]
     self.extensionID = ''.join(map(lambda c: chr(97 + int(c, 16)), self.extensionID))
 
-    # Now read manifest.json
-    manifestFile = open(os.path.join(self.tempdir, 'manifest.json'), 'rb')
-    manifest = json.load(manifestFile)
-    manifestFile.close()
-
-    self.version = manifest['version']
+    # Now read metadata file
+    metadata = packager.readMetadata(self.tempdir)
+    self.version = metadata.get("general", "version")
     while self.version.count('.') < 2:
       self.version += '.0'
     self.version = '%s.%s' % (self.version, self.revision)
-    self.basename = os.path.basename(self.config.repository)
+    self.basename = metadata.get("general", "basename")
     if self.config.experimental:
       self.basename += '-experimental'
 
     self.compat = []
-    if 'minimum_chrome_version' in manifest:
-      self.compat.append({'id': 'chrome', 'minVersion': manifest['minimum_chrome_version']})
+    if metadata.has_section('compat') and metadata.has_option('compat', 'chrome'):
+      self.compat.append({'id': 'chrome', 'minVersion': metadata.get('compat', 'chrome')})
 
   def writeUpdateManifest(self):
     """
