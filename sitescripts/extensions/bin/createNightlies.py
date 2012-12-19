@@ -87,7 +87,7 @@ class NightlyBuild(object):
       Create a repository copy in a temporary directory
     '''
     self.tempdir = tempfile.mkdtemp(prefix=self.config.repositoryName)
-    command = ['hg', 'archive', '-R', self.config.repository, '-r', 'default', self.tempdir]
+    command = ['hg', 'archive', '-S', '-R', self.config.repository, '-r', 'default', self.tempdir]
     subprocess.Popen(command).communicate()
 
   def writeChangelog(self, changes):
@@ -300,7 +300,7 @@ class NightlyBuild(object):
       return
 
     docsdir = tempfile.mkdtemp(prefix='jsdoc')
-    command = ['hg', 'archive', '-R', get_config().get('extensions', 'jsdocRepository'), '-r', 'default', docsdir]
+    command = ['hg', 'archive', '-S', '-R', get_config().get('extensions', 'jsdocRepository'), '-r', 'default', docsdir]
     subprocess.Popen(command).communicate()
 
     try:
