@@ -92,7 +92,13 @@ VALUES (%s, %s, %s, %s)""",
 def crawler_data(environ, start_response):
   def line_callback(line):
     try:
-      url, site, filtered = simplejson.loads(line)
+      data = simplejson.loads(line)
+      if len(data) < 3:
+        print >>sys.stderr, "Not enough elements in line '%s'" % line
+        return
+      url = data[0]
+      site = data[1]
+      filtered = data[2]
       _insert_data(run_id, site, url, filtered)
     except simplejson.JSONDecodeError:
       print >>sys.stderr, "Unable to parse JSON from '%s'" % line
@@ -104,4 +110,5 @@ def crawler_data(environ, start_response):
     return ""
   except ValueError as e:
     start_response("401 Bad Request", [("Content-Type", "text/plain")])
+    print >>sys.stderr, "Unable to read multipart data: %s" % e
     return e
