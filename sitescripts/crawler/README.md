@@ -21,6 +21,10 @@ Configuration
 
 Just add an empty _crawler_ section to _/etc/sitescripts_ or _.sitescripts_.
 
+If you want to import crawlable sites from easylist (see below), you
+need to make _easylist\_repository_ point to the local Mercurial
+repository of easylist.
+
 Also make sure that the following keys are configured in the _DEFAULT_
 section:
 
@@ -31,14 +35,7 @@ section:
 * _basic\_auth\_username_
 * _basic\_auth\_password_
 
-Extracting crawler sites
-------------------------
+Importing crawlable sites from easylist
+---------------------------------------
 
-Make _filter\_list\_repository_ in the _crawler_ configuration section
-point to the local Mercurial repository of a filter list.
-
-Then execute the following:
-
-    python -m sitescripts.crawler.bin.extract_sites > sites.sql
-
-Now you can execute the insert statements from _crawler.sql_.
+    python -m sitescripts.crawler.bin.import_sites
