@@ -83,13 +83,13 @@ def _insert_data(run_id, site, url, filtered):
 
   cursor = _get_cursor()
   cursor.execute("""
-INSERT INTO crawler_data (run, site, url, filtered)
+INSERT INTO crawler_requests (run, site, url, filtered)
 VALUES (%s, %s, %s, %s)""",
                  (run_id, site_id, url, filtered))
 
-@url_handler("/crawlerData")
+@url_handler("/crawlerRequests")
 @basic_auth("crawler")
-def crawler_data(environ, start_response):
+def crawler_requests(environ, start_response):
   def line_callback(line):
     try:
       data = simplejson.loads(line)

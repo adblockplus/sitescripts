@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS crawler_sites;
 DROP TABLE IF EXISTS crawler_runs;
-DROP TABLE IF EXISTS crawler_data;
+DROP TABLE IF EXISTS crawler_requests;
 
 CREATE TABLE crawler_sites (
        id INT NOT NULL AUTO_INCREMENT,
@@ -15,7 +15,7 @@ CREATE TABLE crawler_runs (
        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE crawler_data (
+CREATE TABLE crawler_requests (
        id INT NOT NULL AUTO_INCREMENT,
        PRIMARY KEY (id),
        run INT NOT NULL,

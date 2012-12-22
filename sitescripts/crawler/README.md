@@ -4,7 +4,7 @@ crawler
 Backend for the Adblock Plus Crawler. It provides the following URLs:
 
 * */crawlableSites* - Return a list of sites to be crawled
-* */crawlerData* - Receive data on filtered elements
+* */crawlerRequests* - Receive all requests made, and whether they were filtered
 
 Required packages
 -----------------
