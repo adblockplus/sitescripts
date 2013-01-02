@@ -86,8 +86,10 @@ class NightlyBuild(object):
     '''
       Create a repository copy in a temporary directory
     '''
+    # We cannot use hg archive here due to
+    # http://bz.selenic.com/show_bug.cgi?id=3747, have to clone properly :-(
     self.tempdir = tempfile.mkdtemp(prefix=self.config.repositoryName)
-    command = ['hg', 'archive', '-S', '-R', self.config.repository, '-r', 'default', self.tempdir]
+    command = ['hg', 'clone', '-q', self.config.repository, '-u', 'default', self.tempdir]
     subprocess.Popen(command).communicate()
 
   def writeChangelog(self, changes):
@@ -297,7 +299,7 @@ class NightlyBuild(object):
       return
 
     docsdir = tempfile.mkdtemp(prefix='jsdoc')
-    command = ['hg', 'archive', '-S', '-R', get_config().get('extensions', 'jsdocRepository'), '-r', 'default', docsdir]
+    command = ['hg', 'archive', '-R', get_config().get('extensions', 'jsdocRepository'), '-r', 'default', docsdir]
     subprocess.Popen(command).communicate()
 
     try:
