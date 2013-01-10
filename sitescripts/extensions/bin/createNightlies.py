@@ -123,7 +123,7 @@ class NightlyBuild(object):
     import buildtools.packagerGecko as packager
     metadata = packager.readMetadata(self.tempdir)
     self.extensionID = metadata.get("general", "id")
-    self.version = '%s.%s' % (metadata.get("general", "version"), self.revision)
+    self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
     self.basename = metadata.get("general", "basename")
     self.compat = []
     for key, value in packager.KNOWN_APPS.iteritems():
@@ -166,10 +166,7 @@ class NightlyBuild(object):
 
     # Now read metadata file
     metadata = packager.readMetadata(self.tempdir)
-    self.version = metadata.get("general", "version")
-    while self.version.count('.') < 2:
-      self.version += '.0'
-    self.version = '%s.%s' % (self.version, self.revision)
+    self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
     self.basename = metadata.get("general", "basename")
     if self.config.experimental:
       self.basename += '-experimental'
