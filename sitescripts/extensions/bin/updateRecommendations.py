@@ -33,17 +33,6 @@ def updateRecommendations():
   finally:
     rmtree(tempdir)
 
-  repository = get_config().get('extensions', 'abpchrome_repository')
-  tempdir = mkdtemp(prefix='adblockpluschrome')
-  try:
-    subprocess.Popen(['hg', 'clone',  '-U', repository, tempdir], stdout=subprocess.PIPE).communicate()
-    subprocess.Popen(['hg', 'up', '-R', tempdir, '-r', 'default'], stdout=subprocess.PIPE).communicate()
-    writeSubscriptions('recommendations', os.path.join(tempdir, 'subscriptions.xml'))
-    subprocess.Popen(['hg', 'commit', '-R', tempdir, '-u', 'hgbot', '-m', 'Updated list of recommended subscriptions'], stdout=subprocess.PIPE).communicate()
-    subprocess.Popen(['hg', 'push', '-R', tempdir], stdout=subprocess.PIPE).communicate()
-  finally:
-    rmtree(tempdir)
-
 if __name__ == '__main__':
   setupStderr()
   updateRecommendations()
