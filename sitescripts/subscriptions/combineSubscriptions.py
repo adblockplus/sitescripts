@@ -157,11 +157,10 @@ def resolveIncludes(sourceName, sourceDirs, filePath, lines, timeout, level=0):
         if error:
           raise error
 
-        charset = 'utf-8'
-        contentType = request.headers.get('content-type', '')
-        if contentType.find('charset=') >= 0:
-          charset = contentType.split('charset=', 1)[1]
-        newLines = unicode(request.read(), charset).split('\n')
+        # We should really get the charset from the headers rather than assuming
+        # that it is UTF-8. However, some of the Google Code mirrors are
+        # misconfigured and will return ISO-8859-1 as charset instead of UTF-8.
+        newLines = unicode(request.read(), 'utf-8').split('\n')
         newLines = map(lambda l: re.sub(r'[\r\n]', '', l), newLines)
         newLines = filter(lambda l: not re.search(r'^\s*!.*?\bExpires\s*(?::|after)\s*(\d+)\s*(h)?', l, re.M | re.I), newLines)
         newLines = filter(lambda l: not re.search(r'^\s*!\s*(Redirect|Homepage|Title)\s*:', l, re.M | re.I), newLines)
