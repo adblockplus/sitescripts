@@ -158,7 +158,7 @@ def readMetadata(repo, version):
   reads extension ID and compatibility information from metadata file in the
   extension's repository
   """
-  command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata')]
+  command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata.%s' % repo.type)]
   (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
 
   parser = SafeConfigParser()
