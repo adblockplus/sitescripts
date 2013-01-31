@@ -159,7 +159,7 @@ def readMetadata(repo, version):
   extension's repository
   """
   command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata.%s' % repo.type)]
-  (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+  (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
   # Fall back to platform-independent metadata file for now
   if not result:
