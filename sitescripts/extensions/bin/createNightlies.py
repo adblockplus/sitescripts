@@ -73,7 +73,7 @@ class NightlyBuild(object):
     """
 
     command = ['hg', 'log', '-R', self.config.repository, '-r', 'tip:0',
-      '-b', 'default', '-l', '50', '-M',
+      '-b', 'default', '-l', '50',
       '--template', '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0']
     (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
 
