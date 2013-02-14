@@ -96,7 +96,7 @@ def processReport(xmlFile):
 
   if 'screenshot' in reportData and not reportData['screenshot'].startswith('data:image/'):
     del reportData['screenshot']
-  if 'email' in reportData and reportData['email'].find(' at ') < 0:
+  if 'email' in reportData and reportData['email'].find(' at ') < 0 and reportData['email'].find('@') < 0:
     del reportData['email']
 
   validateData(reportData)
