@@ -64,7 +64,7 @@ def parseStdIn(geo):
     subdir = subdir + '/'
   else:
     subdir = ''
-  regexp = re.compile(r'(\S+) \S+ \S+ \[([^]\s]+) ([+\-]\d\d)(\d\d)\] "GET (?:\w+://[^/]+)?/%s([\w\-\+\.]+\.(?:txt|tpl))(?:\?\S*)? [^"]+" (\d+) (\d+) "[^"]*" "([^"]*)"' % subdir)
+  regexp = re.compile(r'(\S+) \S+ \S+ \[([^]\s]+) ([+\-]\d\d)(\d\d)\] "GET (?:\w+://[^/]+)?/%s([\w\-\+\.]+\.(?:txt|tpl))(?:\?[^\s"]*)? [^"]+" (\d+) (\d+) "[^"]*" "([^"]*)"' % subdir)
 
   data = {}
   for line in sys.stdin:
