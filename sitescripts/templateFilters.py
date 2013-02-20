@@ -140,8 +140,8 @@ def ltruncate(value, length=255, end='...'):
     return value
   return end + value[len(value) - length:len(value)]
 
-def formatmonthname(value):
-  return date(int(value[0:4]), int(value[4:]), 1).strftime('%b %Y')
+def formatmonthname(value, format='%b %Y'):
+  return date(int(value[0:4]), int(value[4:]), 1).strftime(format)
 
 def formatweekday(value):
   return time.strftime('%a', (0, 0, 0, 0, 0, 0, value, 0, 0))

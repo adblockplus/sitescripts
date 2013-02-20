@@ -56,7 +56,7 @@
         <tr>
           {%- for info in month %}
           <td align="center">
-            <a href="{{info.url}}">{{info.id|monthname[0:3]}}<br />{{info.id|monthname[4:]}}</a>
+            <a href="{{info.url}}">{{info.id|monthname(format='%b')}}<br />{{info.id|monthname(format='%Y')}}</a>
           </td>
           {%- endfor %}
         </tr>

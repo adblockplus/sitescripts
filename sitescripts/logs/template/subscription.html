@@ -85,13 +85,13 @@
           {%- for info in day %}
           <td align="center"{% if info.weekday > 4 %} class="special"{% endif %}>
             {{info.id}}<br />
-            {{month|monthname[0:3]}}
+            {{month|monthname(format='%b')}}
           </td>
           {%- if loop.last and info.id|int < daysInMonth %}
             {%- for dummyDay in range(info.id|int + 1, daysInMonth + 1) %}
               <td align="center">
                 {{dummyDay}}<br />
-                {{month|monthname[0:3]}}
+                {{month|monthname(format='%b')}}
               </td>
             {%- endfor %}
           {%- endif %}
