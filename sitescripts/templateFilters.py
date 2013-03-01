@@ -170,10 +170,15 @@ def getsum(iterable, attribute=None):
     return sum(item[attribute] for item in iterable)
 
 def getmax(iterable, attribute=None):
-  if attribute == None:
+  if len(iterable) == 0:
+    return 0
+  elif attribute == None:
     return max(iterable)
   else:
     return max(iterable, key=lambda item: item[attribute])[attribute]
+
+def ensuremin(value, minvalue=1):
+  return max(value, minvalue)
 
 def toJSON(value, **args):
   return re.sub(r'</script>', r'<\/script>', json.dumps(value, **args))
@@ -196,5 +201,6 @@ filters = {
   'bytes': formatbytes,
   'sum': getsum,
   'max': getmax,
+  'ensuremin': ensuremin,
   'json': toJSON,
 }

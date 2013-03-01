@@ -48,9 +48,10 @@
     <div class="block">
       <table align="center" style="margin-bottom: 20px;">
         <tr align="bottom">
-          {%- set maxHits, maxBandwidth = day|max(attribute='hits'), day|max(attribute='bandwidth') %}
-          {%- set totalHits = day|sum(attribute='hits') %}
-          {%- set totalBandwidth = day|sum(attribute='bandwidth') %}
+          {%- set maxHits = day|max(attribute='hits')|ensuremin(1) %}
+          {%- set maxBandwidth = day|max(attribute='bandwidth')|ensuremin(1) %}
+          {%- set totalHits = day|sum(attribute='hits')|ensuremin(1) %}
+          {%- set totalBandwidth = day|sum(attribute='bandwidth')|ensuremin(1) %}
           {%- set dayCount = day|length %}
           {%- if currentMonth and dayCount > 1 %}
             {%- set totalHits = totalHits - day[-1].hits %}

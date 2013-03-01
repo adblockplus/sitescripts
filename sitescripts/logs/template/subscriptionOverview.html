@@ -42,9 +42,10 @@
     <div class="block">
       <table align="center" style="margin-bottom: 20px;">
         <tr align="bottom">
-          {%- set maxHits, maxBandwidth = month|max(attribute='hits'), month|max(attribute='bandwidth') %}
-          {%- set totalHits = month|sum(attribute='hits') %}
-          {%- set totalBandwidth = month|sum(attribute='bandwidth') %}
+          {%- set maxHits = month|max(attribute='hits')|ensuremin(1) %}
+          {%- set maxBandwidth = month|max(attribute='bandwidth')|ensuremin(1) %}
+          {%- set totalHits = month|sum(attribute='hits')|ensuremin(1) %}
+          {%- set totalBandwidth = month|sum(attribute='bandwidth')|ensuremin(1) %}
           {%- for info in month %}
           <td align="center" style="vertical-align: bottom;">
             <div class="hitsChart vertical" title="Hits: {{info.hits}}" style="height: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px;"></div>

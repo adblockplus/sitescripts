@@ -51,8 +51,8 @@
         <th bgcolor="#2EA495">Bandwidth</th>
         <th>&nbsp;</th>
       </tr>
-      {%- set maxHits = subscriptions|max(attribute='hits') %}
-      {%- set maxBandwidth = subscriptions|max(attribute='bandwidth') %}
+      {%- set maxHits = subscriptions|max(attribute='hits')|ensuremin(1) %}
+      {%- set maxBandwidth = subscriptions|max(attribute='bandwidth')|ensuremin(1) %}
       {%- for subscription in subscriptions %}
       <tr>
         <td><a href="{{subscription.url}}">{{subscription.fileName}}</a></td>
