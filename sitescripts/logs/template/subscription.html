@@ -136,7 +136,8 @@
     <div class="block">
       <table align="center" style="margin-bottom: 20px;">
         <tr align="bottom">
-          {%- set maxHits, maxBandwidth = weekday|max(attribute='hits'),weekday|max(attribute='bandwidth') %}
+          {%- set maxHits = weekday|max(attribute='hits')|ensuremin(1) %}
+          {%- set maxBandwidth = weekday|max(attribute='bandwidth')|ensuremin(1) %}
           {%- for info in weekday %}
           <td align="center" style="vertical-align: bottom;">
             <div class="hitsChart vertical" title="Hits: {{info.hits}}" style="height: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px"></div>
@@ -160,8 +161,8 @@
           <th bgcolor="#66DDEE" colspan="2">Hits</th>
           <th bgcolor="#2EA495">Bandwidth</th>
         </tr>
-        {%- set totalHits = weekday|sum(attribute='hits') %}
-        {%- set totalBandwidth = weekday|sum(attribute='bandwidth') %}
+        {%- set totalHits = weekday|sum(attribute='hits')|ensuremin(1) %}
+        {%- set totalBandwidth = weekday|sum(attribute='bandwidth')|ensuremin(1) %}
         {%- for info in weekday %}
         <tr{% if info.id > 4 %} class="special"{% endif %}>
           <td>{{info.id|weekday}}</td>
@@ -177,7 +178,8 @@
     <div class="block">
       <table align="center" style="margin-bottom: 20px;">
         <tr align="bottom">
-          {%- set maxHits, maxBandwidth = hour|max(attribute='hits'),hour|max(attribute='bandwidth') %}
+          {%- set maxHits = hour|max(attribute='hits')|ensuremin(1) %}
+          {%- set maxBandwidth = hour|max(attribute='bandwidth')|ensuremin(1) %}
           {%- for info in hour %}
           <td align="center" style="vertical-align: bottom;">
             <div class="hitsChart vertical" title="Hits: {{info.hits}}" style="height: {{(info.hits / maxHits * 100)|round(method='ceil')|int}}px;"></div>
@@ -219,8 +221,8 @@
           <th bgcolor="#66DDEE" colspan="2">Hits</th>
           <th bgcolor="#2EA495">Bandwidth</th>
         </tr>
-        {%- set totalHits = hour|sum(attribute='hits') %}
-        {%- set totalBandwidth = hour|sum(attribute='bandwidth') %}
+        {%- set totalHits = hour|sum(attribute='hits')|ensuremin(1) %}
+        {%- set totalBandwidth = hour|sum(attribute='bandwidth')|ensuremin(1) %}
         {%- for info in hour %}
         <tr>
           <td>{{info.id}}</td>
@@ -241,9 +243,10 @@
           <th bgcolor="#66DDEE" colspan="2">Hits</th>
           <th bgcolor="#2EA495">Bandwidth</th>
         </tr>
-        {%- set maxHits, maxBandwidth = app|max(attribute='hits'),app|max(attribute='bandwidth') %}
-        {%- set totalHits = app|sum(attribute='hits') %}
-        {%- set totalBandwidth = app|sum(attribute='bandwidth') %}
+        {%- set maxHits = app|max(attribute='hits')|ensuremin(1) %}
+        {%- set maxBandwidth = app|max(attribute='bandwidth')|ensuremin(1) %}
+        {%- set totalHits = app|sum(attribute='hits')|ensuremin(1) %}
+        {%- set totalBandwidth = app|sum(attribute='bandwidth')|ensuremin(1) %}
         {%- for info in app[0:10] %}
         <tr>
           <td>{{info.id}}</td>
@@ -297,9 +300,10 @@
           <th bgcolor="#2EA495">Bandwidth</th>
           <th>&nbsp;</th>
         </tr>
-        {%- set maxHits, maxBandwidth = country|max(attribute='hits'),country|max(attribute='bandwidth') %}
-        {%- set totalHits = country|sum(attribute='hits') %}
-        {%- set totalBandwidth = country|sum(attribute='bandwidth') %}
+        {%- set maxHits = country|max(attribute='hits')|ensuremin(1) %}
+        {%- set maxBandwidth = country|max(attribute='bandwidth')|ensuremin(1) %}
+        {%- set totalHits = country|sum(attribute='hits')|ensuremin(1) %}
+        {%- set totalBandwidth = country|sum(attribute='bandwidth')|ensuremin(1) %}
         {%- for info in country[0:10] %}
         <tr>
           <td><div class="flag {{info.image}}"></div></td>
@@ -358,9 +362,10 @@
           <th bgcolor="#2EA495">Bandwidth</th>
           <th>&nbsp;</th>
         </tr>
-        {%- set maxHits, maxBandwidth = mirror|max(attribute='hits'),mirror|max(attribute='bandwidth') %}
-        {%- set totalHits = mirror|sum(attribute='hits') %}
-        {%- set totalBandwidth = mirror|sum(attribute='bandwidth') %}
+        {%- set maxHits = mirror|max(attribute='hits')|ensuremin(1) %}
+        {%- set maxBandwidth = mirror|max(attribute='bandwidth')|ensuremin(1) %}
+        {%- set totalHits = mirror|sum(attribute='hits')|ensuremin(1) %}
+        {%- set totalBandwidth = mirror|sum(attribute='bandwidth')|ensuremin(1) %}
         {%- for info in mirror %}
         <tr>
           <td>{{info.id}}</td>
