@@ -45,6 +45,8 @@ user=Somebody
 [logs]
 dataPath=%(root)s/logs
 fileName=log.%%i.gz
+geoip_db=%(root)s/data/GeoIP.dat
+#subscriptionsSubdir=easylist
 
 [extensions]
 abp_repository=%(root)s/hg/adblockplus
@@ -93,10 +95,6 @@ dbuser=user
 dbpassword=password
 dbtable=tasks
 mainPageTemplate=tasks/template/mainPage.html
-
-[logs]
-geoip_db=%(root)s/data/GeoIP.dat
-#subscriptionsSubdir=easylist
 
 [subscriptionStats]
 tempFile=%(root)s/tmp/subscriptionStats.ini

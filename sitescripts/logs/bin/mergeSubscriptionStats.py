@@ -38,8 +38,6 @@ def readStatsFile(path):
 def getStatsFiles():
   config = get_config()
 
-  yield (config.get('subscriptionStats', 'mirrorName'), config.get('subscriptionStats', 'tempFile'))
-
   for option in config.options('subscriptionStats'):
     match = re.search(r'^mirror_(.*)', option, re.I)
     if match:
