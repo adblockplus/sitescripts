@@ -62,6 +62,10 @@ abpkmeleon_repository=%(root)s/hg/adblockpluskmeleon
 abpkmeleon_type=kmeleon
 abpkmeleon_name=Adblock Plus for K-Meleon
 abpkmeleon_downloadPage=/en/kmeleon
+abpandroid_repository=%(root)s/hg/adblockplusandroid
+abpandroid_type=android
+abpandroid_name=Adblock Plus for Android
+abpandroid_downloadPage=/en/android
 ehh_repository=%(root)s/hg/elemhidehelper
 ehh_name=Element Hiding Helper
 ehh_galleryID=elemhidehelper
@@ -80,6 +84,7 @@ downloadsDirectory=%(root)s/www/downloads
 downloadsURL=https://adblockplus.org/downloads/
 downloadLinksFile=%(root)s/tmp/downloadLinks.ini
 geckoUpdateManifestPath=%(root)s/www/update.rdf
+androidUpdateManifestPath=%(root)s/www/androidupdates.xml
 docsDirectory=%(root)s/www/jsdoc
 errorTemplate=extensions/template/error.html
 languageCheckTemplate=extensions/template/languageCheckResult.html
@@ -87,6 +92,7 @@ languageFormTemplate=extensions/template/languageForm.html
 changelogTemplate=extensions/template/changelog.html
 geckoUpdateManifest=extensions/template/update.rdf
 chromeUpdateManifest=extensions/template/updates.xml
+androidUpdateManifest=extensions/template/androidupdates.xml
 nightlyIndexPage=extensions/template/nightlies.html
 
 [tasks]

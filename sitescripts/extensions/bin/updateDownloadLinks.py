@@ -23,7 +23,7 @@ Update the list of extenstions
   and version information
 """
 
-import os, re, urllib, urllib2, urlparse, subprocess, time
+import sys, os, re, urllib, urllib2, urlparse, subprocess, time
 import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
@@ -158,46 +158,63 @@ def readMetadata(repo, version):
   reads extension ID and compatibility information from metadata file in the
   extension's repository
   """
-  command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata.%s' % repo.type)]
-  (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+  if repo.type == 'android':
+    command = ['hg', '-R', repo.repository, 'id', '-r', version, '-n']
+    (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    revision = re.sub(r'\D', '', result)
 
-  # Fall back to platform-independent metadata file for now
-  if not result:
-    command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata')]
-    (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+    command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'AndroidManifest.xml')]
+    (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    manifest = dom.parseString(result)
+    usesSdk = manifest.getElementsByTagName('uses-sdk')[0]
 
-  parser = SafeConfigParser()
-  parser.readfp(StringIO(result))
+    return {
+      'revision': revision,
+      'minSdkVersion': usesSdk.attributes["android:minSdkVersion"].value,
+    }
+  else:
+    command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata.%s' % repo.type)]
+    (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-  result = {
-    'extensionID': parser.get('general', 'id'),
-    'version': version,
-    'compat': []
-  }
-  for key, value in KNOWN_APPS.iteritems():
-    if parser.has_option('compat', key):
-      minVersion, maxVersion = parser.get('compat', key).split('/')
-      result['compat'].append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
-  return result
+    # Fall back to platform-independent metadata file for now
+    if not result:
+      command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata')]
+      (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+
+    parser = SafeConfigParser()
+    parser.readfp(StringIO(result))
+
+    result = {
+      'extensionID': parser.get('general', 'id'),
+      'version': version,
+      'compat': []
+    }
+    for key, value in KNOWN_APPS.iteritems():
+      if parser.has_option('compat', key):
+        minVersion, maxVersion = parser.get('compat', key).split('/')
+        result['compat'].append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
+    return result
 
 def writeUpdateManifest(links):
   """
-  writes an update.rdf file for all Gecko extensions
+  writes an update manifest for all Gecko extensions and Android apps
   """
 
-  extensions = []
+  extensions = {'gecko': [], 'android': []}
   for repo in Configuration.getRepositoryConfigurations():
-    if repo.type != 'gecko':
-      continue
-    if not links.has_section(repo.repositoryName):
+    if repo.type not in extensions or not links.has_section(repo.repositoryName):
       continue
     data = readMetadata(repo, links.get(repo.repositoryName, 'version'))
     data['updateURL'] = links.get(repo.repositoryName, 'downloadURL')
-    extensions.append(data)
+    extensions[repo.type].append(data)
 
-  manifestPath = get_config().get('extensions', 'geckoUpdateManifestPath')
-  template = get_template(get_config().get('extensions', 'geckoUpdateManifest'))
-  template.stream({'extensions': extensions}).dump(manifestPath)
+  if len(extensions['android']) > 1:
+    print >>sys.stderr, 'Warning: more than one Android app defined, update manifest only works for one'
+
+  for repoType in extensions.iterkeys():
+    manifestPath = get_config().get('extensions', '%sUpdateManifestPath' % repoType)
+    template = get_template(get_config().get('extensions', '%sUpdateManifest' % repoType))
+    template.stream({'extensions': extensions[repoType]}).dump(manifestPath)
 
 def updateLinks():
   """
