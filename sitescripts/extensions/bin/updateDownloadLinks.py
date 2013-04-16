@@ -139,6 +139,18 @@ def getDownloadLink(repo):
   else:
     return (galleryURL, galleryVersion)
 
+def getQRCode(text):
+  try:
+    import qrcode
+    import base64
+    import PIL    # required by qrcode but not formally a dependency
+  except:
+    return None
+
+  data = StringIO()
+  qrcode.make(text, box_size=5).save(data, 'png')
+  return 'data:image/png;base64,' + base64.b64encode(data.getvalue())
+
 def getDownloadLinks(result):
   """
   gets the download links for all extensions and puts them into the config
@@ -152,6 +164,10 @@ def getDownloadLinks(result):
       result.add_section(repo.repositoryName)
     result.set(repo.repositoryName, "downloadURL", downloadURL)
     result.set(repo.repositoryName, "version", version)
+
+    qrcode = getQRCode(downloadURL)
+    if qrcode != None:
+      result.set(repo.repositoryName, "qrcode", qrcode)
 
 def readMetadata(repo, version):
   """
