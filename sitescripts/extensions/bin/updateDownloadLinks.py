@@ -143,7 +143,7 @@ def getQRCode(text):
   try:
     import qrcode
     import base64
-    import PIL    # required by qrcode but not formally a dependency
+    import Image    # required by qrcode but not formally a dependency
   except:
     return None
 
