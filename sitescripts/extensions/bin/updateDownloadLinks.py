@@ -102,7 +102,6 @@ def getLocalLink(repo):
   gets the link for the newest download of an add-on in the local downloads
   repository
   """
-  dir = repo.downloadsDirectory
   url = repo.downloadsURL
 
   highestURL = None
@@ -110,8 +109,10 @@ def getLocalLink(repo):
   prefix = os.path.basename(repo.repository) + '-'
   suffix = repo.packageSuffix
 
-  # go through the downloads directory looking for downloads matching this extension
-  for fileName in os.listdir(dir):
+  # go through the downloads repository looking for downloads matching this extension
+  command = ['hg', 'locate', '-R', repo.downloadsRepo, '-r', 'default']
+  result, dummy = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+  for fileName in result.splitlines():
     if fileName.startswith(prefix) and fileName.endswith(suffix):
       version = fileName[len(prefix):len(fileName) - len(suffix)]
       if highestVersion == None or compareVersions(version, highestVersion) > 0:
@@ -236,10 +237,6 @@ def updateLinks():
   """
   writes the current extension download links to a file
   """
-
-  # Update downloads directory first
-  downloadsRepository = get_config().get('extensions', 'downloadsDirectory')
-  subprocess.Popen(['hg', '-R', downloadsRepository, 'pull',  '-u'], stdout=subprocess.PIPE).communicate()
 
   # Now get download links and save them to file
   result = SafeConfigParser()

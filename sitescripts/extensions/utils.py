@@ -125,7 +125,7 @@ class Configuration(object):
   buildRepository = _defineGlobalProperty('buildRepository')
   nightliesDirectory = _defineGlobalProperty('nightliesDirectory')
   nightliesURL = _defineGlobalProperty('nightliesURL')
-  downloadsDirectory = _defineGlobalProperty('downloadsDirectory')
+  downloadsRepo = _defineGlobalProperty('downloadsRepo')
   downloadsURL = _defineGlobalProperty('downloadsURL')
   docsDirectory = _defineGlobalProperty('docsDirectory')
   signtool = _defineGlobalProperty('signtool')
