@@ -165,7 +165,7 @@ class NightlyBuild(object):
     self.extensionID = ''.join(map(lambda c: chr(97 + int(c, 16)), self.extensionID))
 
     # Now read metadata file
-    metadata = packager.readMetadata(self.tempdir)
+    metadata = packager.readMetadata(self.tempdir, 'chrome')
     self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
     self.basename = metadata.get("general", "basename")
     if self.config.experimental:
