@@ -159,10 +159,8 @@ class Configuration(object):
 
     if self.type == 'gecko':
       self.packageSuffix = '.xpi'
-    elif self.type == 'chrome':
+    elif self.type == 'chrome' or self.type == 'opera':
       self.packageSuffix = '.crx'
-    elif self.type == 'opera':
-      self.packageSuffix = '.oex'
     elif self.type == 'kmeleon':
       self.packageSuffix = '.zip'
     elif self.type == 'android':

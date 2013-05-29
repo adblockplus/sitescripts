@@ -33,9 +33,11 @@
   {%if config.galleryID or config.downloadPage -%}
   Latest <em>stable {{config.name}} release</em> can be downloaded from
   {% if config.type == 'gecko' and config.galleryID -%}
-    <a href="https://addons.mozilla.org/addon/{{config.galleryID}}/">addons.mozilla.org</a>
+    <a href="https://addons.mozilla.org/addon/{{config.galleryID}}/">Mozilla Add-ons</a>
   {%- elif config.type == 'chrome' and config.galleryID -%}
-    <a href="https://chrome.google.com/extensions/detail/{{config.galleryID}}">Google Chrome extension gallery</a>
+    <a href="https://chrome.google.com/webstore/detail/{{config.galleryID}}">Chrome Web Store</a>
+  {%- elif config.type == 'opera' and config.galleryID -%}
+    <a href="https://addons.opera.com/en/extensions/details/{{config.galleryID}}/">Opera Add-ons</a>
   {%- else %}
     <a href="{{config.downloadPage}}">its installation page</a>
   {%- endif -%}

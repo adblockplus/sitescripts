@@ -165,7 +165,7 @@ class NightlyBuild(object):
     self.extensionID = ''.join(map(lambda c: chr(97 + int(c, 16)), self.extensionID))
 
     # Now read metadata file
-    metadata = packager.readMetadata(self.tempdir, 'chrome')
+    metadata = packager.readMetadata(self.tempdir, self.config.type)
     self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
     self.basename = metadata.get("general", "basename")
     if self.config.experimental:
@@ -182,7 +182,7 @@ class NightlyBuild(object):
     baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
     if not os.path.exists(baseDir):
       os.makedirs(baseDir)
-    if self.config.type == 'chrome':
+    if self.config.type == 'chrome' or self.config.type == 'opera':
       manifestPath = os.path.join(baseDir, "updates.xml")
       templateName = 'chromeUpdateManifest'
     elif self.config.type == 'android':
@@ -222,9 +222,9 @@ class NightlyBuild(object):
         # exception will be raised later
         if os.path.exists(outputPath):
           os.remove(outputPath)
-    elif self.config.type == 'chrome':
+    elif self.config.type == 'chrome' or self.config.type == 'opera':
       import buildtools.packagerChrome as packager
-      packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile, experimentalAPI=self.config.experimental)
+      packager.createBuild(self.tempdir, type=self.config.type, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile, experimentalAPI=self.config.experimental)
     else:
       import buildtools.packagerGecko as packager
       packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile)
@@ -328,7 +328,7 @@ class NightlyBuild(object):
         # get meta data from the repository
         if self.config.type == 'android':
           self.readAndroidMetadata()
-        elif self.config.type == 'chrome':
+        elif self.config.type == 'chrome' or self.config.type == 'opera':
           self.readChromeMetadata()
         else:
           self.readMetadata()
@@ -374,10 +374,6 @@ def main():
   # and generate changelogs and documentations for each:
   data = None
   for repo in Configuration.getRepositoryConfigurations(nightlyConfig):
-    # No Opera build automation yet
-    if repo.type == 'opera':
-      continue
-
     build = None
     try:
       build = NightlyBuild(repo)
