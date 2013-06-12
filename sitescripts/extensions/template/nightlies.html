@@ -23,10 +23,7 @@
   <strong>Warning</strong>: The files in this directory are development
   builds and as such they have not been fully tested and might not work
   properly.
-  {% if config.type == 'kmeleon' -%}
-  They will work <em>only</em> with K-Meleon 1.6 and they are not completely
-  functional yet.
-  {%- endif %}
+
   Use them at your own risk, see <a href="/en/development-builds">development builds introduction</a> for more
   information.
 
@@ -58,13 +55,17 @@
 {%- for link in links %}
 <tr{%if loop.first%} style="font-weight: bold;"{%endif%}>
   <td>
+    {%- if config.type == 'ie' %}
+    {{config.name}} {{link.version}} <a href="{{link.download}}">(64-bit Windows)</a> <a href="{{link.download|replace('-x64', '-x86')}}">(32-bit Windows)</a>
+    {%- else %}
     <a href="{{link.download}}">{{config.name}} {{link.version}}</a>
+    {%- endif %}
     {%- if link.changelog %}
       <a href="{{link.changelog}}"> (changelog)</a>
     {%- endif %}
   </td>
   <td>{{link.mtime|formattime}}</td>
-  <td>{{link.size|filesizeformat}}</td>
+  <td>{{link.size|bytes}}</td>
 </tr>
 {%- endfor %}
 </table>

@@ -25,7 +25,7 @@ Nightly builds generation script
 
 """
 
-import sys, os, os.path, subprocess, ConfigParser, traceback, json, hashlib
+import sys, os, os.path, codecs, subprocess, ConfigParser, traceback, json, hashlib
 import tempfile, re, shutil, urlparse, pipes
 from datetime import datetime
 from xml.dom.minidom import parse as parseXml
@@ -195,6 +195,49 @@ class NightlyBuild(object):
     template = get_template(get_config().get('extensions', templateName))
     template.stream({'extensions': [self]}).dump(manifestPath)
 
+  def writeLibabpUpdateManifest(self, updates):
+    """
+      Writes update.json file for libadblockplus
+    """
+    baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
+    if not os.path.exists(baseDir):
+      os.makedirs(baseDir)
+    manifestPath = os.path.join(baseDir, "update.json")
+
+    handle = codecs.open(manifestPath, "wb", encoding="UTF-8")
+    json.dump(updates, handle, ensure_ascii=False, indent=2, separators=(",", ": "))
+    handle.close()
+
+  def writeIEUpdateManifest(self, versions):
+    """
+      Writes update.json file for the latest IE build
+    """
+    if len(versions) == 0:
+      return
+
+    version = versions[0]
+    packageName = self.basename + '-' + versions[0] + self.config.packageSuffix
+    updateURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + packageName + '?update')
+    self.writeLibabpUpdateManifest({
+      "%s/%s" % (self.basename, "msie64"): {
+        "url": updateURL,
+        "version": version,
+      },
+      "%s/%s" % (self.basename, "win64"): {
+        "url": updateURL,
+        "version": version,
+      },
+      "%s/%s" % (self.basename, "msie32"): {
+        "url": updateURL.replace("-x64", "-x86"),
+        "version": version,
+      },
+      "%s/%s" % (self.basename, "win32"): {
+        "url": updateURL.replace("-x64", "-x86"),
+        "version": version,
+      },
+    })
+
+
   def build(self):
     """
       run the build command in the tempdir
@@ -317,8 +360,8 @@ class NightlyBuild(object):
       Run the nightly build process for one extension
     """
     try:
-      if self.config.type == 'kmeleon':
-        # We cannot build K-Meleon builds, simply list the builds already in
+      if self.config.type == 'ie':
+        # We cannot build IE builds, simply list the builds already in
         # the directory. Basename has to be deduced from the repository name.
         self.basename = os.path.basename(self.config.repository)
       else:
@@ -347,6 +390,9 @@ class NightlyBuild(object):
 
       # retire old builds
       versions = self.retireBuilds()
+
+      if self.config.type == 'ie':
+        self.writeIEUpdateManifest(versions)
 
       # update index page
       self.updateIndex(versions)
