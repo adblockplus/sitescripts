@@ -110,7 +110,7 @@ class NightlyBuild(object):
     if hasattr(os, 'symlink'):
       if os.path.exists(linkPath):
         os.remove(linkPath)
-      os.symlink(changelogPath, linkPath)
+      os.symlink(os.path.basename(changelogPath), linkPath)
     else:
       shutil.copyfile(changelogPath, linkPath)
 
@@ -244,7 +244,7 @@ class NightlyBuild(object):
       if hasattr(os, 'symlink'):
         if os.path.exists(linkPath):
           os.remove(linkPath)
-        os.symlink(outputPath, linkPath)
+        os.symlink(os.path.basename(outputPath), linkPath)
       else:
         shutil.copyfile(outputPath, linkPath)
 
@@ -290,7 +290,7 @@ class NightlyBuild(object):
     if hasattr(os, 'symlink'):
       if os.path.exists(linkPath):
         os.remove(linkPath)
-      os.symlink(outputPath, linkPath)
+      os.symlink(os.path.basename(outputPath), linkPath)
     else:
       shutil.copyfile(outputPath, linkPath)
 
