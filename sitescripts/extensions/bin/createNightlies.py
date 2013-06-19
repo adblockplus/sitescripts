@@ -237,6 +237,17 @@ class NightlyBuild(object):
       },
     })
 
+    baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
+    for suffix in (self.config.packageSuffix, self.config.packageSuffix.replace("-x64", "-x86")):
+      linkPath = os.path.join(baseDir, '00latest%s' % suffix)
+      outputPath = os.path.join(baseDir, self.basename + '-' + versions[0] + suffix)
+      if hasattr(os, 'symlink'):
+        if os.path.exists(linkPath):
+          os.remove(linkPath)
+        os.symlink(outputPath, linkPath)
+      else:
+        shutil.copyfile(outputPath, linkPath)
+
 
   def build(self):
     """
