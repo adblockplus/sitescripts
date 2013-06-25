@@ -120,3 +120,8 @@ auth_file=%(root)s/.ssh/.ssh/authorized_keys
 
 [formmail]
 template=formmail/template/eyeo.mail
+
+[externalFiles]
+example_source=http://mxr.mozilla.org/mozilla-central/source/netwerk/dns/effective_tld_names.dat?raw=1
+example_targetrepository=%(root)s/hg/adblockpluschrome
+example_targetfile=third-party/publicSuffixList.txt
