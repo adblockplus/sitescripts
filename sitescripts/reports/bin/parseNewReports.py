@@ -127,10 +127,13 @@ def processElementStart(name, attributes):
     reportData['platform_build'] = attributes.get('build', 'unknown')
   elif name == 'window':
     reportData['main_url'] = attributes.get('url', 'unknown')
-    parsed = urlparse(reportData['main_url'])
-    if parsed.netloc:
-      reportData['siteName'] = parsed.netloc
-    else:
+    try:
+      parsed = urlparse(reportData['main_url'])
+      if parsed.netloc:
+        reportData['siteName'] = parsed.netloc
+      else:
+        reportData['siteName'] = 'unknown'
+    except:
       reportData['siteName'] = 'unknown'
 
     reportData['opener'] = attributes.get('opener', '')
