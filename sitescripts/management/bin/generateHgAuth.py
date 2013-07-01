@@ -28,8 +28,12 @@ def generateData(authRepo):
   tarFile = tarfile.open(mode='r:', fileobj=StringIO(data))
   fileInfo = tarFile.next()
   while fileInfo:
-    if fileInfo.type == tarfile.REGTYPE and fileInfo.name.startswith('users/'):
-      name = os.path.basename(fileInfo.name).lower()
+    name = fileInfo.name
+    if name.startswith('./'):
+      name = name[2:]
+
+    if fileInfo.type == tarfile.REGTYPE and name.startswith('users/'):
+      name = os.path.basename(name).lower()
       options = []
       match = re.search(r'^(.*)\[(.*)\]$', name)
       if match:
@@ -54,10 +58,10 @@ def generateData(authRepo):
           print >>sys.stderr, 'Unknown user option: %s' % option
       user['key'] = re.sub(r'\s', '', tarFile.extractfile(fileInfo).read())
       users[name] = user
-    elif fileInfo.type == tarfile.REGTYPE and fileInfo.name.startswith('repos/'):
+    elif fileInfo.type == tarfile.REGTYPE and name.startswith('repos/'):
       repos.append(fileInfo)
-    elif fileInfo.type == tarfile.REGTYPE and not fileInfo.name.startswith('.'):
-      print >>sys.stderr, 'Unrecognized file in the repository: %s' % fileInfo.name
+    elif fileInfo.type == tarfile.REGTYPE and not name.startswith('.'):
+      print >>sys.stderr, 'Unrecognized file in the repository: %s' % name
     fileInfo = tarFile.next()
 
   for fileInfo in repos:
