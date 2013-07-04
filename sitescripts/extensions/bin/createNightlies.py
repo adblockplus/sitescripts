@@ -355,7 +355,7 @@ class NightlyBuild(object):
     try:
       import buildtools.build as build
       outputPath = os.path.join(self.config.docsDirectory, self.basename)
-      build.generateDocs(self.tempdir, None, {"-t": docsdir, "-q": True}, [outputPath], self.config.type)
+      build.generateDocs(self.tempdir, None, [("-t", docsdir), ("-q", "")], [outputPath], self.config.type)
     finally:
       shutil.rmtree(docsdir, ignore_errors=True)
 
