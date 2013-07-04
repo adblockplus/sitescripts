@@ -225,19 +225,14 @@ def calculateSupplemented(lists):
 @cached(60)
 def get_settings():
   repo = os.path.abspath(get_config().get('subscriptions', 'repository'))
-  (settingsData, errors) = subprocess.Popen(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'settings')], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-  if errors:
-    print >>sys.stderr, errors
-
+  settingsData = subprocess.check_output(['hg', '-q', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'settings')])
   settings = SafeConfigParser()
   settings.readfp(codecs.getreader('utf8')(StringIO(settingsData)))
   return settings
 
 def readSubscriptions():
   repo = os.path.abspath(get_config().get('subscriptions', 'repository'))
-  (data, errors) = subprocess.Popen(['hg', 'archive', '-R', repo, '-r', 'default', '-t', 'tar', '-I', os.path.join(repo, '*.subscription'), '-'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-  if errors:
-    print >>sys.stderr, errors
+  data = subprocess.check_output(['hg', 'archive', '-q', '-R', repo, '-r', 'default', '-t', 'tar', '-I', os.path.join(repo, '*.subscription'), '-'])
 
   result =  {}
   tarFile = tarfile.open(mode='r:', fileobj=StringIO(data))
@@ -258,14 +253,8 @@ def readSubscriptions():
 
 def getFallbackData():
   repo = os.path.abspath(get_config().get('subscriptions', 'repository'))
-  (redirectData, errors) = subprocess.Popen(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'redirects')], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-  if errors:
-    print >>sys.stderr, errors
-
-  (goneData, errors) = subprocess.Popen(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'gone')], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-  if errors:
-    print >>sys.stderr, errors
-
+  redirectData = subprocess.check_output(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'redirects')])
+  goneData = subprocess.check_output(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'gone')])
   return (redirectData, goneData)
 
 def _validateURL(url):

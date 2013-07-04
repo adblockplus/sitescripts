@@ -111,7 +111,7 @@ def getLocalLink(repo):
 
   # go through the downloads repository looking for downloads matching this extension
   command = ['hg', 'locate', '-R', repo.downloadsRepo, '-r', 'default']
-  result, dummy = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+  result = subprocess.check_output(command)
   for fileName in result.splitlines():
     if fileName.startswith(prefix) and fileName.endswith(suffix):
       version = fileName[len(prefix):len(fileName) - len(suffix)]
@@ -177,11 +177,11 @@ def readMetadata(repo, version):
   """
   if repo.type == 'android':
     command = ['hg', '-R', repo.repository, 'id', '-r', version, '-n']
-    (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    result = subprocess.check_output(command)
     revision = re.sub(r'\D', '', result)
 
     command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'AndroidManifest.xml')]
-    (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    result = subprocess.check_output(command)
     manifest = dom.parseString(result)
     usesSdk = manifest.getElementsByTagName('uses-sdk')[0]
 
@@ -190,13 +190,13 @@ def readMetadata(repo, version):
       'minSdkVersion': usesSdk.attributes["android:minSdkVersion"].value,
     }
   else:
-    command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata.%s' % repo.type)]
-    (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-
-    # Fall back to platform-independent metadata file for now
-    if not result:
+    try:
+      command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata.%s' % repo.type)]
+      result = subprocess.check_output(command)
+    except:
+      # Fall back to platform-independent metadata file for now
       command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata')]
-      (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+      result = subprocess.check_output(command)
 
     parser = SafeConfigParser()
     parser.readfp(StringIO(result))

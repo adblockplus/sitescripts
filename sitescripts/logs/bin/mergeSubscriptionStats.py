@@ -27,7 +27,7 @@ def readStatsFile(path):
     command = ['ssh', '-q', '-o' 'NumberOfPasswordPrompts 0', '-T', '-k', '-l', match.group(1), match.group(2)]
     if match.group(3):
       command[1:1] = ['-P', match.group(3)]
-    (data, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+    data = subprocess.check_output(command)
     result.readfp(StringIO(data))
   elif path.startswith('http://') or path.startswith('https://'):
     result.readfp(urllib.urlopen(path))

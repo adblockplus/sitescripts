@@ -34,7 +34,7 @@ def _get_cursor():
   return _get_db().cursor(MySQLdb.cursors.DictCursor)
 
 def _hg(args):
-  return subprocess.Popen(["hg"] + args, stdout = subprocess.PIPE)
+  return subprocess.check_output(["hg"] + args)
 
 def _extract_sites(easylist_dir):
   os.chdir(easylist_dir)

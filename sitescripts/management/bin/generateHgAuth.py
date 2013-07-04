@@ -21,7 +21,7 @@ from sitescripts.utils import get_config, setupStderr
 
 def generateData(authRepo):
   command = ['hg', '-R', authRepo, 'archive', '-r', 'default', '-t', 'tar', '-p', '.', '-']
-  (data, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+  data = subprocess.check_output(command)
 
   users = {}
   repos = []

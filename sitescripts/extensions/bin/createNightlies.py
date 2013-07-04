@@ -64,8 +64,7 @@ class NightlyBuild(object):
       retrieves the current revision number from the repository
     """
     command = ['hg', 'log', '-R', self.config.repository, '-r', 'default', '--template', '{rev}']
-    (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
-    return result
+    return subprocess.check_output(command)
 
   def getChanges(self):
     """
@@ -75,7 +74,7 @@ class NightlyBuild(object):
     command = ['hg', 'log', '-R', self.config.repository, '-r', 'tip:0',
       '-b', 'default', '-l', '50',
       '--template', '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0']
-    (result, dummy) = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+    result = subprocess.check_output(command)
 
     for change in result.split('\0\0'):
       if change:
@@ -90,7 +89,7 @@ class NightlyBuild(object):
     # http://bz.selenic.com/show_bug.cgi?id=3747, have to clone properly :-(
     self.tempdir = tempfile.mkdtemp(prefix=self.config.repositoryName)
     command = ['hg', 'clone', '-q', self.config.repository, '-u', 'default', self.tempdir]
-    subprocess.Popen(command).communicate()
+    subprocess.check_call(command)
 
   def writeChangelog(self, changes):
     """
@@ -262,20 +261,20 @@ class NightlyBuild(object):
 
     if self.config.type == 'android':
       apkFile = open(outputPath, 'wb')
+
       try:
-        port = get_config().get('extensions', 'androidBuildPort')
-      except ConfigParser.NoOptionError:
-        port = '22'
-      buildCommand = ['ssh', '-p', port, get_config().get('extensions', 'androidBuildHost')]
-      buildCommand += map(pipes.quote, ['/home/android/bin/makedebugbuild.py', '--revision', self.revision, '--version', self.version, '--stdout'])
-      process = subprocess.Popen(buildCommand, stdout=apkFile, stderr=None)
-      status = process.wait()
-      apkFile.close()
-      if status:
+        try:
+          port = get_config().get('extensions', 'androidBuildPort')
+        except ConfigParser.NoOptionError:
+          port = '22'
+        buildCommand = ['ssh', '-p', port, get_config().get('extensions', 'androidBuildHost')]
+        buildCommand += map(pipes.quote, ['/home/android/bin/makedebugbuild.py', '--revision', self.revision, '--version', self.version, '--stdout'])
+        subprocess.check_call(buildCommand, stdout=apkFile, close_fds=True)
+      except:
         # clear broken output if any
-        # exception will be raised later
         if os.path.exists(outputPath):
           os.remove(outputPath)
+        raise
     elif self.config.type == 'chrome' or self.config.type == 'opera':
       import buildtools.packagerChrome as packager
       packager.createBuild(self.tempdir, type=self.config.type, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile, experimentalAPI=self.config.experimental)
@@ -351,18 +350,12 @@ class NightlyBuild(object):
 
     docsdir = tempfile.mkdtemp(prefix='jsdoc')
     command = ['hg', 'archive', '-R', get_config().get('extensions', 'jsdocRepository'), '-r', 'default', docsdir]
-    subprocess.Popen(command).communicate()
+    subprocess.check_call(command)
 
     try:
+      import buildtools.build as build
       outputPath = os.path.join(self.config.docsDirectory, self.basename)
-      command = ['perl', os.path.join(docsdir, 'jsrun.pl'),
-        '-t=' + os.path.join(docsdir, 'templates', 'jsdoc'),
-        '-d=' + outputPath,
-        '-a',
-        '-p',
-        '-x=js',
-        os.path.join(self.tempdir, 'lib')]
-      subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+      build.generateDocs(self.tempdir, None, {"-t": docsdir, "-q": True}, [outputPath], self.config.type)
     finally:
       shutil.rmtree(docsdir, ignore_errors=True)
 

@@ -27,16 +27,16 @@ if __name__ == '__main__':
   dest = tempfile.mkdtemp()
   try:
     os.chdir(os.path.dirname(dest))   # Yes, CVS sucks
-    subprocess.Popen(['cvs', '-Q', '-d', cvsroot, 'checkout', '-d', os.path.basename(dest), cvsdir]).communicate()
+    subprocess.check_call(['cvs', '-Q', '-d', cvsroot, 'checkout', '-d', os.path.basename(dest), cvsdir])
     os.chdir(dest)
-    (result, dummy) = subprocess.Popen(['rsync', '-a', '--delete', '--out-format=%o %n', '--exclude=CVS', source + '/', dest], stdout=subprocess.PIPE).communicate()
+    result = subprocess.check_output(['rsync', '-a', '--delete', '--out-format=%o %n', '--exclude=CVS', source + '/', dest])
     for line in result.split('\n'):
       match = re.search(r'^(\S+)\s+(.*)', line)
       if match and match.group(1) == 'send':
-        subprocess.Popen(['cvs', '-Q', 'add', match.group(2)]).communicate()
+        subprocess.check_call(['cvs', '-Q', 'add', match.group(2)])
       elif match and match.group(1) == 'del.':
-        subprocess.Popen(['cvs', '-Q', 'remove', match.group(2)]).communicate()
-    subprocess.Popen(['cvs', '-Q', 'commit', '-m', 'Uploading subscription updates'], stdout=subprocess.PIPE).communicate()
+        subprocess.check_call(['cvs', '-Q', 'remove', match.group(2)])
+    subprocess.check_call(['cvs', '-Q', 'commit', '-m', 'Uploading subscription updates'])
   finally:
     if os.path.exists(dest):
       shutil.rmtree(dest, True)

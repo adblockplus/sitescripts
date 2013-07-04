@@ -87,7 +87,7 @@ def conditionalWrite(filePath, data):
     handle.write(data)
     handle.close()
     try:
-      subprocess.Popen(['7za', 'a', '-tgzip', '-mx=9', '-bd', '-mpass=15', filePath + '.gz', filePath], stdout=subprocess.PIPE).communicate()
+      subprocess.check_output(['7za', 'a', '-tgzip', '-mx=9', '-bd', '-mpass=15', filePath + '.gz', filePath])
     except:
       print >>sys.stderr, 'Failed to compress file %s. Please ensure that p7zip is installed on the system.' % filePath
 
@@ -329,6 +329,6 @@ if __name__ == '__main__':
 
   if os.path.exists(os.path.join(sourceDir, '.hg')):
     # Our source is a Mercurial repository, try updating
-    subprocess.Popen(['hg', '-R', sourceDir, 'pull', '--update']).communicate()
+    subprocess.check_call(['hg', '-q', '-R', sourceDir, 'pull', '--update'])
 
   combineSubscriptions(sourceDir, targetDir, timeout)

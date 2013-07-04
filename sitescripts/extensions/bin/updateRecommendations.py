@@ -25,11 +25,13 @@ def updateRecommendations():
   repository = get_config().get('extensions', 'abp_repository')
   tempdir = mkdtemp(prefix='adblockplus')
   try:
-    subprocess.Popen(['hg', 'clone',  '-U', repository, tempdir], stdout=subprocess.PIPE).communicate()
-    subprocess.Popen(['hg', 'up', '-R', tempdir, '-r', 'default'], stdout=subprocess.PIPE).communicate()
+    subprocess.check_call(['hg', 'clone', '-q', '-U', repository, tempdir])
+    subprocess.check_call(['hg', 'up', '-q', '-R', tempdir, '-r', 'default'])
     writeSubscriptions('recommendations', os.path.join(tempdir, 'chrome', 'content', 'ui', 'subscriptions.xml'))
-    subprocess.Popen(['hg', 'commit', '-R', tempdir, '-u', 'hgbot', '-m', 'Updated list of recommended subscriptions'], stdout=subprocess.PIPE).communicate()
-    subprocess.Popen(['hg', 'push', '-R', tempdir], stdout=subprocess.PIPE).communicate()
+    subprocess.check_call(['hg', 'commit', '-q', '-R', tempdir, '-u', 'hgbot', '-m', 'Updated list of recommended subscriptions'])
+
+    # Don't check the result of this call, it will be 1 if nothing needs pushing
+    subprocess.call(['hg', 'push', '-q', '-R', tempdir])
   finally:
     rmtree(tempdir)
 

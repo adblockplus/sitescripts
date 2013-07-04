@@ -28,14 +28,14 @@ def updateExternalFiles():
       repoPath = setting['targetrepository']
       targetPath = os.path.dirname(setting['targetfile'])
       filename = os.path.basename(setting['targetfile'])
-      
-      subprocess.Popen(['hg', 'clone', '-q', '-U', repoPath, tempdir], stdout=subprocess.PIPE).communicate()
-      subprocess.Popen(['hg', 'up', '-q', '-R', tempdir, '-r', 'default'], stdout=subprocess.PIPE).communicate()
-      
+
+      subprocess.check_call(['hg', 'clone', '-q', '-U', repoPath, tempdir])
+      subprocess.check_call(['hg', 'up', '-q', '-R', tempdir, '-r', 'default'])
+
       path = os.path.join(tempdir, targetPath)
       if not os.path.exists(path):
         os.makedirs(path)
-      
+
       path = os.path.join(path, filename)
       exists = os.path.exists(path)
       file = codecs.open(path, 'wb', encoding='utf-8')
@@ -46,8 +46,10 @@ def updateExternalFiles():
       message = 'Updated copy of external file %s'
       if not exists:
         message = 'Added copy of external file %s'
-      subprocess.Popen(['hg', 'commit', '-q', '-A', '-R', tempdir, '-u', 'hgbot', '-m', message % filename], stdout=subprocess.PIPE).communicate()
-      subprocess.Popen(['hg', 'push', '-q', '-R', tempdir], stdout=subprocess.PIPE).communicate()
+      subprocess.check_call(['hg', 'commit', '-q', '-A', '-R', tempdir, '-u', 'hgbot', '-m', message % filename])
+
+      # Don't check the result of this call, it will be 1 if nothing needs pushing
+      subprocess.call(['hg', 'push', '-q', '-R', tempdir])
     finally:
       rmtree(tempdir)
 

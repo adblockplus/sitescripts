@@ -36,7 +36,7 @@ def syncFiles(name, settings, syncState):
   repo, path = splitRepositoryPath(settings['source'])
 
   command = ['hg', 'log', '-R', repo, '-r', 'default', '--template', '{node|short}']
-  currentRevision, dummy = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+  currentRevision = subprocess.check_output(command)
 
   if not syncState.has_section(name):
     syncState.add_section(name)
@@ -55,7 +55,7 @@ def syncFiles(name, settings, syncState):
       '-X', os.path.join(repo, '.hgsubstate'),
       tempdir]
 
-    subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+    subprocess.check_output(command)
     srcdir = os.path.normpath(os.path.join(tempdir, path))
     for relpath in settings['ignore']:
       abspath = os.path.join(srcdir, relpath)
@@ -82,10 +82,10 @@ def syncFiles(name, settings, syncState):
           command.append(relpath)
     command.append(os.path.join(srcdir, ''))
     command.append(settings['target'])
-    subprocess.Popen(command, stdout=subprocess.PIPE).communicate()
+    subprocess.check_output(command)
 
     if settings['postsync']:
-      subprocess.Popen(settings['postsync'], stdout=subprocess.PIPE, shell=True, cwd=settings['target']).communicate()
+      subprocess.check_output(settings['postsync'], shell=True, cwd=settings['target'])
 
     syncState.set(name, 'latestRevision', currentRevision)
   finally:

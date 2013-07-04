@@ -58,4 +58,4 @@ if __name__ == "__main__":
       continue
 
     print "%s is not running, starting ..." % service
-    subprocess.call([init_path, "start"])
+    subprocess.check_call([init_path, "start"])
