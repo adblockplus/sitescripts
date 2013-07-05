@@ -225,14 +225,14 @@ def calculateSupplemented(lists):
 @cached(60)
 def get_settings():
   repo = os.path.abspath(get_config().get('subscriptions', 'repository'))
-  settingsData = subprocess.check_output(['hg', '-q', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'settings')])
+  settingsData = subprocess.check_output(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'settings')])
   settings = SafeConfigParser()
   settings.readfp(codecs.getreader('utf8')(StringIO(settingsData)))
   return settings
 
 def readSubscriptions():
   repo = os.path.abspath(get_config().get('subscriptions', 'repository'))
-  data = subprocess.check_output(['hg', 'archive', '-q', '-R', repo, '-r', 'default', '-t', 'tar', '-I', os.path.join(repo, '*.subscription'), '-'])
+  data = subprocess.check_output(['hg', 'archive', '-R', repo, '-r', 'default', '-t', 'tar', '-I', os.path.join(repo, '*.subscription'), '-'])
 
   result =  {}
   tarFile = tarfile.open(mode='r:', fileobj=StringIO(data))

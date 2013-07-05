@@ -29,7 +29,7 @@ if __name__ == '__main__':
     os.chdir(os.path.dirname(dest))   # Yes, CVS sucks
     subprocess.check_call(['cvs', '-Q', '-d', cvsroot, 'checkout', '-d', os.path.basename(dest), cvsdir])
     os.chdir(dest)
-    result = subprocess.check_output(['rsync', '-a', '--delete', '--out-format=%o %n', '--exclude=CVS', source + '/', dest])
+    result = subprocess.check_output(['rsync', '-a', '--delete', '--out-format=%o %n', '--exclude=CVS', source + os.path.sep, dest])
     for line in result.split('\n'):
       match = re.search(r'^(\S+)\s+(.*)', line)
       if match and match.group(1) == 'send':

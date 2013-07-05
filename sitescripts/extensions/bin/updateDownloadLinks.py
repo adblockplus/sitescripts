@@ -190,10 +190,11 @@ def readMetadata(repo, version):
       'minSdkVersion': usesSdk.attributes["android:minSdkVersion"].value,
     }
   else:
-    try:
+    files = subprocess.check_output(['hg', '-R', repo.repository, 'locate', '-r', version]).splitlines()
+    if 'metadata.%s' % repo.type in files:
       command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata.%s' % repo.type)]
       result = subprocess.check_output(command)
-    except:
+    else:
       # Fall back to platform-independent metadata file for now
       command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata')]
       result = subprocess.check_output(command)

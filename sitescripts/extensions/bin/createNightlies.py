@@ -268,7 +268,7 @@ class NightlyBuild(object):
         except ConfigParser.NoOptionError:
           port = '22'
         buildCommand = ['ssh', '-p', port, get_config().get('extensions', 'androidBuildHost')]
-        buildCommand += map(pipes.quote, ['/home/android/bin/makedebugbuild.py', '--revision', self.revision, '--version', self.version, '--stdout'])
+        buildCommand.extend(map(pipes.quote, ['/home/android/bin/makedebugbuild.py', '--revision', self.revision, '--version', self.version, '--stdout']))
         subprocess.check_call(buildCommand, stdout=apkFile, close_fds=True)
       except:
         # clear broken output if any

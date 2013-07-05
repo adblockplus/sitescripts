@@ -43,13 +43,12 @@ def updateExternalFiles():
       file.write(data)
       file.close()
 
-      message = 'Updated copy of external file %s'
-      if not exists:
-        message = 'Added copy of external file %s'
-      subprocess.check_call(['hg', 'commit', '-q', '-A', '-R', tempdir, '-u', 'hgbot', '-m', message % filename])
-
-      # Don't check the result of this call, it will be 1 if nothing needs pushing
-      subprocess.call(['hg', 'push', '-q', '-R', tempdir])
+      if subprocess.check_output(['hg', 'stat', '-R', tempdir]) != '':
+        message = 'Updated copy of external file %s'
+        if not exists:
+          message = 'Added copy of external file %s'
+        subprocess.check_call(['hg', 'commit', '-q', '-A', '-R', tempdir, '-u', 'hgbot', '-m', message % filename])
+        subprocess.call(['hg', 'push', '-q', '-R', tempdir])
     finally:
       rmtree(tempdir)
 

@@ -28,10 +28,9 @@ def updateRecommendations():
     subprocess.check_call(['hg', 'clone', '-q', '-U', repository, tempdir])
     subprocess.check_call(['hg', 'up', '-q', '-R', tempdir, '-r', 'default'])
     writeSubscriptions('recommendations', os.path.join(tempdir, 'chrome', 'content', 'ui', 'subscriptions.xml'))
-    subprocess.check_call(['hg', 'commit', '-q', '-R', tempdir, '-u', 'hgbot', '-m', 'Updated list of recommended subscriptions'])
-
-    # Don't check the result of this call, it will be 1 if nothing needs pushing
-    subprocess.call(['hg', 'push', '-q', '-R', tempdir])
+    if subprocess.check_output(['hg', 'stat', '-R', tempdir]) != '':
+      subprocess.check_call(['hg', 'commit', '-q', '-R', tempdir, '-u', 'hgbot', '-m', 'Updated list of recommended subscriptions'])
+      subprocess.check_call(['hg', 'push', '-q', '-R', tempdir])
   finally:
     rmtree(tempdir)
 

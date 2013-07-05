@@ -150,7 +150,7 @@ def extractMatches(rules, rulesets, lang):
 def getRules():
   repoPath = os.path.abspath(get_config().get('subscriptions', 'repository'))
 
-  data = subprocess.check_output(['hg', '-q', '-R', repoPath, 'cat', '-r', 'default', os.path.join(repoPath, 'knownIssues')])
+  data = subprocess.check_output(['hg', '-R', repoPath, 'cat', '-r', 'default', os.path.join(repoPath, 'knownIssues')])
   data = data.decode('utf-8').replace('\r', '').split('\n')
   data.append('[]')   # Pushes out last section
 

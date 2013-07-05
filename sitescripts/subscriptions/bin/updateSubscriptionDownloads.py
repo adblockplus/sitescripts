@@ -36,9 +36,9 @@ if __name__ == '__main__':
       tempDir = tempfile.mkdtemp()
       sourceTemp[repoName] = tempDir
       subprocess.check_call(['hg', 'archive', '-R', repoDir, '-r', 'default', tempDir])
-    subprocess.check_call(['rsync', '-a', '--delete', destDir + '/', destTemp])
+    subprocess.check_call(['rsync', '-a', '--delete', destDir + os.path.sep, destTemp])
     combineSubscriptions(sourceTemp, destTemp)
-    subprocess.check_call(['rsync', '-au', '--delete', destTemp + '/', destDir])
+    subprocess.check_call(['rsync', '-au', '--delete', destTemp + os.path.sep, destDir])
   finally:
     for tempDir in sourceTemp.itervalues():
       if os.path.exists(tempDir):
