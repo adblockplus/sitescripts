@@ -66,7 +66,7 @@ def getReport(guid):
   report = cursor.fetchone()
   if report == None:
     return None
-    
+
   reportData = marshal.loads(report[0])
   return reportData
 
@@ -83,7 +83,7 @@ def saveReport(guid, reportData, isNew=False):
   knownIssues = len(reportData.get('knownIssues', []))
   contact = getUserId(reportData.get('email', None)) if reportData.get('email', None) else None
   dumpstr = marshal.dumps(reportData)
-  
+
   if contact != None and isNew:
     executeQuery(cursor,
                 '''INSERT INTO #PFX#users (id, reports) VALUES (%s, 1) ON DUPLICATE KEY UPDATE reports = reports + 1''',
@@ -114,6 +114,8 @@ def saveReport(guid, reportData, isNew=False):
 
   reportData['guid'] = guid
   if contact:
+    # TODO: The mail anonymization should happen in the template, not here
+    origEmail = reportData['email']
     email = reportData['email']
     email = re.sub(r' at ', r'@', email)
     email = re.sub(r' dot ', r'.', email)
@@ -126,6 +128,9 @@ def saveReport(guid, reportData, isNew=False):
     os.makedirs(dir)
   template = get_template(get_config().get('reports', 'webTemplate'))
   template.stream(reportData).dump(file, encoding='utf-8')
+
+  if contact:
+    reportData['email'] = origEmail
 
 def removeReport(guid):
   cursor = get_db().cursor()
@@ -232,7 +237,7 @@ def getDigestId(email):
 
 def getDigestPath(dir, email):
   return os.path.join(dir, getDigestId(email) + '.html')
-  
+
 def getDigestSecret(id, (year, week, weekday)):
   mac = hmac.new(get_config().get('reports', 'secret'), id)
   mac.update(str(year))
@@ -256,7 +261,7 @@ def get_db():
     return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database, use_unicode=True, charset='utf8', named_pipe=True)
   else:
     return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database, use_unicode=True, charset='utf8')
-    
+
 def executeQuery(cursor, query, args=None):
   tablePrefix = get_config().get('reports', 'dbprefix')
   query = re.sub(r'#PFX#', tablePrefix, query)
