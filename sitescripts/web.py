@@ -62,7 +62,6 @@ import reports.web.submitReport
 import reports.web.updateReport
 import reports.web.showDigest
 import reports.web.showUser
-import tasks.web.tasks
 import formmail.web.formmail
 import crawler.web.crawler
 import urlfixer.web.submitData

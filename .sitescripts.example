@@ -91,13 +91,6 @@ chromeUpdateManifest=extensions/template/updates.xml
 androidUpdateManifest=extensions/template/androidupdates.xml
 nightlyIndexPage=extensions/template/nightlies.html
 
-[tasks]
-database=db
-dbuser=user
-dbpassword=password
-dbtable=tasks
-mainPageTemplate=tasks/template/mainPage.html
-
 [subscriptionStats]
 tempFile=%(root)s/tmp/subscriptionStats.ini
 
