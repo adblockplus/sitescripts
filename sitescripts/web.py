@@ -56,14 +56,12 @@ def authenticate(f, environ, start_response, config_section):
                  [("WWW-Authenticate", 'Basic realm="%s"' % realm)])
   return ""
 
-import openid.web.server
 import subscriptions.web.fallback
 import crashes.web.submitCrash
 import reports.web.submitReport
 import reports.web.updateReport
 import reports.web.showDigest
 import reports.web.showUser
-import extensions.web.translationCheck
 import tasks.web.tasks
 import formmail.web.formmail
 import crawler.web.crawler

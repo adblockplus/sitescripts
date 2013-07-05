@@ -38,10 +38,6 @@ dbuser=user
 dbpassword=password
 dbprefix=
 
-[openid]
-serverUrl=https://adblockplus.org/openid
-user=Somebody
-
 [logs]
 dataPath=%(root)s/logs
 fileName=log.%%i.gz
@@ -52,7 +48,6 @@ geoip_db=%(root)s/data/GeoIP.dat
 abp_repository=%(root)s/hg/adblockplus
 abp_name=Adblock Plus
 abp_galleryID=adblock-plus
-abp_babelzilla_extension=4592
 abpchrome_repository=%(root)s/hg/adblockpluschrome
 abpchrome_type=chrome
 abpchrome_name=Adblock Plus for Google Chrome
