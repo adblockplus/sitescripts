@@ -113,14 +113,14 @@ class NightlyBuild(object):
     else:
       shutil.copyfile(changelogPath, linkPath)
 
-  def readMetadata(self):
+  def readGeckoMetadata(self):
     """
-      read the metadata file from a cloned repository
+      read Gecko-specific metadata file from a cloned repository
       and parse id, version, basename and the compat section
       out of the file
     """
     import buildtools.packagerGecko as packager
-    metadata = packager.readMetadata(self.tempdir)
+    metadata = packager.readMetadata(self.tempdir, self.config.type)
     self.extensionID = metadata.get("general", "id")
     self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
     self.basename = metadata.get("general", "basename")
@@ -378,7 +378,7 @@ class NightlyBuild(object):
         elif self.config.type == 'chrome' or self.config.type == 'opera':
           self.readChromeMetadata()
         else:
-          self.readMetadata()
+          self.readGeckoMetadata()
 
         # create development build
         self.build()
