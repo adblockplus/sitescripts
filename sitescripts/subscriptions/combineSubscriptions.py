@@ -76,9 +76,12 @@ def conditionalWrite(filePath, data):
     handle.close()
 
     checksumRegExp = re.compile(r'^.*!\s*checksum[\s\-:]+([\w\+\/=]+).*\n', re.M | re.I)
+    versionRegExp = re.compile(r'^!\s*Version\s*:\s*\d+\n', re.M | re.I);
     oldData = re.sub(checksumRegExp, '', oldData)
+    oldData = re.sub(versionRegExp, '', oldData)
     oldData = re.sub(r'\s*\d+ \w+ \d+ \d+:\d+ UTC', '', oldData)
     newData = re.sub(checksumRegExp, '', data)
+    newData = re.sub(versionRegExp, '', data)
     newData = re.sub(r'\s*\d+ \w+ \d+ \d+:\d+ UTC', '', newData)
     if oldData == newData:
       changed = False
@@ -111,11 +114,11 @@ def processSubscriptionFile(sourceName, sourceDirs, targetDir, file, timeout):
     raise Exception('This is not a valid Adblock Plus subscription file.')
 
   lines = resolveIncludes(sourceName, sourceDirs, filePath, lines, timeout)
-  seen = set(['checksum'])
+  seen = set(['checksum', 'version'])
   def checkLine(line):
     if line == '':
       return False
-    match = re.search(r'^\s*!\s*(Redirect|Homepage|Title|Checksum)\s*:', line, re.M | re.I)
+    match = re.search(r'^\s*!\s*(Redirect|Homepage|Title|Checksum|Version)\s*:', line, re.M | re.I)
     if not match:
       return True
     key = match.group(1).lower()
@@ -126,6 +129,8 @@ def processSubscriptionFile(sourceName, sourceDirs, targetDir, file, timeout):
   lines = filter(checkLine, lines)
 
   writeTPL(os.path.join(targetDir, os.path.splitext(file)[0] + '.tpl'), lines)
+
+  lines.insert(0, '! Version: %s' % time.strftime('%Y%m%d%H%M', time.gmtime()))
 
   checksum = hashlib.md5()
   checksum.update((header + '\n' + '\n'.join(lines)).encode('utf-8'))
@@ -163,7 +168,7 @@ def resolveIncludes(sourceName, sourceDirs, filePath, lines, timeout, level=0):
         newLines = unicode(request.read(), 'utf-8').split('\n')
         newLines = map(lambda l: re.sub(r'[\r\n]', '', l), newLines)
         newLines = filter(lambda l: not re.search(r'^\s*!.*?\bExpires\s*(?::|after)\s*(\d+)\s*(h)?', l, re.M | re.I), newLines)
-        newLines = filter(lambda l: not re.search(r'^\s*!\s*(Redirect|Homepage|Title)\s*:', l, re.M | re.I), newLines)
+        newLines = filter(lambda l: not re.search(r'^\s*!\s*(Redirect|Homepage|Title|Version)\s*:', l, re.M | re.I), newLines)
       else:
         result.append('! *** %s ***' % file)
 
