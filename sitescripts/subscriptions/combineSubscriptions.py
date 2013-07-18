@@ -68,35 +68,18 @@ def combineSubscriptions(sourceDirs, targetDir, timeout=30):
     if not file in known:
       os.remove(os.path.join(targetDir, file))
 
-def conditionalWrite(filePath, data):
-  changed = True
-  if os.path.exists(filePath):
-    handle = codecs.open(filePath, 'rb', encoding='utf-8')
-    oldData = handle.read()
-    handle.close()
-
-    checksumRegExp = re.compile(r'^.*!\s*checksum[\s\-:]+([\w\+\/=]+).*\n', re.M | re.I)
-    versionRegExp = re.compile(r'^!\s*Version\s*:\s*\d+\n', re.M | re.I);
-    oldData = re.sub(checksumRegExp, '', oldData)
-    oldData = re.sub(versionRegExp, '', oldData)
-    oldData = re.sub(r'\s*\d+ \w+ \d+ \d+:\d+ UTC', '', oldData)
-    newData = re.sub(checksumRegExp, '', data)
-    newData = re.sub(versionRegExp, '', data)
-    newData = re.sub(r'\s*\d+ \w+ \d+ \d+:\d+ UTC', '', newData)
-    if oldData == newData:
-      changed = False
-  if changed:
-    handle = codecs.open(filePath, 'wb', encoding='utf-8')
-    handle.write(data)
-    handle.close()
-    try:
-      subprocess.check_output(['7za', 'a', '-tgzip', '-mx=9', '-bd', '-mpass=15', filePath + '.gz', filePath])
-    except:
-      print >>sys.stderr, 'Failed to compress file %s. Please ensure that p7zip is installed on the system.' % filePath
+def saveFile(filePath, data):
+  handle = codecs.open(filePath, 'wb', encoding='utf-8')
+  handle.write(data)
+  handle.close()
+  try:
+    subprocess.check_output(['7za', 'a', '-tgzip', '-mx=9', '-bd', '-mpass=15', filePath + '.gz', filePath])
+  except:
+    print >>sys.stderr, 'Failed to compress file %s. Please ensure that p7zip is installed on the system.' % filePath
 
 def processVerbatimFile(sourceDir, targetDir, file):
   handle = codecs.open(os.path.join(sourceDir, file), 'rb', encoding='utf-8')
-  conditionalWrite(os.path.join(targetDir, file), handle.read())
+  saveFile(os.path.join(targetDir, file), handle.read())
   handle.close()
 
 def processSubscriptionFile(sourceName, sourceDirs, targetDir, file, timeout):
@@ -136,7 +119,7 @@ def processSubscriptionFile(sourceName, sourceDirs, targetDir, file, timeout):
   checksum.update((header + '\n' + '\n'.join(lines)).encode('utf-8'))
   lines.insert(0, '! Checksum: %s' % re.sub(r'=', '', base64.b64encode(checksum.digest())))
   lines.insert(0, header)
-  conditionalWrite(os.path.join(targetDir, file), '\n'.join(lines))
+  saveFile(os.path.join(targetDir, file), '\n'.join(lines))
 
 def resolveIncludes(sourceName, sourceDirs, filePath, lines, timeout, level=0):
   if level > 5:
@@ -300,7 +283,7 @@ def writeTPL(filePath, lines):
           result.append('# ' + origLine)
         else:
           result.append('- ' + line)
-  conditionalWrite(filePath, '\n'.join(result) + '\n')
+  saveFile(filePath, '\n'.join(result) + '\n')
 
 def usage():
   print '''Usage: %s [source_dir] [output_dir]
