@@ -73,7 +73,7 @@ def saveFile(filePath, data):
   handle.write(data)
   handle.close()
   try:
-    subprocess.check_output(['7za', 'a', '-tgzip', '-mx=9', '-bd', '-mpass=15', filePath + '.gz', filePath])
+    subprocess.check_output(['7za', 'a', '-tgzip', '-mx=9', '-bd', '-mpass=5', filePath + '.gz', filePath])
   except:
     print >>sys.stderr, 'Failed to compress file %s. Please ensure that p7zip is installed on the system.' % filePath
 
