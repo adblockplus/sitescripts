@@ -156,7 +156,7 @@
         </table>
       </div>
       {%- endif %}
-  
+
       {% if filters -%}
       <div id="filtersBox">
         <p class="header">Filters applied:</p>
@@ -184,7 +184,7 @@
         </table>
       </div>
       {%- endif %}
-  
+
       {% if subscriptions -%}
       <div id="subscriptionsBox">
         <p class="header">Active filter subscriptions:</p>
@@ -193,6 +193,7 @@
             <tr>
               <th class="subscriptionLocation">Address or identifier</th>
               <th class="subscriptionDisabledFilters">Disabled filters</th>
+              <th class="subscriptionVersion">Version</th>
               <th class="subscriptionLastDownloadAttempt">Last download attempt</th>
               <th class="subscriptionLastDownloadSuccess">Last successful download</th>
               <th class="subscriptionExpiration">Next download</th>
@@ -205,6 +206,7 @@
             <tr>
               <td class="subscriptionLocation">{{subscription.id|url}}</td>
               <td class="subscriptionDisabledFilters">{{subscription.disabledFilters|filtercount}}</td>
+              <td class="subscriptionDisabledVersion">{{subscription.version}}</td>
               <td class="subscriptionLastDownloadAttempt">{{subscription.lastDownloadAttempt|timerelative(time)}}</td>
               <td class="subscriptionLastDownloadSuccess">{{subscription.lastDownloadSuccess|timerelative(time)}}</td>
               <td class="subscriptionExpiration">{{subscription.softExpiration|timerelative(time)}} - {{subscription.hardExpiration|timerelative(time)}}</td>
@@ -221,14 +223,14 @@
         </table>
       </div>
       {%- endif %}
-  
+
       {% if hasscreenshot -%}
       <div id="screenshotBox">
         <p class="header">Page screenshot:</p>
         <p><img src="{{guid}}.png"/></p>
       </div>
       {%- endif %}
-  
+
       {% if extensions -%}
       <div id="extensionsBox">
         <p class="header">Active extensions:</p>
@@ -252,7 +254,7 @@
         </table>
       </div>
       {%- endif %}
-  
+
       {% if errors -%}
       <div id="errorsBox">
         <p class="header">Error messages related to Adblock Plus:</p>
@@ -281,7 +283,7 @@
         </table>
       </div>
       {%- endif %}
-  
+
       {% if warnings -%}
       <div id="warningsBox">
         <p class="header">Issues processing this report:</p>

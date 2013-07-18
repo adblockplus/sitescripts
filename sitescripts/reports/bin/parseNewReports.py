@@ -163,6 +163,7 @@ def processElementStart(name, attributes):
     reportData['subscriptions'].append({\
           'id': attributes.get('id', 'unknown'),\
           'disabledFilters': attributes.get('disabledFilters', 'unknown'),\
+          'version': attributes.get('version', 'unknown'),\
           'lastDownloadAttempt': attributes.get('lastDownloadAttempt', 'unknown'),\
           'lastDownloadSuccess': attributes.get('lastDownloadSuccess', 'unknown'),\
           'softExpiration': attributes.get('softExpiration', 'unknown'),\

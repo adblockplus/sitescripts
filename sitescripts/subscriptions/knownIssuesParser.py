@@ -44,6 +44,7 @@ supportedKeys = {
   'filterText': ('filter', 'text'),
   'subscriptionURL': ('subscription', 'id'),
   'subscriptionDownloadStatus': ('subscription', 'downloadStatus'),
+  'subscriptionVersion': ('subscription', 'version'),
   'extension': ('extension', 'id version'),
   'errorText': ('error', 'text'),
   'errorLocation': ('error', 'file line'),
