@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, re, subprocess, urllib2, time, traceback, codecs, hashlib, base64, multiprocessing, functools
+import sys, os, re, subprocess, urllib2, time, traceback, codecs, hashlib, base64
 from getopt import getopt, GetoptError
 
 acceptedExtensions = {
@@ -32,19 +32,6 @@ verbatim = {
   'COPYING': True,
 }
 
-def getFiles(sourceDirs):
-  for sourceName, sourceDir in sourceDirs.iteritems():
-    for file in os.listdir(sourceDir):
-      if file in ignore or file[0] == '.' or not os.path.isfile(os.path.join(sourceDir, file)):
-        continue
-
-      if file in verbatim:
-        yield (sourceName, sourceDir, file, 'verbatim')
-      elif not os.path.splitext(file)[1] in acceptedExtensions:
-        continue
-      else:
-        yield (sourceName, sourceDir, file, 'subscription')
-
 def combineSubscriptions(sourceDirs, targetDir, timeout=30):
   global acceptedExtensions, ignore, verbatim
 
@@ -55,14 +42,25 @@ def combineSubscriptions(sourceDirs, targetDir, timeout=30):
     os.makedirs(targetDir, 0755)
 
   known = {}
-  pool = multiprocessing.Pool()
-  processor = functools.partial(processFile, sourceDirs, targetDir, timeout)
-  for file, type in pool.imap(processor, getFiles(sourceDirs)):
-    known[file] = True
-    known[file + '.gz'] = True
-    if type == "subscription":
-      known[os.path.splitext(file)[0] + '.tpl'] = True
-      known[os.path.splitext(file)[0] + '.tpl.gz'] = True
+  for sourceName, sourceDir in sourceDirs.iteritems():
+    for file in os.listdir(sourceDir):
+      if file in ignore or file[0] == '.' or not os.path.isfile(os.path.join(sourceDir, file)):
+        continue
+      if file in verbatim:
+        processVerbatimFile(sourceDir, targetDir, file)
+      elif not os.path.splitext(file)[1] in acceptedExtensions:
+        continue
+      else:
+        try:
+          processSubscriptionFile(sourceName, sourceDirs, targetDir, file, timeout)
+        except:
+          print >>sys.stderr, 'Error processing subscription file "%s"' % file
+          traceback.print_exc()
+          print >>sys.stderr
+        known[os.path.splitext(file)[0] + '.tpl'] = True
+        known[os.path.splitext(file)[0] + '.tpl.gz'] = True
+      known[file] = True
+      known[file + '.gz'] = True
 
   for file in os.listdir(targetDir):
     if file[0] == '.':
@@ -78,18 +76,6 @@ def saveFile(filePath, data):
     subprocess.check_output(['7za', 'a', '-tgzip', '-mx=9', '-bd', '-mpass=15', filePath + '.gz', filePath])
   except:
     print >>sys.stderr, 'Failed to compress file %s. Please ensure that p7zip is installed on the system.' % filePath
-
-def processFile(sourceDirs, targetDir, timeout, (sourceName, sourceDir, file, type)):
-  if type == "verbatim":
-    processVerbatimFile(sourceDir, targetDir, file)
-  else:
-    try:
-      processSubscriptionFile(sourceName, sourceDirs, targetDir, file, timeout)
-    except:
-      print >>sys.stderr, 'Error processing subscription file "%s"' % file
-      traceback.print_exc()
-      print >>sys.stderr
-  return (file, type)
 
 def processVerbatimFile(sourceDir, targetDir, file):
   handle = codecs.open(os.path.join(sourceDir, file), 'rb', encoding='utf-8')
