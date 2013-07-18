@@ -30,7 +30,6 @@ lengthRestrictions = {
   'default_string': 1024,
   'default_list': 512,
   'abp_version': 32,
-  'abp_build': 32,
   'abp_locale': 32,
   'app_name': 32,
   'app_vendor': 32,
@@ -112,9 +111,6 @@ def processElementStart(name, attributes):
     reportData['abp_version'] = attributes.get('version', 'unknown')
     if reportData['abp_version'] == '99.9':
       reportData['abp_version'] = 'development environment'
-    reportData['abp_build'] = attributes.get('build', 'unknown')
-    if reportData['abp_build'] == '':
-      reportData['abp_build'] = 'unknown'
     reportData['abp_locale'] = attributes.get('locale', 'unknown')
   elif name == 'application':
     reportData['app_name'] = attributes.get('name', 'unknown')

@@ -21,7 +21,6 @@ from sitescripts.utils import get_config, cached
 supportedKeys = {
   'type': ('report', 'type'),
   'abpversion': ('adblock-plus', 'version'),
-  'abpbuild': ('adblock-plus', 'build'),
   'abplocale': ('adblock-plus', 'locale'),
   'appname': ('application', 'name'),
   'appvendor': ('application', 'vendor'),
