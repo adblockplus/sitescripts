@@ -197,7 +197,6 @@
               <th class="subscriptionLastDownloadAttempt">Last download attempt</th>
               <th class="subscriptionLastDownloadSuccess">Last successful download</th>
               <th class="subscriptionExpiration">Next download</th>
-              <th class="subscriptionAutoDownload">Updated automatically</th>
               <th class="subscriptionDownloadStatus">Status of last download</th>
             </tr>
           </thead>
@@ -210,7 +209,6 @@
               <td class="subscriptionLastDownloadAttempt">{{subscription.lastDownloadAttempt|timerelative(time)}}</td>
               <td class="subscriptionLastDownloadSuccess">{{subscription.lastDownloadSuccess|timerelative(time)}}</td>
               <td class="subscriptionExpiration">{{subscription.softExpiration|timerelative(time)}} - {{subscription.hardExpiration|timerelative(time)}}</td>
-              <td class="subscriptionAutoDownload">{{ {True: 'yes', False: 'no'}.get(subscription.autoDownloadEnabled, 'unknown') }}</td>
               <td class="subscriptionDownloadStatus">{{ {
                           'synchronize_invalid_url': 'Failed, not a valid address',
                           'synchronize_connection_error': 'Failed, download failure',

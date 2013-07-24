@@ -164,7 +164,6 @@ def processElementStart(name, attributes):
           'lastDownloadSuccess': attributes.get('lastDownloadSuccess', 'unknown'),\
           'softExpiration': attributes.get('softExpiration', 'unknown'),\
           'hardExpiration': attributes.get('hardExpiration', 'unknown'),\
-          'autoDownloadEnabled': (attributes.get('autoDownloadEnabled', 'false') == 'true'),\
           'downloadStatus': attributes.get('downloadStatus', 'unknown'),\
     })
   elif name == 'extension':
