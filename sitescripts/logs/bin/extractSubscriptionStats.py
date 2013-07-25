@@ -24,6 +24,16 @@ def parseUA(ua):
   # Opera might disguise itself as other browser so it needs to go first
   match = re.search(r'\bOpera/([\d\.]+)', ua)
   if match:
+    # Opera 10+ declares itself as Opera 9.80 but adds Version/1x.x to the UA
+    match2 = re.search(r'\bVersion/([\d\.]+)', ua)
+    if match2:
+      return 'Opera %s' % match2.group(1)
+    else:
+      return 'Opera %s' % match.group(1)
+
+  # Opera 15+ has the same UA as Chrome but adds OPR/1x.x to it
+  match = re.search(r'\bOPR/(\d+\.\d+)', ua)
+  if match:
     return 'Opera %s' % match.group(1)
 
   for appName in ('Fennec', 'Thunderbird', 'SeaMonkey', 'Songbird', 'K-Meleon', 'Prism', 'Firefox'):
