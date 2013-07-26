@@ -113,3 +113,7 @@ template=formmail/template/eyeo.mail
 example_source=http://mxr.mozilla.org/mozilla-central/source/netwerk/dns/effective_tld_names.dat?raw=1
 example_targetrepository=%(root)s/hg/adblockpluschrome
 example_targetfile=third-party/publicSuffixList.txt
+
+[notifications]
+repository=%(root)s/hg/notifications
+output=%(root)s/www/notification.json
