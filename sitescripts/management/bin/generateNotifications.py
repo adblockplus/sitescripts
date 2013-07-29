@@ -101,6 +101,7 @@ def generateNotifications(repo, path):
         result["notifications"].append(notification)
       except:
         traceback.print_exc()
+  tarFile.close()
 
   file = codecs.open(path, "wb", encoding="utf-8")
   json.dump(result, file, ensure_ascii=False, indent=2, separators=(',', ': '), sort_keys=True)

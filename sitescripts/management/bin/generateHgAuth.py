@@ -26,8 +26,7 @@ def generateData(authRepo):
   users = {}
   repos = []
   tarFile = tarfile.open(mode='r:', fileobj=StringIO(data))
-  fileInfo = tarFile.next()
-  while fileInfo:
+  for fileInfo in tarFile:
     name = fileInfo.name
     if name.startswith('./'):
       name = name[2:]
@@ -62,7 +61,6 @@ def generateData(authRepo):
       repos.append(fileInfo)
     elif fileInfo.type == tarfile.REGTYPE and not name.startswith('.'):
       print >>sys.stderr, 'Unrecognized file in the repository: %s' % name
-    fileInfo = tarFile.next()
 
   for fileInfo in repos:
     name = os.path.basename(fileInfo.name).lower()
@@ -85,11 +83,12 @@ def generateData(authRepo):
       'ssh-rsa' if user['keytype'] == 'rsa' else 'ssh-dss',
       user['key']
     )
+  tarFile.close()
 
 def hook(ui, repo, **kwargs):
   setupStderr()
 
-  result = generateData(get_config().get('hg', 'auth_repository'))
+  result = generateData(repo)
 
   file = open(get_config().get('hg', 'auth_file'), 'wb')
   for s in result:
@@ -97,4 +96,4 @@ def hook(ui, repo, **kwargs):
   file.close()
 
 if __name__ == '__main__':
-  hook()
+  hook(None, get_config().get('hg', 'auth_repository'))

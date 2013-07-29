@@ -236,10 +236,8 @@ def readSubscriptions():
 
   result =  {}
   tarFile = tarfile.open(mode='r:', fileobj=StringIO(data))
-  fileInfo = tarFile.next()
-  while fileInfo:
+  for fileInfo in tarFile:
     fileData = parseFile(fileInfo.name, codecs.getreader('utf8')(tarFile.extractfile(fileInfo)))
-    fileInfo = tarFile.next()
     if fileData.unavailable:
       continue
 
