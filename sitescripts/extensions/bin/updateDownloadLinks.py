@@ -116,7 +116,7 @@ def getLocalLink(repo):
     if fileName.startswith(prefix) and fileName.endswith(suffix):
       version = fileName[len(prefix):len(fileName) - len(suffix)]
       if highestVersion == None or compareVersions(version, highestVersion) > 0:
-        highestURL = urlparse.urljoin(url, fileName)
+        highestURL = urlparse.urljoin(url, fileName + '?update')
         highestVersion = version
   return (highestURL, highestVersion)
 
