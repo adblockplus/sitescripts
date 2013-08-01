@@ -116,7 +116,7 @@ def getLocalLink(repo):
     if fileName.startswith(prefix) and fileName.endswith(suffix):
       version = fileName[len(prefix):len(fileName) - len(suffix)]
       if highestVersion == None or compareVersions(version, highestVersion) > 0:
-        highestURL = urlparse.urljoin(url, fileName + '?update')
+        highestURL = urlparse.urljoin(url, fileName)
         highestVersion = version
   return (highestURL, highestVersion)
 
@@ -224,6 +224,8 @@ def writeUpdateManifest(links):
       continue
     data = readMetadata(repo, links.get(repo.repositoryName, 'version'))
     data['updateURL'] = links.get(repo.repositoryName, 'downloadURL')
+    if data['updateURL'].startswith(repo.downloadsURL):
+      data['updateURL'] += "?update"
     extensions[repo.type].append(data)
 
   if len(extensions['android']) > 1:
