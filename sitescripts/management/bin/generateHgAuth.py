@@ -88,7 +88,7 @@ def generateData(authRepo):
 def hook(ui, repo, **kwargs):
   setupStderr()
 
-  result = generateData(repo)
+  result = generateData(repo.root)
 
   file = open(get_config().get('hg', 'auth_file'), 'wb')
   for s in result:
