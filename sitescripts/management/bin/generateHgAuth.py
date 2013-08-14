@@ -85,10 +85,11 @@ def generateData(authRepo):
     )
   tarFile.close()
 
-def hook(ui, repo, **kwargs):
+def hook(ui=None, repo=None, **kwargs):
   setupStderr()
 
-  result = generateData(repo.root)
+  root = repo.root if repo != None else get_config().get('hg', 'auth_repository')
+  result = generateData(root)
 
   file = open(get_config().get('hg', 'auth_file'), 'wb')
   for s in result:
@@ -96,4 +97,4 @@ def hook(ui, repo, **kwargs):
   file.close()
 
 if __name__ == '__main__':
-  hook(None, get_config().get('hg', 'auth_repository'))
+  hook()
