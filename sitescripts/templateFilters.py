@@ -22,7 +22,7 @@ from urlparse import urlparse
 
 def formattime(value):
   try:
-    return time.strftime('%Y-%m-%d %H:%M GMT', time.gmtime(int(value)))
+    return time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(int(value)))
   except Exception, e:
     return 'unknown'
 
@@ -140,9 +140,6 @@ def ltruncate(value, length=255, end='...'):
     return value
   return end + value[len(value) - length:len(value)]
 
-def formatmonthname(value, format='%b %Y'):
-  return date(int(value[0:4]), int(value[4:]), 1).strftime(format)
-
 def formatweekday(value):
   return time.strftime('%a', (0, 0, 0, 0, 0, 0, value, 0, 0))
 
@@ -163,23 +160,6 @@ def formatbytes(value):
     unit = 'GB'
   return '%.2f %s' % (value, unit)
 
-def getsum(iterable, attribute=None):
-  if attribute == None:
-    return sum(iterable)
-  else:
-    return sum(item[attribute] for item in iterable)
-
-def getmax(iterable, attribute=None):
-  if len(iterable) == 0:
-    return 0
-  elif attribute == None:
-    return max(iterable)
-  else:
-    return max(iterable, key=lambda item: item[attribute])[attribute]
-
-def ensuremin(value, minvalue=1):
-  return max(value, minvalue)
-
 def toJSON(value, **args):
   return re.sub(r'</script>', r'<\/script>', json.dumps(value, **args))
 
@@ -197,10 +177,6 @@ filters = {
   'rjust': rjust,
   'ltruncate': ltruncate,
   'weekday': formatweekday,
-  'monthname': formatmonthname,
   'bytes': formatbytes,
-  'sum': getsum,
-  'max': getmax,
-  'ensuremin': ensuremin,
   'json': toJSON,
 }

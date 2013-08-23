@@ -41,8 +41,6 @@ dbprefix=
 [logs]
 dataPath=%(root)s/logs
 fileName=log.%%i.gz
-geoip_db=%(root)s/data/GeoIP.dat
-#subscriptionsSubdir=easylist
 
 [extensions]
 abp_repository=%(root)s/hg/adblockplus
@@ -91,8 +89,23 @@ chromeUpdateManifest=extensions/template/updates.xml
 androidUpdateManifest=extensions/template/androidupdates.xml
 nightlyIndexPage=extensions/template/nightlies.html
 
-[subscriptionStats]
-tempFile=%(root)s/tmp/subscriptionStats.ini
+[stats]
+geoip_db=%(root)s/data/GeoIP.dat
+geoipv6_db=%(root)s/data/GeoIPv6.dat
+tempFile=%(root)s/tmp/stats.json
+
+mirror_foo=subscription ssh://stats@foo.example.com/
+mirror_bar=subscription ssh://stats@bar.example.com/
+mirror_bas=download ssh://stats@bas.example.com/
+
+baseURL_subscription=https://easylist-downloads.adblockplus.org/
+baseURL_download=https://download.adblockplus.org/
+
+dataDirectory=%(root)s/data/stats
+outputDirectory=%(root)s/www/stats
+mainPageTemplate=stats/template/main.html
+fileOverviewTemplate=stats/template/fileOverview.html
+filePageTemplate=stats/template/fileStats.html
 
 [subscriptionDownloads]
 easylist_repository=%(root)s/hg/easylist

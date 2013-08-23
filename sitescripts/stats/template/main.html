@@ -1,0 +1,71 @@
+<!--
+  - This file is part of the Adblock Plus web scripts,
+  - Copyright (C) 2006-2013 Eyeo GmbH
+  -
+  - Adblock Plus is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License version 3 as
+  - published by the Free Software Foundation.
+  -
+  - Adblock Plus is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="../static/stats.css" />
+    <title>Download statistics for {{url}} ({{month|monthname}})</title>
+  </head>
+
+  <body style="margin-top: 0px">
+    <a name="top">&nbsp;</a>
+    <table class="block" width="100%">
+      <tr>
+        <td class="title" width="250">Download statistics for:</td>
+
+        <td>{{url}}</td>
+      </tr>
+      <tr>
+        <td class="title" width="250">Last update:</td>
+        <td>{{now|formattime}}</td>
+      </tr>
+      <tr>
+        <td class="title" width="250">Reported period:</td>
+        <td>Month {{month|monthname}}</td>
+      </tr>
+    </table>
+    <div class="block_title">File</div>
+    <div class="block">
+      <table align="center">
+      <tr>
+        <th bgcolor="#ECECEC">File</th>
+        <th bgcolor="#66DDEE">Hits</th>
+        <th bgcolor="#2EA495">Bandwidth</th>
+        <th>&nbsp;</th>
+      </tr>
+      {%- set data = data|sortfield("hits") %}
+      {%- set maxhits = data|maxhits %}
+      {%- set maxbandwidth = data|maxbandwidth %}
+      {%- for name, value in data %}
+      <tr>
+        <td><a href="{{value.url}}">{{name}}</a></td>
+        <td align="right">{{value.hits}}</td>
+        <td align="right">{{value.bandwidth|bytes}}</td>
+        <td class="chart">
+          <div class="hitsChart" style="width: {{(value.hits / maxhits * 100)|round(method='ceil')|int}}px;"></div><br />
+          <div class="bandwidthChart" style="width: {{(value.bandwidth / maxbandwidth * 100)|round(method='ceil')|int}}px;"></div>
+        </td>
+      </tr>
+      {%- endfor %}
+      </table>
+    </div>
+  </body>
+</html>

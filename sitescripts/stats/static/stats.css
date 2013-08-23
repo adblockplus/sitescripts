@@ -1,0 +1,118 @@
+body
+{
+  font: 11px Verdana, Arial, Helvetica, Sans-Serif;
+  color: #000000;
+  background-color: #FFFFFF;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+a:link, a:visited
+{
+  color: #0011BB;
+  text-decoration: none;
+}
+a:hover
+{
+  color: #605040;
+  text-decoration: underline;
+}
+
+.block
+{
+  border: 2px solid #CCCCDD;
+  margin-bottom: 10px;
+}
+.block_title
+{
+  width: 70%;
+  font-size: 13px;
+  font-weight: bold;
+  color: #000000;
+  background-color: #CCCCDD;
+  text-align: center;
+  padding: 1px;
+}
+
+td, th
+{
+  vertical-align: middle;
+  padding: 4px;
+}
+td.title
+{
+  font-size: 13px;
+  font-weight: bold;
+}
+td.chart
+{
+  line-height: 1px;
+}
+.special
+{
+  background-color: #EAEAEA;
+}
+.emph
+{
+  font-weight: bold;
+}
+
+#quickLinks
+{
+  text-align: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+#quickLinks > a
+{
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#quickLinks > a:after
+{
+  content: "|";
+  margin: 0px 5px;
+}
+
+#quickLinks > a:last-child:after
+{
+  content: none;
+}
+
+.showAllLink
+{
+  font-size: 80%;
+}
+
+.countrycode
+{
+  float: right;
+  margin-left: 10px;
+}
+
+.hitsChart,
+.bandwidthChart
+{
+  height: 6px;
+  display: inline-block;
+}
+
+.hitsChart
+{
+  background-color: #66DDEE;
+  background: -moz-linear-gradient(top, #16CAD2 0%, #86E8F0 40%, #069E9E 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#16CAD2), color-stop(40%,#86E8F0), color-stop(100%,#069E9E));
+  border-bottom: 1px solid black;
+}
+
+.bandwidthChart
+{
+  background-color: #2EA495;
+  background: -moz-linear-gradient(top, #008453 0%, #2FA496 40%, #005738 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008453), color-stop(40%,#2FA496), color-stop(100%,#005738));
+}
