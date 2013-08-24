@@ -160,7 +160,8 @@
               <th bgcolor="#2EA495" colspan="2">Bandwidth</th>
             </tr>
             {%- for name, value in items[0:30] %}
-              {{row(name, value, params, special=name|isspecial(field))}}
+              {{row(name, value, params, special=name|isspecial(field),
+                filtered_url=filtered_urls.get(field.name, {}).get(name, None))}}
             {%- endfor %}
             {%- if count > 30 %}
             <tr id="{{field.name}}_showAll" class="special">
@@ -179,7 +180,7 @@
             <tbody id="{{field.name}}_additionalItems" style="display: none;">
               {%- for name, value in items[30:] %}
                 {{row(name, value, params, special=name|isspecial(field),
-                  filtered_url=filtered_urls.get(params.field.name, {}).get(name, None))}}
+                  filtered_url=filtered_urls.get(field.name, {}).get(name, None))}}
               {%- endfor %}
             </tbody>
             {%- endif %}
