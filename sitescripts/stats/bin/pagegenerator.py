@@ -25,6 +25,7 @@ from sitescripts.stats.countrycodes import countrycodes
 def get_template_environment():
   return get_custom_template_environment({
     "monthname": lambda value: date(int(value[0:4]), int(value[4:]), 1).strftime("%b %Y"),
+    "weekday": lambda value: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][int(value)],
     "countryname": lambda value: countrycodes.get(value, "Unknown"),
     "sortfield": lambda value, field: (field["sort"] if "sort" in field else default_sort)(value),
     "maxhits": lambda items: max(itertools.chain((value["hits"] for key, value in items), [1])),

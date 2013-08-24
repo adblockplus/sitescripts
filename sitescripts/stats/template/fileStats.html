@@ -75,6 +75,8 @@
 
           {%- if not special and params.field.name == "hour" -%}
             <div class="hour hour{{name|int % 12 + 1}}"></div> {{name}}
+          {%- elif not special and params.field.name == "weekday" -%}
+            {{name|weekday}}
           {%- elif not special and params.field.name == "country" -%}
             <div class="flag {{name}}"></div> {{name|countryname}} <div class="countrycode">{{name}}</div>
           {%- else -%}
