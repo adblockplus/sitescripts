@@ -46,7 +46,7 @@ def get_stats_files(mirrors):
     if config.has_option("stats", option):
       value = config.get("stats", option)
       if " " in value:
-        yield re.split(r"\s+", value, 1)
+        yield value.split(None, 1)
       else:
         print >>sys.stderr, "Option '%s' has invalid value: '%s'" % (option, value)
     else:
