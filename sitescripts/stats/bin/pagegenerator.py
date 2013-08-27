@@ -115,7 +115,7 @@ def generate_pages(datadir, outputdir):
           # Create filtered views for the first thirty values of a field if they
           # have filtered data.
           for name, value in get_template_environment().filters["sortfield"](data[field["name"]], field)[0:30]:
-            if filter(lambda k: k not in ("hits", "bandwidth"), value.keys()):
+            if filter(lambda k: k not in ("hits", "bandwidth"), value.iterkeys()):
               outputfile = os.path.join(outputdir,
                   common.filename_encode(server_type),
                   common.filename_encode(month),
