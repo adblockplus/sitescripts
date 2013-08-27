@@ -127,7 +127,7 @@ def generate_pages(datadir, outputdir):
 
               if not field["name"] in filtered_urls:
                 filtered_urls[field["name"]] = {}
-              filtered_urls[field["name"]][name] = outputfile
+              filtered_urls[field["name"]][name] = os.path.basename(outputfile)
 
         outputfile = os.path.join(outputdir,
             common.filename_encode(server_type),
