@@ -21,7 +21,7 @@ from sitescripts.utils import get_config, setupStderr, get_custom_template_envir
 import sitescripts.stats.common as common
 from sitescripts.stats.countrycodes import countrycodes
 
-@cached(())
+@cached(float("inf"))
 def get_template_environment():
   return get_custom_template_environment({
     "monthname": lambda value: date(int(value[0:4]), int(value[4:]), 1).strftime("%b %Y"),
@@ -35,15 +35,15 @@ def get_template_environment():
     "isspecial": lambda name, field: field["isspecial"](name) if "isspecial" in field else False,
   })
 
-@cached(())
+@cached(float("inf"))
 def get_main_page_template():
   return get_template_environment().get_template(get_config().get("stats", "mainPageTemplate"))
 
-@cached(())
+@cached(float("inf"))
 def get_file_stats_template():
   return get_template_environment().get_template(get_config().get("stats", "filePageTemplate"))
 
-@cached(())
+@cached(float("inf"))
 def get_file_overview_template():
   return get_template_environment().get_template(get_config().get("stats", "fileOverviewTemplate"))
 

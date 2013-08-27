@@ -119,7 +119,7 @@ def get_template(template, autoescape=True):
     _template_cache[key] = env.get_template(template)
   return _template_cache[key]
 
-@cached(())
+@cached(float("inf"))
 def get_template_environment():
   """
     Returns a Jinja2 template environment with autoescaping enabled.
@@ -130,7 +130,7 @@ def get_template_environment():
   env.filters.update(filters)
   return env
 
-@cached(())
+@cached(float("inf"))
 def get_unescaped_template_environment():
   """
     Returns a Jinja2 template environment without autoescaping. Don't use this to
