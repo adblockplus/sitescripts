@@ -141,9 +141,9 @@ def generate_pages(datadir, outputdir):
 
         if filename not in filedata:
           filedata[filename] = {}
-        month_url = (common.filename_encode(month) + "/" +
-                     common.filename_encode(filename) + "/" +
-                     "index.html")
+        month_url = "%s/%s/%s" % (common.filename_encode(month),
+            common.filename_encode(filename),
+            "index.html")
         filedata[filename][month] = {"url": month_url, "hits": data["hits"], "bandwidth": data["bandwidth"]}
 
     monthdata = {}
