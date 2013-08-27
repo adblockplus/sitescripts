@@ -126,7 +126,7 @@ def get_template_environment():
   """
   from sitescripts.templateFilters import filters
   import jinja2
-  env = jinja2.Environment(loader=jinja2.FileSystemLoader(siteScriptsPath), autoescape=True, extensions=['jinja2.ext.autoescape'])
+  env = jinja2.Environment(loader=jinja2.FileSystemLoader(siteScriptsPath), autoescape=True)
   env.filters.update(filters)
   return env
 
@@ -148,7 +148,7 @@ def get_custom_template_environment(additional_filters):
   """
   from sitescripts.templateFilters import filters
   import jinja2
-  env = jinja2.Environment(loader=jinja2.FileSystemLoader(siteScriptsPath), autoescape=True, extensions=['jinja2.ext.autoescape'])
+  env = jinja2.Environment(loader=jinja2.FileSystemLoader(siteScriptsPath), autoescape=True)
   env.filters.update(filters)
   env.filters.update(additional_filters)
   return env
