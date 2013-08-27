@@ -52,8 +52,10 @@ def default_sort(obj):
 
 def ensure_dir(path):
   dir = os.path.dirname(path)
-  if not os.path.exists(dir):
+  try:
     os.makedirs(dir)
+  except OSError:
+    pass
 
 def generate_main_page(outputfile, month, url, data):
   ensure_dir(outputfile)

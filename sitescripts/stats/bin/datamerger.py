@@ -76,8 +76,10 @@ def merge_stats_file(server_type, data):
       merge_objects(existing, file_data)
 
       dir = os.path.dirname(path)
-      if not os.path.exists(dir):
+      try:
         os.makedirs(dir)
+      except OSError:
+        pass
 
       with codecs.open(path, "wb", encoding="utf-8") as file:
         simplejson.dump(existing, file, indent=2, sort_keys=True)
