@@ -40,13 +40,20 @@ def parse_ua(ua):
   if match:
     return "Opera", match.group(1)
 
-  for appName in ("Fennec", "Thunderbird", "SeaMonkey", "Songbird", "K-Meleon", "Prism", "Firefox"):
-    match = re.search(r"\b%s/(\d+\.\d+)" % appName, ua)
-    if match:
-      if appName == "Fennec" or (appName == "Firefox" and re.search(r"\bMobile;", ua)):
-        return "Firefox Mobile", match.group(1)
-      else:
-        return appName, match.group(1)
+  # Have to check for these before Firefox, they will usually have a Firefox identifier as well
+  match = re.search(r"\b(Fennec|Thunderbird|SeaMonkey|Songbird|K-Meleon|Prism)/(\d+\.\d+)", ua)
+  if match:
+    if match.group(1) == "Fennec":
+      return "Firefox Mobile", match.group(2)
+    else:
+      return match.group(1), match.group(2)
+
+  match = re.search(r"\bFirefox/(\d+\.\d+)", ua)
+  if match:
+    if re.search(r"\bMobile;", ua):
+      return "Firefox Mobile", match.group(1)
+    else:
+      return "Firefox", match.group(1)
 
   match = re.search(r"\brv:(\d+)\.(\d+)(?:\.(\d+))?", ua)
   if match and re.search(r"\bGecko/", ua):
