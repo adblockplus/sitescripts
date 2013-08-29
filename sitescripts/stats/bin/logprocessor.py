@@ -16,6 +16,7 @@
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys, codecs, re, math, GeoIP, urllib, urlparse, socket, simplejson
+from collections import OrderedDict
 import sitescripts.stats.common as common
 from sitescripts.utils import get_config, setupStderr
 from datetime import datetime, timedelta
@@ -24,6 +25,47 @@ log_regexp = None
 mirror_name = None
 gecko_apps = None
 
+def cache_lru(func):
+  """
+    Decorator that memoizes the return values of a single-parameter function in
+    case it is called again with the same parameter. The 1024 most recent
+    results are saved.
+  """
+
+  results = OrderedDict()
+  results.entries_left = 1024
+
+  def wrapped(arg):
+    if arg in results:
+      result = results[arg]
+      del results[arg]
+    else:
+      if results.entries_left > 0:
+        results.entries_left -= 1
+      else:
+        results.popitem(last=False)
+      result = func(arg)
+    results[arg] = result
+    return result
+  return wrapped
+
+
+def cache_last(func):
+  """
+    Decorator that memoizes the last return value of a function in case it is
+    called again with the same parameters.
+  """
+  result = {"args": None, "result": None}
+
+  def wrapped(*args):
+    if args != result["args"]:
+      result["result"] = func(*args)
+      result["args"] = args
+    return result["result"]
+  return wrapped
+
+
+@cache_lru
 def parse_ua(ua):
   # Opera might disguise itself as other browser so it needs to go first
   match = re.search(r"\bOpera/([\d\.]+)", ua)
@@ -117,11 +159,13 @@ def process_ip(ip, geo):
 
   return ip, country
 
+@cache_last
 def parse_time(timestr, tz_hours, tz_minutes):
   result = datetime.strptime(timestr, "%d/%b/%Y:%H:%M:%S")
   result -= timedelta(hours = tz_hours, minutes = math.copysign(tz_minutes, tz_hours))
   return result, result.strftime("%Y%m"), result.day, result.weekday(), result.hour
 
+@cache_lru
 def parse_path(path):
   urlparts = urlparse.urlparse(path)
   try:
@@ -130,8 +174,20 @@ def parse_path(path):
     path = urlparts.path
   return path[1:], urlparts.query
 
+@cache_lru
+def parse_query(query):
+  return urlparse.parse_qs(query)
+
+@cache_lru
+def parse_lastversion(last_version):
+  return datetime.strptime(last_version, "%Y%m%d%H%M")
+
+@cache_lru
+def get_week(date):
+  return date.isocalendar()[0:2]
+
 def parse_downloader_query(info):
-  params = urlparse.parse_qs(info["query"])
+  params = parse_query(info["query"])
   for param in ("addonName", "addonVersion", "application", "applicationVersion", "platform", "platformVersion"):
     info[param] = params.get(param, ["unknown"])[0]
 
@@ -160,7 +216,7 @@ def parse_downloader_query(info):
     info["firstDownload"] = info["firstInMonth"] = info["firstInWeek"] = info["firstInDay"] = True
   else:
     try:
-      last_update = datetime.strptime(last_version, "%Y%m%d%H%M")
+      last_update = parse_lastversion(last_version)
       diff = info["time"] - last_update
       if diff.days >= 365:
         info["downloadInterval"] = "%i year(s)" % (diff.days / 365)
@@ -176,7 +232,7 @@ def parse_downloader_query(info):
       elif last_update.day != info["time"].day:
         info["firstInDay"] = True
 
-      if last_update.isocalendar()[0:2] != info["time"].isocalendar()[0:2]:
+      if get_week(last_update) != get_week(info["time"]):
         info["firstInWeek"] = True
     except ValueError:
       info["downloadInterval"] = "unknown"
