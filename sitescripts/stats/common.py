@@ -38,14 +38,14 @@ basic_fields = [
     "title": "Days of month",
     "coltitle": "Day",
     "showaverage": True,
-    "sort": lambda obj: sorted(obj.items(), key=lambda (k,v): k),
+    "sort": lambda obj: sorted(obj.items(), key=lambda (k,v): int(k)),
   },
   {
     "name": "weekday",
     "title": "Days of week",
     "coltitle": "Weekday",
     "showaverage": True,
-    "sort": lambda obj: sorted(obj.items(), key=lambda (k,v): k),
+    "sort": lambda obj: sorted(obj.items(), key=lambda (k,v): int(k)),
     "isspecial": lambda weekday: weekday == 5 or weekday == 6,
   },
   {
