@@ -66,16 +66,24 @@ class Test(unittest.TestCase):
         return country
 
     tests = [
-      ("1.2.3.4", "xy", "1.2.3.4", "xy"),
-      ("::ffff:1.2.3.4", "xy", "1.2.3.4", "xy"),
-      ("1.2.3.4", "--", "1.2.3.4", "unknown"),
-      ("1.2.3.4", "", "1.2.3.4", "unknown"),
-      ("::ffff:1.2.3.4", None, "1.2.3.4", "unknown"),
+      ("1.2.3.4", "xy", "1.2.3.4", "v4", "xy"),
+      ("::ffff:1.2.3.4", "xy", "1.2.3.4", "v4", "xy"),
+      ("1.2.3.4", "--", "1.2.3.4", "v4", "unknown"),
+      ("1.2.3.4", "", "1.2.3.4", "v4", "unknown"),
+      ("::ffff:1.2.3.4", None, "1.2.3.4", "v4", "unknown"),
+      ("::1", "xy", "::1", "v6", "xy"),
+      ("FE80:0000:0000:0000:0202:B3FF:FE1E:8329", None, "FE80:0000:0000:0000:0202:B3FF:FE1E:8329", "v6", "unknown"),
     ]
-    for ip, country, expected_ip, expected_country in tests:
+    for ip, country, expected_ip, expected_type, expected_country in tests:
       fake_geo = FakeGeo()
-      self.assertEqual(logprocessor.process_ip(ip, fake_geo), (expected_ip, expected_country), "Processing IP '%s'" % ip)
-      self.assertEqual(fake_geo.ip_checked, expected_ip, "GeoIP check for IP '%s'" % ip)
+      fake_geov6 = FakeGeo()
+      self.assertEqual(logprocessor.process_ip(ip, fake_geo, fake_geov6), (expected_ip, expected_country), "Processing IP '%s'" % ip)
+      if expected_type == "v4":
+        self.assertEqual(fake_geo.ip_checked, expected_ip, "GeoIP check for IP '%s'" % ip)
+        self.assertEqual(fake_geov6.ip_checked, None, "GeoIPv6 check for IP '%s'" % ip)
+      else:
+        self.assertEqual(fake_geo.ip_checked, None, "GeoIP check for IP '%s'" % ip)
+        self.assertEqual(fake_geov6.ip_checked, expected_ip, "GeoIPv6 check for IP '%s'" % ip)
 
   def test_timeparsing(self):
     tests = [
@@ -577,7 +585,7 @@ class Test(unittest.TestCase):
     ]
     for line, expected_record in tests:
       logprocessor.mirror_name = "mirror123"
-      self.assertEqual(logprocessor.parse_record(line, set(), FakeGeo()), expected_record, "Parsing log line '%s'" % line)
+      self.assertEqual(logprocessor.parse_record(line, set(), FakeGeo(), FakeGeo()), expected_record, "Parsing log line '%s'" % line)
 
   def test_record_adding(self):
     tests = [

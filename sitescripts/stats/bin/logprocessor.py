@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, codecs, re, math, GeoIP, urllib, urlparse, socket, simplejson
+import os, sys, codecs, re, math, urllib, urlparse, socket, json
+import pygeoip
 from collections import OrderedDict
 import sitescripts.stats.common as common
 from sitescripts.utils import get_config, setupStderr
@@ -147,12 +148,15 @@ def parse_ua(ua):
 
   return "Other", ""
 
-def process_ip(ip, geo):
+def process_ip(ip, geo, geov6):
   match = re.search(r"^::ffff:(\d+\.\d+\.\d+\.\d+)$", ip)
   if match:
     ip = match.group(1)
 
-  country = geo.country_code_by_addr(ip)
+  if ":" in ip:
+    country = geov6.country_code_by_addr(ip)
+  else:
+    country = geo.country_code_by_addr(ip)
   if country in (None, "", "--"):
     country = "unknown"
   country = country.lower()
@@ -283,7 +287,7 @@ def parse_chrome_query(query):
 def parse_update_flag(query):
   return "update" if query == "update" else "install"
 
-def parse_record(line, ignored, geo):
+def parse_record(line, ignored, geo, geov6):
   global log_regexp, mirror_name
   if log_regexp == None:
     log_regexp = re.compile(r'(\S+) \S+ \S+ \[([^]\s]+) ([+\-]\d\d)(\d\d)\] "GET ([^"\s]+) [^"]+" (\d+) (\d+) "[^"]*" "([^"]*)"(?: "[^"]*" \S+ "[^"]*" "[^"]*" "([^"]*)")?')
@@ -303,7 +307,7 @@ def parse_record(line, ignored, geo):
     "size": int(match.group(7)),
   }
 
-  info["ip"], info["country"] = process_ip(match.group(1), geo)
+  info["ip"], info["country"] = process_ip(match.group(1), geo, geov6)
   info["time"], info["month"], info["day"], info["weekday"], info["hour"] = parse_time(match.group(2), int(match.group(3)), int(match.group(4)))
   info["file"], info["query"] = parse_path(match.group(5))
   info["ua"], info["uaversion"] = parse_ua(match.group(8))
@@ -361,11 +365,11 @@ def add_record(info, section, ignore_fields=()):
 
       add_record(info, section[field][value], ignore_fields + (field,))
 
-def parse_stdin(geo, verbose):
+def parse_stdin(geo, geov6, verbose):
   data = {}
   ignored = set()
   for line in sys.stdin:
-    info = parse_record(line, ignored, geo)
+    info = parse_record(line, ignored, geo, geov6)
     if info == None:
       continue
 
@@ -389,8 +393,9 @@ if __name__ == "__main__":
   setupStderr()
 
   verbose = (len(sys.argv) >= 2 and sys.argv[1] == "verbose")
-  geo = GeoIP.open(get_config().get("stats", "geoip_db"), GeoIP.GEOIP_MEMORY_CACHE)
-  result = parse_stdin(geo, verbose)
+  geo = pygeoip.GeoIP(get_config().get("stats", "geoip_db"), pygeoip.MEMORY_CACHE)
+  geov6 = pygeoip.GeoIP(get_config().get("stats", "geoipv6_db"), pygeoip.MEMORY_CACHE)
+  result = parse_stdin(geo, geov6, verbose)
 
   with codecs.open(get_config().get("stats", "tempFile"), "wb", encoding="utf-8") as file:
-    simplejson.dump(result, file, indent=2, sort_keys=True)
+    json.dump(result, file, indent=2, sort_keys=True)
