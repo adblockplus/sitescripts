@@ -217,7 +217,7 @@ def parse_downloader_query(info):
     info["downloadInterval"] = "unknown"
   elif last_version == "0":
     info["downloadInterval"] = "unknown"
-    info["firstDownload"] = info["firstInMonth"] = info["firstInWeek"] = info["firstInDay"] = True
+    info["firstDownload"] = True
   else:
     try:
       last_update = parse_lastversion(last_version)

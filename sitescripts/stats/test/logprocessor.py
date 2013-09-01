@@ -135,7 +135,7 @@ class Test(unittest.TestCase):
         "firefox/22.0",
         "gecko/23.0",
         "unknown",
-        "firstDownload firstInMonth firstInWeek firstInDay",
+        "firstDownload",
       ),
       (
         datetime(2013, 07, 31, 12, 03, 00),
@@ -394,9 +394,6 @@ class Test(unittest.TestCase):
           "fullPlatform": "libadblockplus 1.0",
           "downloadInterval": "unknown",
           "firstDownload": True,
-          "firstInDay": True,
-          "firstInWeek": True,
-          "firstInMonth": True,
         }
       ),
       (
