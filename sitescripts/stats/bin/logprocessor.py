@@ -215,8 +215,10 @@ def parse_downloader_query(info):
 
   if last_version == "unknown":
     info["downloadInterval"] = "unknown"
+    info["previousDownload"] = "unknown"
   elif last_version == "0":
     info["downloadInterval"] = "unknown"
+    info["previousDownload"] = "unknown"
     info["firstDownload"] = True
   else:
     try:
@@ -231,6 +233,16 @@ def parse_downloader_query(info):
       else:
         info["downloadInterval"] = "%i hour(s)" % (diff.seconds / 3600)
 
+      diffdays = (info["time"].date() - last_update.date()).days
+      if diffdays == 0:
+        info["previousDownload"] = "same day"
+      elif diffdays < 30:
+        info["previousDownload"] = "%i day(s)" % diffdays
+      elif diffdays < 365:
+        info["previousDownload"] = "%i month(s)" % (diffdays / 30)
+      else:
+        info["previousDownload"] = "%i year(s)" % (diffdays / 365)
+
       if last_update.year != info["time"].year or last_update.month != info["time"].month:
         info["firstInMonth"] = info["firstInDay"] = True
       elif last_update.day != info["time"].day:
@@ -240,6 +252,7 @@ def parse_downloader_query(info):
         info["firstInWeek"] = True
     except ValueError:
       info["downloadInterval"] = "unknown"
+      info["previousDownload"] = "unknown"
       pass
 
 def parse_addon_name(file):

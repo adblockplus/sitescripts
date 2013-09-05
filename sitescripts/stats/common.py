@@ -114,6 +114,10 @@ downloader_fields = [
     "coltitle": "Download interval",
   },
   {
+    "name": "previousDownload",
+    "hidden": True,
+  },
+  {
     "name": "firstDownload",
     "title": "Initial download",
     "filter": True,

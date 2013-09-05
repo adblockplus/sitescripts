@@ -124,6 +124,7 @@ class Test(unittest.TestCase):
         "unknown/unknown",
         "unknown/unknown",
         "unknown",
+        "unknown",
         "",
       ),
       (
@@ -134,6 +135,7 @@ class Test(unittest.TestCase):
         "adblockplus/2.3.1",
         "firefox/22.0",
         "gecko/23.0",
+        "unknown",
         "unknown",
         "firstDownload",
       ),
@@ -146,6 +148,7 @@ class Test(unittest.TestCase):
         "unknown/unknown",
         "gecko/23.0",
         "0 hour(s)",
+        "same day",
         "",
       ),
       (
@@ -157,6 +160,7 @@ class Test(unittest.TestCase):
         "unknown/unknown",
         "gecko/23.0",
         "14 hour(s)",
+        "1 day(s)",
         "firstInDay",
       ),
       (
@@ -168,6 +172,7 @@ class Test(unittest.TestCase):
         "unknown/unknown",
         "gecko/23.0",
         "2 day(s)",
+        "3 day(s)",
         "firstInWeek firstInDay",
       ),
       (
@@ -178,6 +183,7 @@ class Test(unittest.TestCase):
         "adblockplus/2.3.1",
         "unknown/unknown",
         "gecko/23.0",
+        "2 day(s)",
         "2 day(s)",
         "firstInMonth firstInDay",
       ),
@@ -190,6 +196,7 @@ class Test(unittest.TestCase):
         "unknown/unknown",
         "gecko/23.0",
         "1 month(s)",
+        "1 month(s)",
         "firstInMonth firstInWeek firstInDay",
       ),
       (
@@ -200,6 +207,7 @@ class Test(unittest.TestCase):
         "adblockplus/2.3.1",
         "unknown/unknown",
         "gecko/23.0",
+        "2 month(s)",
         "2 month(s)",
         "firstInMonth firstInWeek firstInDay",
       ),
@@ -212,6 +220,7 @@ class Test(unittest.TestCase):
         "unknown/unknown",
         "gecko/23.0",
         "1 year(s)",
+        "1 year(s)",
         "firstInMonth firstInWeek firstInDay",
       ),
       (
@@ -223,16 +232,18 @@ class Test(unittest.TestCase):
         "unknown/unknown",
         "unknown/unknown",
         "unknown",
+        "unknown",
         ""
       ),
     ]
-    for time, file, query, clientid, expected_addon, expected_application, expected_platform, expected_interval, expected_flags in tests:
+    for time, file, query, clientid, expected_addon, expected_application, expected_platform, expected_interval, expected_previous, expected_flags in tests:
       info = {"time": time, "file": file, "query": query, "clientid": clientid}
       logprocessor.parse_downloader_query(info)
       self.assertEqual("%s/%s" % (info["addonName"], info["addonVersion"]), expected_addon, "Add-on for query '%s'" % query)
       self.assertEqual("%s/%s" % (info["application"], info["applicationVersion"]), expected_application, "Application for query '%s'" % query)
       self.assertEqual("%s/%s" % (info["platform"], info["platformVersion"]), expected_platform, "Platform for query '%s'" % query)
       self.assertEqual(info["downloadInterval"], expected_interval, "Download interval for query '%s'" % query)
+      self.assertEqual(info["previousDownload"], expected_previous, "Previous download for query '%s'" % query)
 
       flags = []
       for flag in ("firstDownload", "firstInMonth", "firstInWeek", "firstInDay"):
@@ -393,6 +404,7 @@ class Test(unittest.TestCase):
           "platformVersion": "1.0",
           "fullPlatform": "libadblockplus 1.0",
           "downloadInterval": "unknown",
+          "previousDownload": "unknown",
           "firstDownload": True,
         }
       ),
@@ -466,6 +478,7 @@ class Test(unittest.TestCase):
           "platformVersion": "22.0",
           "fullPlatform": "gecko 22.0",
           "downloadInterval": "2 hour(s)",
+          "previousDownload": "same day",
         }
       ),
       (
@@ -496,6 +509,7 @@ class Test(unittest.TestCase):
           "platformVersion": "unknown",
           "fullPlatform": "unknown unknown",
           "downloadInterval": "unknown",
+          "previousDownload": "unknown",
         }
       ),
       (
@@ -526,6 +540,7 @@ class Test(unittest.TestCase):
           "platformVersion": "unknown",
           "fullPlatform": "unknown unknown",
           "downloadInterval": "unknown",
+          "previousDownload": "unknown",
         }
       ),
       (
@@ -576,6 +591,7 @@ class Test(unittest.TestCase):
           "platformVersion": "28.0",
           "fullPlatform": "chromium 28.0",
           "downloadInterval": "1 day(s)",
+          "previousDownload": "2 day(s)",
           "firstInDay": True,
         }
       ),

@@ -116,7 +116,7 @@
       {%- endif %}
 
       {%- for field in fields %}
-        {%- if not field.filter and field.name in data %}
+        {%- if not field.filter and not field.hidden and field.name in data %}
           <a href="#{{field.name}}">{{field.title}}</a>
         {%- endif %}
       {%- endfor %}
@@ -147,7 +147,7 @@
     {%- endif %}
 
     {%- for field in fields %}
-      {%- if not field.filter and field.name in data %}
+      {%- if not field.filter and not field.hidden and field.name in data %}
         {%- set items = data[field.name]|sortfield(field) %}
         {%- set params = {"maxhits": items|maxhits, "maxbandwidth": items|maxbandwidth,
                           "totalhits": items|sumhits, "totalbandwidth": items|sumbandwidth,
