@@ -64,7 +64,7 @@ def generate_main_page(outputfile, month, url, data):
     "month": month,
     "url": url,
     "data": data,
-  }).dump(outputfile)
+  }).dump(outputfile, encoding="utf-8")
 
 def generate_file_stats(outputfile, month, url, overview_url, data, filter=None, filtered_urls={}):
   ensure_dir(outputfile)
@@ -77,7 +77,7 @@ def generate_file_stats(outputfile, month, url, overview_url, data, filter=None,
     "fields": common.fields,
     "filter": filter,
     "filtered_urls": filtered_urls
-  }).dump(outputfile)
+  }).dump(outputfile, encoding="utf-8")
 
 def generate_file_overview(outputfile, url, data):
   ensure_dir(outputfile)
@@ -85,7 +85,7 @@ def generate_file_overview(outputfile, url, data):
     "now": time.time(),
     "url": url,
     "data": data
-  }).dump(outputfile)
+  }).dump(outputfile, encoding="utf-8")
 
 def get_names(dir, needdirectories):
   for file in os.listdir(dir):
