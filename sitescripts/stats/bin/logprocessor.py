@@ -128,7 +128,11 @@ def parse_ua(ua):
 
   match = re.search(r"\bTrident/(\d+\.\d+)", ua)
   if match:
-    return "Trident", match.group(1)
+    match2 = re.search(r"\brv:(\d+\.\d+)", ua)
+    if match2:
+      return "MSIE", match2.group(1)
+    else:
+      return "Trident", match.group(1)
 
   match = re.search(r"\bAndroidDownloadManager(?:/(\d+\.\d+))?", ua)
   if match:
