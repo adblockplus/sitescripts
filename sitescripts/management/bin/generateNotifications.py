@@ -19,7 +19,7 @@ import os, re, subprocess, tarfile, codecs, time, traceback, json
 from StringIO import StringIO
 from sitescripts.utils import get_config, setupStderr
 
-def parseTargetSpec(value, name):
+def parse_targetspec(value, name):
   target = {}
   for spec in value.split():
     known = False
@@ -40,7 +40,7 @@ def parseTargetSpec(value, name):
       raise Exception("Unknown target specifier '%s' in file '%s'" % (spec, name))
   return target
 
-def parseNotification(data, name):
+def parse_notification(data, name):
   notification = {"id": name, "severity": "information", "message": {}, "title": {}}
 
   for line in data:
@@ -67,7 +67,7 @@ def parseNotification(data, name):
       locale = key[len("message."):]
       notification["message"][locale] = value
     elif key == "target":
-      target = parseTargetSpec(value, name)
+      target = parse_targetspec(value, name)
       if "targets" in notification:
         notification["targets"].append(target)
       else:
@@ -81,35 +81,35 @@ def parseNotification(data, name):
     raise Exception("No message for en-US (default language) in file '%s'" % name)
   return notification
 
-def generateNotifications(repo, path):
-  command = ["hg", "-R", repo, "archive", "-r", "default", "-t", "tar", "-p", ".", "-X", os.path.join(repo, ".hg_archival.txt"), "-"]
+def generate_notifications(repo, path):
+  command = ["hg", "-R", repo, "archive", "-r", "default", "-t", "tar",
+      "-p", ".", "-X", os.path.join(repo, ".hg_archival.txt"), "-"]
   data = subprocess.check_output(command)
 
   result = {"version": time.strftime("%Y%m%d%H%M", time.gmtime()), "notifications": []}
-  tarFile = tarfile.open(mode="r:", fileobj=StringIO(data))
-  for fileInfo in tarFile:
-    name = fileInfo.name
-    if name.startswith("./"):
-      name = name[2:]
+  with tarfile.open(mode="r:", fileobj=StringIO(data)) as archive:
+    for fileinfo in archive:
+      name = fileinfo.name
+      if name.startswith("./"):
+        name = name[2:]
 
-    if fileInfo.type == tarfile.REGTYPE:
-      data = codecs.getreader("utf8")(tarFile.extractfile(fileInfo))
-      try:
-        notification = parseNotification(data, name)
-        if "inactive" in notification:
-          continue
-        result["notifications"].append(notification)
-      except:
-        traceback.print_exc()
-  tarFile.close()
+      if fileinfo.type == tarfile.REGTYPE:
+        data = codecs.getreader("utf8")(archive.extractfile(fileinfo))
+        try:
+          notification = parse_notification(data, name)
+          if "inactive" in notification:
+            continue
+          result["notifications"].append(notification)
+        except:
+          traceback.print_exc()
 
-  file = codecs.open(path, "wb", encoding="utf-8")
-  json.dump(result, file, ensure_ascii=False, indent=2, separators=(',', ': '), sort_keys=True)
-  file.close()
+  with codecs.open(path, "wb", encoding="utf-8") as file:
+    json.dump(result, file, ensure_ascii=False, indent=2,
+        separators=(',', ': '), sort_keys=True)
 
 if __name__ == "__main__":
   setupStderr()
   repo = get_config().get("notifications", "repository")
   output = get_config().get("notifications", "output")
   subprocess.call(["hg", "-R", repo, "pull", "-q"])
-  generateNotifications(repo, output)
+  generate_notifications(repo, output)

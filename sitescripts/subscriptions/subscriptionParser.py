@@ -25,39 +25,39 @@ def warn(message):
   print >> sys.stderr, message
 
 class Subscription(object):
-  def defineProperty(propName, isSimple = False):
-    if isSimple:
-      def setProperty(dict, propName, value):
-        dict[propName] = value
-
-      return property(lambda self: self._data[propName], lambda self, value: setProperty(self._data, propName, value))
-    else:
+  def define_property(propName, readonly=False):
+    if readonly:
       return property(lambda self: self._data[propName])
+    else:
+      def set_property(self, value):
+        self._data[propName] = value
 
-  name = defineProperty("name", True)
-  type = defineProperty("type", True)
-  maintainer = defineProperty("maintainer", True)
-  email = defineProperty("email", True)
-  specialization = defineProperty("specialization", True)
-  languages = defineProperty("languages", True)
-  recommendation = defineProperty("recommendation")
-  deprecated = defineProperty("deprecated")
-  unavailable = defineProperty("unavailable")
-  catchall = defineProperty("catchall")
-  supplements = defineProperty("supplements")
-  supplemented = defineProperty("supplemented")
-  variants = defineProperty("variants")
-  homepage = defineProperty("homepage", True)
-  contact = defineProperty("contact", True)
-  forum = defineProperty("forum", True)
-  faq = defineProperty("faq", True)
-  blog = defineProperty("blog", True)
-  changelog = defineProperty("changelog", True)
-  policy = defineProperty("policy", True)
-  digest = defineProperty("digest", True)
-  digestDay = defineProperty("digestDay", True)
+      return property(lambda self: self._data[propName], set_property)
 
-  def __init__(self, filePath, data):
+  name = define_property("name")
+  type = define_property("type")
+  maintainer = define_property("maintainer")
+  email = define_property("email")
+  specialization = define_property("specialization")
+  languages = define_property("languages")
+  recommendation = define_property("recommendation", readonly=True)
+  deprecated = define_property("deprecated", readonly=True)
+  unavailable = define_property("unavailable", readonly=True)
+  catchall = define_property("catchall", readonly=True)
+  supplements = define_property("supplements", readonly=True)
+  supplemented = define_property("supplemented", readonly=True)
+  variants = define_property("variants", readonly=True)
+  homepage = define_property("homepage")
+  contact = define_property("contact")
+  forum = define_property("forum")
+  faq = define_property("faq")
+  blog = define_property("blog")
+  changelog = define_property("changelog")
+  policy = define_property("policy")
+  digest = define_property("digest")
+  digestDay = define_property("digestDay")
+
+  def __init__(self, path, data):
     self._data = {
       'name': None,
       'type': 'ads',
@@ -82,11 +82,11 @@ class Subscription(object):
       'digest': 'weekly',
       'digestDay': 'wed',
     }
-    self.parse(filePath, data)
+    self.parse(path, data)
 
-  def parse(self, filePath, data):
+  def parse(self, path, data):
     mandatory = [['email'], ['specialization'], ['homepage', 'contact', 'forum', 'faq', 'blog']]
-    weekDays = {
+    weekdays = {
       'son': 0,
       'mon': 1,
       'tue': 2,
@@ -96,7 +96,7 @@ class Subscription(object):
       'sat': 6,
     }
 
-    self.name = re.sub(r'\.\w+$', r'', os.path.basename(filePath))
+    self.name = re.sub(r'\.\w+$', r'', os.path.basename(path))
 
     for line in data:
       if not re.search(r'\S', line):
@@ -114,22 +114,22 @@ class Subscription(object):
         if not hasattr(self, key):
           raise Exception()
 
-        oldValue = getattr(self, key)
+        oldvalue = getattr(self, key)
         setattr(self, key, value)
         if value == '':
-          warn('Empty value given for attribute %s in %s' % (key, filePath))
-        if oldValue != None and key != 'name' and key != 'type' and key != 'digest' and key != 'digestDay':
-          warn('Value for attribute %s is duplicated in %s' % (key, filePath))
+          warn('Empty value given for attribute %s in %s' % (key, path))
+        if oldvalue != None and key != 'name' and key != 'type' and key != 'digest' and key != 'digestDay':
+          warn('Value for attribute %s is duplicated in %s' % (key, path))
       except:
         # Not a simple attribute, needs special handling
         if key == 'supplements':
           if value == '':
-            warn('Empty value given for attribute %s in %s' % (key, filePath))
+            warn('Empty value given for attribute %s in %s' % (key, path))
           self.supplements.append(value)
 
         elif key == 'list' or key == 'variant':
           if value == '':
-            warn('Empty value given for attribute %s in %s' % (key, filePath))
+            warn('Empty value given for attribute %s in %s' % (key, path))
           keywords = {
             'recommendation': False,
             'catchall': False,
@@ -144,16 +144,16 @@ class Subscription(object):
               if keyword in keywords:
                 keywords[keyword] = True
               else:
-                warn('Unknown keyword %s given for attribute %s in %s' % (keyword, key, filePath))
+                warn('Unknown keyword %s given for attribute %s in %s' % (keyword, key, path))
           (name, url) = (self.name, value)
           if key == 'variant':
             match = re.search(r'(.+?)\s+(\S+)$', value)
             if match:
               (name, url) = (match.group(1), match.group(2));
             else:
-              warn('Invalid variant format in %s, no name given?' % (filePath))
-          if not _validateURL(url):
-            warn('Invalid list URL %s given in %s' % (url, filePath))
+              warn('Invalid variant format in %s, no name given?' % (path))
+          if not _validate_URL(url):
+            warn('Invalid list URL %s given in %s' % (url, path))
           self.variants.append([name, url, keywords['complete']])
           if keywords['recommendation']:
             self._data['recommendation'] = self._data['variants'][-1]
@@ -163,17 +163,17 @@ class Subscription(object):
           self._data[key] = True
 
         else:
-          warn('Unknown attribute %s in %s' % (key, filePath))
+          warn('Unknown attribute %s in %s' % (key, path))
 
       if key == 'languages':
         settings = get_settings()
-        languageNames = []
+        languagenames = []
         for language in value.split(','):
           if settings.has_option('languages', language):
-            languageNames.append(settings.get('languages', language))
+            languagenames.append(settings.get('languages', language))
           else:
-            warn('Unknown language code %s in %s' % (language, filePath))
-        self._data['languageSpecialization'] = ', '.join(languageNames)
+            warn('Unknown language code %s in %s' % (language, path))
+        self._data['languageSpecialization'] = ', '.join(languagenames)
 
     if 'languageSpecialization' in self._data:
       if self.specialization != None:
@@ -182,52 +182,52 @@ class Subscription(object):
         self.specialization = self._data['languageSpecialization']
       del self._data['languageSpecialization']
 
-    for mandatorySet in mandatory:
+    for group in mandatory:
       found = False
-      for key in mandatorySet:
+      for key in group:
         if self._data[key] != None:
           found = True
       if not found:
-        str = ", ".join(mandatorySet)
-        warn('None of the attributes %s present in %s' % (str, filePath))
+        str = ", ".join(group)
+        warn('None of the attributes %s present in %s' % (str, path))
 
     if len(self.variants) == 0:
-      warn('No list locations given in %s' % (filePath))
+      warn('No list locations given in %s' % (path))
     if self.type != 'ads' and self.type != 'other':
-      warn('Unknown type given in %s' % (filePath))
+      warn('Unknown type given in %s' % (path))
     if self.digest != 'daily' and self.digest != 'weekly':
-      warn('Unknown digest frequency given in %s' % (filePath))
-    if not self.digestDay[0:3].lower() in weekDays:
-      warn('Unknown digest day given in %s' % (filePath))
+      warn('Unknown digest frequency given in %s' % (path))
+    if not self.digestDay[0:3].lower() in weekdays:
+      warn('Unknown digest day given in %s' % (path))
       self.digestDay = 'wed'
-    self.digestDay = weekDays[self.digestDay[0:3].lower()]
+    self.digestDay = weekdays[self.digestDay[0:3].lower()]
     if self.recommendation != None and (self.languages == None or not re.search(r'\S', self.languages)):
-      warn('Recommendation without languages in %s' % (filePath))
+      warn('Recommendation without languages in %s' % (path))
     if len(self.supplements) == 0:
       for [name, url, complete] in self.variants:
         if complete:
-          warn('Variant marked as complete for non-supplemental subscription in %s' % (filePath))
+          warn('Variant marked as complete for non-supplemental subscription in %s' % (path))
           break
 
     self.variants.sort(key=lambda variant: (self.recommendation == variant) * 2 + variant[2], reverse=True)
 
-def parseFile(filePath, data):
-  return Subscription(filePath, data)
+def parse_file(path, data):
+  return Subscription(path, data)
 
-def calculateSupplemented(lists):
-  for fileData in lists.itervalues():
-    for supplements in fileData.supplements:
+def calculate_supplemented(lists):
+  for filedata in lists.itervalues():
+    for supplements in filedata.supplements:
       if supplements in lists:
-        lists[supplements].supplemented.append(fileData)
+        lists[supplements].supplemented.append(filedata)
       else:
-        warn('Subscription %s supplements an unknown subscription %s' % (fileData.name, supplements))
+        warn('Subscription %s supplements an unknown subscription %s' % (filedata.name, supplements))
 
 @cached(60)
 def get_settings():
   repo = os.path.abspath(get_config().get('subscriptions', 'repository'))
-  settingsData = subprocess.check_output(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'settings')])
+  settingsdata = subprocess.check_output(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'settings')])
   settings = SafeConfigParser()
-  settings.readfp(codecs.getreader('utf8')(StringIO(settingsData)))
+  settings.readfp(codecs.getreader('utf8')(StringIO(settingsdata)))
   return settings
 
 def readSubscriptions():
@@ -235,26 +235,25 @@ def readSubscriptions():
   data = subprocess.check_output(['hg', 'archive', '-R', repo, '-r', 'default', '-t', 'tar', '-I', os.path.join(repo, '*.subscription'), '-'])
 
   result =  {}
-  tarFile = tarfile.open(mode='r:', fileobj=StringIO(data))
-  for fileInfo in tarFile:
-    fileData = parseFile(fileInfo.name, codecs.getreader('utf8')(tarFile.extractfile(fileInfo)))
-    if fileData.unavailable:
-      continue
+  with tarfile.open(mode='r:', fileobj=StringIO(data)) as archive:
+    for fileinfo in archive:
+      filedata = parse_file(fileinfo.name, codecs.getreader('utf8')(archive.extractfile(fileinfo)))
+      if filedata.unavailable:
+        continue
 
-    if fileData.name in result:
-      warn('Name %s is claimed by multiple files' % (fileData.name))
-    result[fileData.name] = fileData
-  tarFile.close()
+      if filedata.name in result:
+        warn('Name %s is claimed by multiple files' % (filedata.name))
+      result[filedata.name] = filedata
 
-  calculateSupplemented(result)
+  calculate_supplemented(result)
   return result
 
 def getFallbackData():
   repo = os.path.abspath(get_config().get('subscriptions', 'repository'))
-  redirectData = subprocess.check_output(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'redirects')])
-  goneData = subprocess.check_output(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'gone')])
-  return (redirectData, goneData)
+  redirectdata = subprocess.check_output(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'redirects')])
+  gonedata = subprocess.check_output(['hg', '-R', repo, 'cat', '-r', 'default', os.path.join(repo, 'gone')])
+  return (redirectdata, gonedata)
 
-def _validateURL(url):
-  parseResult = urlparse(url)
-  return (parseResult.scheme == 'http' or parseResult.scheme == 'https') and parseResult.netloc != ''
+def _validate_URL(url):
+  parse_result = urlparse(url)
+  return parse_result.scheme in ('http', 'https') and parse_result.netloc != ''

@@ -19,60 +19,60 @@ import os, re, sys, subprocess, tarfile
 from StringIO import StringIO
 from sitescripts.utils import get_config, setupStderr
 
-def generateData(authRepo):
-  command = ['hg', '-R', authRepo, 'archive', '-r', 'default', '-t', 'tar', '-p', '.', '-']
+def generate_data(repo):
+  command = ['hg', '-R', repo, 'archive', '-r', 'default', '-t', 'tar', '-p', '.', '-']
   data = subprocess.check_output(command)
 
   users = {}
   repos = []
-  tarFile = tarfile.open(mode='r:', fileobj=StringIO(data))
-  for fileInfo in tarFile:
-    name = fileInfo.name
-    if name.startswith('./'):
-      name = name[2:]
+  with tarfile.open(mode='r:', fileobj=StringIO(data)) as archive:
+    for fileinfo in archive:
+      name = fileinfo.name
+      if name.startswith('./'):
+        name = name[2:]
 
-    if fileInfo.type == tarfile.REGTYPE and name.startswith('users/'):
-      name = os.path.basename(name).lower()
-      options = []
-      match = re.search(r'^(.*)\[(.*)\]$', name)
-      if match:
-        name = match.group(1)
-        options = match.group(2).split(',')
+      if fileinfo.type == tarfile.REGTYPE and name.startswith('users/'):
+        name = os.path.basename(name).lower()
+        options = []
+        match = re.search(r'^(.*)\[(.*)\]$', name)
+        if match:
+          name = match.group(1)
+          options = match.group(2).split(',')
 
-      user = {
-        'name': name,
-        'keytype': 'rsa',
-        'disabled': False,
-        'trusted': False,
-        'repos': []
-      }
-      for option in options:
-        if option == 'dsa':
-          user['keytype'] = 'dsa'
-        elif option == 'disabled':
-          user['disabled'] = True
-        elif option == 'trusted':
-          user['trusted'] = True
+        user = {
+          'name': name,
+          'keytype': 'rsa',
+          'disabled': False,
+          'trusted': False,
+          'repos': []
+        }
+        for option in options:
+          if option == 'dsa':
+            user['keytype'] = 'dsa'
+          elif option == 'disabled':
+            user['disabled'] = True
+          elif option == 'trusted':
+            user['trusted'] = True
+          else:
+            print >>sys.stderr, 'Unknown user option: %s' % option
+        user['key'] = re.sub(r'\s', '', archive.extractfile(fileinfo).read())
+        users[name] = user
+      elif fileinfo.type == tarfile.REGTYPE and name.startswith('repos/'):
+        repos.append(fileinfo)
+      elif fileinfo.type == tarfile.REGTYPE and not name.startswith('.'):
+        print >>sys.stderr, 'Unrecognized file in the repository: %s' % name
+
+    for fileinfo in repos:
+      name = os.path.basename(fileinfo.name).lower()
+      repousers = archive.extractfile(fileinfo).readlines()
+      for user in repousers:
+        user = user.strip()
+        if user == '' or user.startswith('#'):
+          continue
+        if user in users:
+          users[user]['repos'].append(name)
         else:
-          print >>sys.stderr, 'Unknown user option: %s' % option
-      user['key'] = re.sub(r'\s', '', tarFile.extractfile(fileInfo).read())
-      users[name] = user
-    elif fileInfo.type == tarfile.REGTYPE and name.startswith('repos/'):
-      repos.append(fileInfo)
-    elif fileInfo.type == tarfile.REGTYPE and not name.startswith('.'):
-      print >>sys.stderr, 'Unrecognized file in the repository: %s' % name
-
-  for fileInfo in repos:
-    name = os.path.basename(fileInfo.name).lower()
-    repoUsers = tarFile.extractfile(fileInfo).readlines()
-    for user in repoUsers:
-      user = user.strip()
-      if user == '' or user.startswith('#'):
-        continue
-      if user in users:
-        users[user]['repos'].append(name)
-      else:
-        print >>sys.stderr, 'Unknown user listed for repository %s: %s' % (name, user)
+          print >>sys.stderr, 'Unknown user listed for repository %s: %s' % (name, user)
 
   for user in users.itervalues():
     if user['disabled']:
@@ -83,18 +83,16 @@ def generateData(authRepo):
       'ssh-rsa' if user['keytype'] == 'rsa' else 'ssh-dss',
       user['key']
     )
-  tarFile.close()
 
 def hook(ui=None, repo=None, **kwargs):
   setupStderr()
 
   root = repo.root if repo != None else get_config().get('hg', 'auth_repository')
-  result = generateData(root)
+  result = generate_data(root)
 
-  file = open(get_config().get('hg', 'auth_file'), 'wb')
-  for s in result:
-    file.write(s)
-  file.close()
+  with open(get_config().get('hg', 'auth_file'), 'wb') as file:
+    for s in result:
+      file.write(s)
 
 if __name__ == '__main__':
   hook()
