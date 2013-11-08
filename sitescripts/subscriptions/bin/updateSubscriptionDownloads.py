@@ -15,33 +15,59 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, re, subprocess, tempfile, shutil
-from sitescripts.utils import get_config, setupStderr
-from sitescripts.subscriptions.combineSubscriptions import combineSubscriptions
+import os, re, subprocess, tempfile, shutil, zipfile
+from StringIO import StringIO
+from ...utils import get_config, setupStderr
+from ..combineSubscriptions import combine_subscriptions
 
-if __name__ == '__main__':
+class MercurialSource:
+  _prefix = "./"
+
+  def __init__(self, repo):
+    command = ["hg", "-R", repo, "archive", "-r", "default",
+        "-t", "uzip", "-p", ".", "-"]
+    data = subprocess.check_output(command)
+    self._archive = zipfile.ZipFile(StringIO(data), mode="r")
+
+  def close(self):
+    self._archive.close()
+
+  def read_file(self, filename):
+    return self._archive.read(self._prefix + filename).decode("utf-8")
+
+  def list_top_level_files(self):
+    for filename in self._archive.namelist():
+      filename = filename[len(self._prefix):]
+      if "/" not in filename:
+        yield filename
+
+if __name__ == "__main__":
   setupStderr()
 
-  sourceRepos = {}
-  for option, value in get_config().items('subscriptionDownloads'):
-    if option.endswith('_repository'):
-      sourceRepos[re.sub(r'_repository$', '', option)] = value
-  destDir = get_config().get('subscriptionDownloads', 'outdir')
+  source_repos = {}
+  for option, value in get_config().items("subscriptionDownloads"):
+    if option.endswith("_repository"):
+      source_repos[re.sub(r"_repository$", "", option)] = MercurialSource(value)
 
-  sourceTemp = {}
-  destTemp = None
+  basedir = get_config().get("subscriptionDownloads", "outdir")
+  destination = tempfile.mkdtemp(prefix="data.", dir=basedir)
   try:
-    destTemp = tempfile.mkdtemp()
-    for repoName, repoDir in sourceRepos.iteritems():
-      tempDir = tempfile.mkdtemp()
-      sourceTemp[repoName] = tempDir
-      subprocess.check_call(['hg', 'archive', '-R', repoDir, '-r', 'default', tempDir])
-    subprocess.check_call(['rsync', '-a', '--delete', destDir + os.path.sep, destTemp])
-    combineSubscriptions(sourceTemp, destTemp)
-    subprocess.check_call(['rsync', '-au', '--delete', destTemp + os.path.sep, destDir])
+    combine_subscriptions(source_repos, destination)
+  except:
+    shutil.rmtree(destination, ignore_errors=True)
+    raise
   finally:
-    for tempDir in sourceTemp.itervalues():
-      if os.path.exists(tempDir):
-        shutil.rmtree(tempDir, True)
-    if destTemp and os.path.exists(destTemp):
-      shutil.rmtree(destTemp, True)
+    for source in source_repos.itervalues():
+      source.close()
+
+  symbolic_link = os.path.join(basedir, "data")
+  symbolic_link_tmp = os.path.join(basedir, "data~")
+  orig_data = None
+  if os.path.islink(symbolic_link):
+    orig_data = os.path.join(basedir, os.readlink(symbolic_link))
+
+  os.symlink(os.path.relpath(destination, basedir), symbolic_link_tmp)
+  os.rename(symbolic_link_tmp, symbolic_link)
+
+  if orig_data:
+    shutil.rmtree(orig_data)
