@@ -16,16 +16,30 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, re, subprocess, urllib2, time, traceback, codecs, hashlib, base64
+import sys, os, re, subprocess, urllib2, time, traceback, codecs, hashlib, base64, tempfile
 from getopt import getopt, GetoptError
 
 accepted_extensions = set([".txt"])
 ignore = set(["Apache.txt", "CC-BY-SA.txt", "GPL.txt", "MPL.txt"])
 verbatim = set(["COPYING"])
 
-def combine_subscriptions(sources, target_dir, timeout=30):
+def combine_subscriptions(sources, target_dir, timeout=30, tempdir=None):
   if not os.path.exists(target_dir):
     os.makedirs(target_dir, 0755)
+
+  def save_file(filename, data):
+    handle = tempfile.NamedTemporaryFile(mode="wb", dir=tempdir, delete=False)
+    handle.write(data.encode("utf-8"))
+    handle.close()
+
+    try:
+      subprocess.check_output(["7za", "a", "-tgzip", "-mx=9", "-bd", "-mpass=5", handle.name + ".gz", handle.name])
+    except:
+      print >>sys.stderr, "Failed to compress file %s. Please ensure that p7zip is installed on the system." % handle.name
+
+    path = os.path.join(target_dir, filename)
+    os.rename(handle.name, path)
+    os.rename(handle.name + ".gz", path + ".gz")
 
   known = set()
   for source_name, source in sources.iteritems():
@@ -33,12 +47,12 @@ def combine_subscriptions(sources, target_dir, timeout=30):
       if filename in ignore or filename.startswith("."):
         continue
       if filename in verbatim:
-        process_verbatim_file(source, target_dir, filename)
+        process_verbatim_file(source, save_file, filename)
       elif not os.path.splitext(filename)[1] in accepted_extensions:
         continue
       else:
         try:
-          process_subscription_file(source_name, sources, target_dir, filename, timeout)
+          process_subscription_file(source_name, sources, save_file, filename, timeout)
         except:
           print >>sys.stderr, 'Error processing subscription file "%s"' % filename
           traceback.print_exc()
@@ -54,19 +68,10 @@ def combine_subscriptions(sources, target_dir, timeout=30):
     if not filename in known:
       os.remove(os.path.join(target_dir, filename))
 
-def save_file(path, data):
-  handle = codecs.open(path, "wb", encoding="utf-8")
-  handle.write(data)
-  handle.close()
-  try:
-    subprocess.check_output(["7za", "a", "-tgzip", "-mx=9", "-bd", "-mpass=5", path + ".gz", path])
-  except:
-    print >>sys.stderr, "Failed to compress file %s. Please ensure that p7zip is installed on the system." % path
+def process_verbatim_file(source, save_file, filename):
+  save_file(filename, source.read_file(filename))
 
-def process_verbatim_file(source, target_dir, filename):
-  save_file(os.path.join(target_dir, filename), source.read_file(filename))
-
-def process_subscription_file(source_name, sources, target_dir, filename, timeout):
+def process_subscription_file(source_name, sources, save_file, filename, timeout):
   source = sources[source_name]
   lines = source.read_file(filename).splitlines()
 
@@ -91,7 +96,7 @@ def process_subscription_file(source_name, sources, target_dir, filename, timeou
     return True
   lines = filter(check_line, lines)
 
-  write_tpl(os.path.join(target_dir, os.path.splitext(filename)[0] + ".tpl"), lines)
+  write_tpl(save_file, os.path.splitext(filename)[0] + ".tpl", lines)
 
   lines.insert(0, "! Version: %s" % time.strftime("%Y%m%d%H%M", time.gmtime()))
 
@@ -99,7 +104,7 @@ def process_subscription_file(source_name, sources, target_dir, filename, timeou
   checksum.update("\n".join([header] + lines).encode("utf-8"))
   lines.insert(0, "! Checksum: %s" % base64.b64encode(checksum.digest()).rstrip("="))
   lines.insert(0, header)
-  save_file(os.path.join(target_dir, filename), "\n".join(lines))
+  save_file(filename, "\n".join(lines))
 
 def resolve_includes(source_name, sources, lines, timeout, level=0):
   if level > 5:
@@ -157,7 +162,7 @@ def resolve_includes(source_name, sources, lines, timeout, level=0):
       result.append(line)
   return result
 
-def write_tpl(path, lines):
+def write_tpl(save_file, filename, lines):
   result = []
   result.append("msFilterList")
   for line in lines:
@@ -256,7 +261,7 @@ def write_tpl(path, lines):
           result.append("# " + origline)
         else:
           result.append("- " + line)
-  save_file(path, "\n".join(result) + "\n")
+  save_file(filename, "\n".join(result) + "\n")
 
 class FileSource:
   def __init__(self, dir):

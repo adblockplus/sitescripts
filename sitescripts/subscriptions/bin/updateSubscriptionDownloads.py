@@ -50,38 +50,9 @@ if __name__ == "__main__":
       source_repos[re.sub(r"_repository$", "", option)] = MercurialSource(value)
 
   basedir = get_config().get("subscriptionDownloads", "outdir")
-  destination = tempfile.mkdtemp(prefix="data.", dir=basedir)
-  if hasattr(os, "chmod"):
-    os.chmod(destination, 0755)
+  destination = os.path.join(basedir, "data")
   try:
-    combine_subscriptions(source_repos, destination)
-  except:
-    shutil.rmtree(destination, ignore_errors=True)
-    raise
+    combine_subscriptions(source_repos, destination, tempdir=basedir)
   finally:
     for source in source_repos.itervalues():
       source.close()
-
-  symbolic_link = os.path.join(basedir, "data")
-  symbolic_link_new = os.path.join(basedir, "data_new")
-  symbolic_link_old = os.path.join(basedir, "data_old")
-  if os.path.islink(symbolic_link):
-    orig_data = os.path.join(basedir, os.readlink(symbolic_link))
-  else:
-    orig_data = None
-
-  os.symlink(os.path.relpath(destination, basedir), symbolic_link_new)
-  os.rename(symbolic_link_new, symbolic_link)
-
-  # We need to keep the original data around until next update, otherwise rsync
-  # will complain if it is already syncing that directory.
-  if orig_data:
-    if os.path.islink(symbolic_link_old):
-      remove_dir = os.path.join(basedir, os.readlink(symbolic_link_old))
-      os.remove(symbolic_link_old)
-    else:
-      remove_dir = None
-
-    os.symlink(os.path.relpath(orig_data, basedir), symbolic_link_old)
-    if remove_dir:
-      shutil.rmtree(remove_dir)
