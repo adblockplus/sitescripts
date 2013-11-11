@@ -51,6 +51,8 @@ if __name__ == "__main__":
 
   basedir = get_config().get("subscriptionDownloads", "outdir")
   destination = tempfile.mkdtemp(prefix="data.", dir=basedir)
+  if hasattr(os, "chmod"):
+    os.chmod(destination, 0755)
   try:
     combine_subscriptions(source_repos, destination)
   except:
