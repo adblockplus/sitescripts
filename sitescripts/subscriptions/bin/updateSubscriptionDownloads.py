@@ -63,13 +63,25 @@ if __name__ == "__main__":
       source.close()
 
   symbolic_link = os.path.join(basedir, "data")
-  symbolic_link_tmp = os.path.join(basedir, "data~")
-  orig_data = None
+  symbolic_link_new = os.path.join(basedir, "data_new")
+  symbolic_link_old = os.path.join(basedir, "data_old")
   if os.path.islink(symbolic_link):
     orig_data = os.path.join(basedir, os.readlink(symbolic_link))
+  else:
+    orig_data = None
 
-  os.symlink(os.path.relpath(destination, basedir), symbolic_link_tmp)
-  os.rename(symbolic_link_tmp, symbolic_link)
+  os.symlink(os.path.relpath(destination, basedir), symbolic_link_new)
+  os.rename(symbolic_link_new, symbolic_link)
 
+  # We need to keep the original data around until next update, otherwise rsync
+  # will complain if it is already syncing that directory.
   if orig_data:
-    shutil.rmtree(orig_data)
+    if os.path.islink(symbolic_link_old):
+      remove_dir = os.path.join(basedir, os.readlink(symbolic_link_old))
+      os.remove(symbolic_link_old)
+    else:
+      remove_dir = None
+
+    os.symlink(os.path.relpath(orig_data, basedir), symbolic_link_old)
+    if remove_dir:
+      shutil.rmtree(remove_dir)
