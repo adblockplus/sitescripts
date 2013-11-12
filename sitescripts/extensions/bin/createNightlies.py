@@ -174,6 +174,33 @@ class NightlyBuild(object):
     if metadata.has_section('compat') and metadata.has_option('compat', 'chrome'):
       self.compat.append({'id': 'chrome', 'minVersion': metadata.get('compat', 'chrome')})
 
+  def readSafariMetadata(self):
+    # get the certificate ID from the developer certificate's common name
+    import M2Crypto
+    bio = M2Crypto.BIO.openfile(self.config.keyFile)
+    try:
+      while not hasattr(self, 'certificateID'):
+        try:
+          cert = M2Crypto.X509.load_cert_bio(bio)
+        except M2Crypto.X509.X509Error:
+          raise Exception('No safari developer certificate found in chain')
+
+        subject = cert.get_subject()
+        for entry in subject.get_entries_by_nid(subject.nid['CN']):
+          m = re.match(r'Safari Developer: \((.*?)\)', entry.get_data().as_text())
+          if m:
+            self.certificateID = m.group(1)
+            break
+    finally:
+      bio.close()
+
+    # read metadata file
+    import buildtools.packagerSafari as packager
+    metadata = packager.readMetadata(self.tempdir, self.config.type)
+    self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
+    self.shortVersion = metadata.get("general", "version")
+    self.basename = metadata.get("general", "basename")
+
   def writeUpdateManifest(self):
     """
       Writes update.rdf file for the current build
@@ -184,6 +211,9 @@ class NightlyBuild(object):
     if self.config.type == 'chrome' or self.config.type == 'opera':
       manifestPath = os.path.join(baseDir, "updates.xml")
       templateName = 'chromeUpdateManifest'
+    elif self.config.type == 'safari':
+      manifestPath = os.path.join(baseDir, "updates.plist")
+      templateName = 'safariUpdateManifest'
     elif self.config.type == 'android':
       manifestPath = os.path.join(baseDir, "updates.xml")
       templateName = 'androidUpdateManifest'
@@ -278,6 +308,9 @@ class NightlyBuild(object):
     elif self.config.type == 'chrome' or self.config.type == 'opera':
       import buildtools.packagerChrome as packager
       packager.createBuild(self.tempdir, type=self.config.type, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile, experimentalAPI=self.config.experimental)
+    elif self.config.type == 'safari':
+      import buildtools.packagerSafari as packager
+      packager.createBuild(self.tempdir, type=self.config.type, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile)
     else:
       import buildtools.packagerGecko as packager
       packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile)
@@ -377,6 +410,8 @@ class NightlyBuild(object):
           self.readAndroidMetadata()
         elif self.config.type == 'chrome' or self.config.type == 'opera':
           self.readChromeMetadata()
+        elif self.config.type == 'safari':
+          self.readSafariMetadata()
         else:
           self.readGeckoMetadata()
 

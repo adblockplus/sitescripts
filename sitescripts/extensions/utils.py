@@ -161,6 +161,8 @@ class Configuration(object):
       self.packageSuffix = '.xpi'
     elif self.type == 'chrome' or self.type == 'opera':
       self.packageSuffix = '.crx'
+    elif self.type == 'safari':
+      self.packageSuffix = '.safariextz'
     elif self.type == 'ie':
       self.packageSuffix = '-x64.msi'
     elif self.type == 'android':

@@ -1,0 +1,22 @@
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+   <key>Extension Updates</key>
+   <array>
+     {%- for extension in extensions %}
+     <dict>
+       <key>CFBundleIdentifier</key>
+       <string>org.adblockplus.{{ extension.basename }}</string>
+       <key>Developer Identifier</key>
+       <string>{{ extension.certificateID }}</string>
+       <key>CFBundleVersion</key>
+       <string>{{ extension.version }}</string>
+       <key>CFBundleShortVersionString</key>
+       <string>{{ extension.shortVersion }}</string>
+       <key>URL</key>
+       <string>{{ extension.updateURL }}</string>
+     </dict>
+     {%- endfor %}
+   </array>
+</dict>
+</plist>
