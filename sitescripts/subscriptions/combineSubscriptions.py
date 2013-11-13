@@ -32,6 +32,9 @@ def combine_subscriptions(sources, target_dir, timeout=30, tempdir=None):
     handle.write(data.encode("utf-8"))
     handle.close()
 
+    if hasattr(os, "chmod"):
+      os.chmod(handle.name, 0644)
+
     try:
       subprocess.check_output(["7za", "a", "-tgzip", "-mx=9", "-bd", "-mpass=5", handle.name + ".gz", handle.name])
     except:
