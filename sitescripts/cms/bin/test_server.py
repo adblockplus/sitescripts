@@ -21,7 +21,7 @@ from ..utils import process_page
 from ..sources import FileSource
 from ..converters import converters
 
-app = flask.Flask("sitescripts.web.bin.test_server")
+app = flask.Flask("sitescripts.cms.bin.test_server")
 source = None
 
 def get_data(path):
@@ -72,6 +72,6 @@ if __name__ == "__main__":
   source = FileSource(sys.argv[1])
 
   # Make sure to "fix" argv to ensure that restart can succeed
-  sys.argv[0:1] = ["-m", "sitescripts.web.bin.test_server"]
+  sys.argv[0:1] = ["-m", "sitescripts.cms.bin.test_server"]
 
   app.run(debug=True)
