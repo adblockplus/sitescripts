@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import re, jinja2, markdown
+import os, imp, re, jinja2, markdown
 from ..utils import get_custom_template_environment
 
 # Monkey-patch Markdown's isBlockLevel function to ensure that no paragraphs are
@@ -150,7 +150,7 @@ class RawConverter(Converter):
 class MarkdownConverter(Converter):
   def get_html(self, source):
     def remove_unnecessary_entities(match):
-      char = chr(int(match.group(1)))
+      char = unichr(int(match.group(1)))
       if char in html_escapes:
         return match.group(0)
       else:
@@ -162,8 +162,11 @@ class MarkdownConverter(Converter):
     for key, value in html_escapes.iteritems():
       escapes[key] = value
 
+    md = markdown.Markdown(output="html5", extensions=["attr_list"])
+    md.preprocessors["html_block"].markdown_in_raw = True
+
     result = self.insert_localized_strings(source, escapes)
-    result = markdown.Markdown(output="html5", extensions=["attr_list"]).convert(result)
+    result = md.convert(result)
     result = re.sub(r"&#(\d+);", remove_unnecessary_entities, result)
     result = self.process_links(result)
     return result
@@ -177,6 +180,23 @@ class TemplateConverter(Converter):
       "linkify": self.linkify,
       "toclist": self.toclist,
     }
+
+    for filename in self._params["source"].list_files("filters"):
+      root, ext = os.path.splitext(filename)
+      if ext.lower() != ".py":
+        continue
+
+      path = "%s/%s" % ("filters", filename)
+      code = self._params["source"].read_file(path)
+      module = imp.new_module(root.replace("/", "."))
+      exec code in module.__dict__
+
+      func = os.path.basename(root)
+      if not hasattr(module, func):
+        raise Exception("Expected function %s not found in filter file %s" % (func, filename))
+      filters[func] = getattr(module, func)
+      filters[func].module_ref = module  # Prevent garbage collection
+
     self._env = get_custom_template_environment(filters)
 
   def get_html(self, source):

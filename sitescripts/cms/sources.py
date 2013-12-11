@@ -27,6 +27,10 @@ class Source:
       # Not a page link
       return None, None
 
+    if parsed.path == "" and url != "":
+      # Page-relative link
+      return None, None
+
     config = self.read_config()
     default_locale = config.get("general", "defaultlocale")
     default_page = config.get("general", "defaultpage")
@@ -67,7 +71,7 @@ class Source:
   def list_pages(self):
     for filename in self.list_files("pages"):
       root, ext = os.path.splitext(filename)
-      format = ext[1:]
+      format = ext[1:].lower()
       yield root, format
 
   def has_page(self, page, format):
@@ -87,7 +91,7 @@ class Source:
   def list_localizable_files(self):
     default_locale = self.read_config().get("general", "defaultlocale")
     return filter(
-      lambda f: os.path.splitext(f)[1] != ".json",
+      lambda f: os.path.splitext(f)[1].lower() != ".json",
       self.list_files("locales/%s" % default_locale)
     )
 
@@ -242,7 +246,11 @@ class FileSource(Source):
   def list_files(self, subdir):
     result = []
     def do_list(dir, relpath):
-      files = os.listdir(dir)
+      try:
+        files = os.listdir(dir)
+      except OSError:
+        return
+
       for filename in files:
         path = os.path.join(dir, filename)
         if os.path.isfile(path):

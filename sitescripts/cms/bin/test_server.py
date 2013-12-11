@@ -51,12 +51,15 @@ def show(path=""):
     flask.abort(404)
 
   root, ext = os.path.splitext(path)
+  ext = ext.lower()
   if ext == ".js":
     mime = "application/javascript; charset=utf-8"
   elif ext == ".css":
     mime = "text/css; charset=utf-8"
   elif ext == ".png":
     mime = "image/png"
+  elif ext in (".jpg", ".jpeg"):
+    mime = "image/jpeg"
   elif ext == "":
     mime = "text/html; charset=utf-8"
   else:
