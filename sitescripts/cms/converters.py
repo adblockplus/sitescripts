@@ -115,6 +115,9 @@ class Converter:
     text = re.sub(r"(<img\s[^<>]*\b(src)=\")([^<>\"]+)(\")", process_link, text)
     return text
 
+  include_start_regex = '<'
+  include_end_regex = '>'
+
   def resolve_includes(self, text):
     def resolve_include(match):
       global converters
@@ -126,7 +129,14 @@ class Converter:
           return converter()
       raise Exception("Failed to resolve include %s in page %s" % (name, self._params["page"]))
 
-    return re.sub(r'<\?\s*include\s+([^\s<>"]+)\s*\?>', resolve_include, text)
+    return re.sub(
+      r'%s\?\s*include\s+([^\s<>"]+)\s*\?%s' % (
+        self.include_start_regex,
+        self.include_end_regex
+      ),
+      resolve_include,
+      text
+    )
 
   def __call__(self):
     result = self.get_html(self._params[self._key])
@@ -148,6 +158,15 @@ class RawConverter(Converter):
     return result
 
 class MarkdownConverter(Converter):
+  include_start_regex = r'(?:%s|%s)' % (
+    Converter.include_start_regex,
+    re.escape(jinja2.escape(Converter.include_start_regex))
+  )
+  include_end_regex = r'(?:%s|%s)' % (
+    Converter.include_end_regex,
+    re.escape(jinja2.escape(Converter.include_end_regex))
+  )
+
   def get_html(self, source):
     def remove_unnecessary_entities(match):
       char = unichr(int(match.group(1)))
@@ -172,6 +191,16 @@ class MarkdownConverter(Converter):
     return result
 
 class TemplateConverter(Converter):
+  class _SourceLoader(jinja2.BaseLoader):
+    def __init__(self, source):
+      self.source = source
+
+    def get_source(self, environment, template):
+      try:
+        return self.source.read_file(template + ".tmpl"), None, None
+      except Exception:
+        raise jinja2.TemplateNotFound(template)
+
   def __init__(self, *args, **kwargs):
     Converter.__init__(self, *args, **kwargs)
 
@@ -197,7 +226,7 @@ class TemplateConverter(Converter):
       filters[func] = getattr(module, func)
       filters[func].module_ref = module  # Prevent garbage collection
 
-    self._env = get_custom_template_environment(filters)
+    self._env = get_custom_template_environment(filters, self._SourceLoader(self._params["source"]))
 
   def get_html(self, source):
     template = self._env.from_string(source)

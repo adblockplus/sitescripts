@@ -142,13 +142,15 @@ def get_unescaped_template_environment():
   env.filters.update(filters)
   return env
 
-def get_custom_template_environment(additional_filters):
+def get_custom_template_environment(additional_filters, loader=None):
   """
     Returns a custom Jinja2 template environment with additional filters.
   """
   from sitescripts.templateFilters import filters
   import jinja2
-  env = jinja2.Environment(loader=jinja2.FileSystemLoader(siteScriptsPath), autoescape=True)
+  if not loader:
+    loader = jinja2.FileSystemLoader(siteScriptsPath)
+  env = jinja2.Environment(loader=loader, autoescape=True)
   env.filters.update(filters)
   env.filters.update(additional_filters)
   return env
