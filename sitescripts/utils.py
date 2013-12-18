@@ -97,14 +97,15 @@ def sendMail(template, data):
   """
   template = get_template(template, False)
   mail = template.render(data)
-  if get_config().get('DEFAULT', 'mailerDebug') == 'yes':
+  config = get_config()
+  if config.has_option('DEFAULT', 'mailerDebug') and config.get('DEFAULT', 'mailerDebug') == 'yes':
     (handle, path) = mkstemp(prefix='mail_', suffix='.eml', dir='.')
     os.close(handle)
     f = codecs.open(path, 'wb', encoding='utf-8')
     print >>f, mail
     f.close()
   else:
-    subprocess.Popen([get_config().get('DEFAULT', 'mailer'), '-t'], stdin=subprocess.PIPE).communicate(mail.encode('utf-8'))
+    subprocess.Popen([config.get('DEFAULT', 'mailer'), '-t'], stdin=subprocess.PIPE).communicate(mail.encode('utf-8'))
 
 _template_cache = {}
 
