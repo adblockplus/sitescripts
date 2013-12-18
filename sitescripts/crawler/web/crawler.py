@@ -1,4 +1,4 @@
-import MySQLdb, os, re, simplejson, sys
+import MySQLdb, os, re, json, sys
 from sitescripts.utils import cached, get_config
 from sitescripts.web import url_handler, basic_auth
 
@@ -92,7 +92,7 @@ VALUES (%s, %s, %s, %s)""",
 def crawler_requests(environ, start_response):
   def line_callback(line):
     try:
-      data = simplejson.loads(line)
+      data = json.loads(line)
       if len(data) < 3:
         print >>sys.stderr, "Not enough elements in line '%s'" % line
         return
@@ -100,7 +100,7 @@ def crawler_requests(environ, start_response):
       site = data[1]
       filtered = data[2]
       _insert_data(run_id, site, url, filtered)
-    except simplejson.JSONDecodeError:
+    except json.JSONDecodeError:
       print >>sys.stderr, "Unable to parse JSON from '%s'" % line
 
   run_id = _create_run()

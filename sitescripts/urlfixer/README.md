@@ -8,7 +8,7 @@ Backend for the URL Fixer data collection. It provides the following URLs:
 Required packages
 -----------------
 
-* [simplejson](http://pypi.python.org/pypi/simplejson/)
+* [MySQL-Python](http://mysql-python.sourceforge.net/)
 
 Database setup
 --------------
