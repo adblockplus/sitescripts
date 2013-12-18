@@ -24,6 +24,18 @@ from ..converters import converters
 app = flask.Flask("sitescripts.cms.bin.test_server")
 source = None
 
+mime_types = {
+  "": "text/html; charset=utf-8",
+  ".htm": "text/html; charset=utf-8",
+  ".html": "text/html; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".xml": "text/xml; charset=utf-8",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+}
+
 def get_data(path):
   if source.has_static(path):
     return source.read_static(path)
@@ -51,19 +63,7 @@ def show(path=""):
     flask.abort(404)
 
   root, ext = os.path.splitext(path)
-  ext = ext.lower()
-  if ext == ".js":
-    mime = "application/javascript; charset=utf-8"
-  elif ext == ".css":
-    mime = "text/css; charset=utf-8"
-  elif ext == ".png":
-    mime = "image/png"
-  elif ext in (".jpg", ".jpeg"):
-    mime = "image/jpeg"
-  elif ext == "":
-    mime = "text/html; charset=utf-8"
-  else:
-    mime = "application/octet-stream"
+  mime = mime_types.get(ext.lower(), "application/octet-stream")
   return data, 200, {"Content-Type": mime}
 
 if __name__ == "__main__":
