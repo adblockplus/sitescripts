@@ -15,16 +15,66 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, codecs, re, math, urllib, urlparse, socket, json
-import pygeoip
+import argparse
+import codecs
 from collections import OrderedDict
+from datetime import datetime, timedelta
+import errno
+import gzip
+import json
+import math
+import os
+import re
+import pygeoip
+import socket
+from StringIO import StringIO
+import subprocess
+import sys
+import traceback
+import urllib
+import urlparse
+
 import sitescripts.stats.common as common
 from sitescripts.utils import get_config, setupStderr
-from datetime import datetime, timedelta
 
 log_regexp = None
-mirror_name = None
 gecko_apps = None
+
+def open_stats_file(path):
+  match = re.search(r"^ssh://(\w+)@([^/:]+)(?::(\d+))?/([^/]+)", path)
+  if match:
+    user, host, port, filename = match.groups()
+    command = ["ssh", "-q", "-o", "NumberOfPasswordPrompts 0", "-T", "-k", "-l", user, host, filename]
+    if port:
+      command[1:1] = ["-P", port]
+
+    # Not using StringIO here would be better but gzip module needs seeking
+    result = StringIO(subprocess.check_output(command))
+  elif path.startswith("http://") or path.startswith("https://"):
+    result = StringIO(urllib.urlopen(path).read())
+  elif os.path.exists(path):
+    result = open(path, "rb")
+  else:
+    raise IOError("Path '%s' not recognized" % path)
+
+  if path.endswith(".gz"):
+    result = gzip.GzipFile(fileobj=result)
+  return result
+
+def get_stats_files():
+  config = get_config()
+
+  prefix = "mirror_"
+  options = filter(lambda o: o.startswith(prefix), config.options("stats"))
+  for option in options:
+    if config.has_option("stats", option):
+      value = config.get("stats", option)
+      if " " in value:
+        yield [option[len(prefix):]] + value.split(None, 1)
+      else:
+        print >>sys.stderr, "Option '%s' has invalid value: '%s'" % (option, value)
+    else:
+      print >>sys.stderr, "Option '%s' not found in the configuration" % option
 
 def cache_lru(func):
   """
@@ -305,11 +355,9 @@ def parse_update_flag(query):
   return "update" if query == "update" else "install"
 
 def parse_record(line, ignored, geo, geov6):
-  global log_regexp, mirror_name
+  global log_regexp
   if log_regexp == None:
     log_regexp = re.compile(r'(\S+) \S+ \S+ \[([^]\s]+) ([+\-]\d\d)(\d\d)\] "GET ([^"\s]+) [^"]+" (\d+) (\d+) "[^"]*" "([^"]*)"(?: "[^"]*" \S+ "[^"]*" "[^"]*" "([^"]*)")?')
-  if mirror_name == None:
-    mirror_name = re.sub(r"\..*", "", socket.gethostname())
 
   match = re.search(log_regexp, line)
   if not match:
@@ -320,7 +368,6 @@ def parse_record(line, ignored, geo, geov6):
     return None
 
   info = {
-    "mirror": mirror_name,
     "size": int(match.group(7)),
   }
 
@@ -382,14 +429,14 @@ def add_record(info, section, ignore_fields=()):
 
       add_record(info, section[field][value], ignore_fields + (field,))
 
-def parse_stdin(geo, geov6, verbose):
+def parse_fileobj(mirror_name, fileobj, geo, geov6, ignored):
   data = {}
-  ignored = set()
-  for line in sys.stdin:
+  for line in fileobj:
     info = parse_record(line, ignored, geo, geov6)
     if info == None:
       continue
 
+    info["mirror"] = mirror_name
     if info["month"] not in data:
       data[info["month"]] = {}
     section = data[info["month"]]
@@ -399,20 +446,75 @@ def parse_stdin(geo, geov6, verbose):
     section = section[info["file"]]
 
     add_record(info, section)
+  return data
+
+def merge_objects(object1, object2):
+  for key, value in object2.iteritems():
+    if key in object1:
+      if isinstance(value, int):
+        object1[key] += value
+      else:
+        merge_objects(object1[key], object2[key])
+    else:
+      object1[key] = value
+
+def save_stats(server_type, data):
+  base_dir = os.path.join(get_config().get("stats", "dataDirectory"), common.filename_encode(server_type))
+  for month, month_data in data.iteritems():
+    for name, file_data in month_data.iteritems():
+      path = os.path.join(base_dir, common.filename_encode(month), common.filename_encode(name + ".json"))
+      if os.path.exists(path):
+        with codecs.open(path, "rb", encoding="utf-8") as fileobj:
+          existing = json.load(fileobj)
+      else:
+        existing = {}
+
+      merge_objects(existing, file_data)
+
+      dir = os.path.dirname(path)
+      try:
+        os.makedirs(dir)
+      except OSError, e:
+        if e.errno != errno.EEXIST:
+          raise
+
+      with codecs.open(path, "wb", encoding="utf-8") as fileobj:
+        json.dump(existing, fileobj, indent=2, sort_keys=True)
+
+def parse_file(mirror_name, server_type, log_file, geo, geov6, verbose):
+  ignored = set()
+  fileobj = open_stats_file(log_file)
+  try:
+    data = parse_fileobj(mirror_name, fileobj, geo, geov6, ignored)
+  finally:
+    fileobj.close()
+  save_stats(server_type, data)
 
   if verbose:
-    print "Ignored files"
-    print "============="
+    print "Ignored files for %s" % log_file
+    print "============================================================"
     print "\n".join(sorted(ignored))
-  return data
 
 if __name__ == "__main__":
   setupStderr()
 
-  verbose = (len(sys.argv) >= 2 and sys.argv[1] == "verbose")
+  parser = argparse.ArgumentParser(description="Processes log files and merges them into the stats database")
+  parser.add_argument("--verbose", dest="verbose", action="store_const", const=True, default=False, help="Verbose mode, ignored requests will be listed")
+  parser.add_argument("mirror_name", nargs="?", help="Name of the mirror server that the file belongs to")
+  parser.add_argument("server_type", nargs="?", help="Server type like download, update or subscription")
+  parser.add_argument("log_file", nargs="?", help="Log file path, can be a local file path, http:// or ssh:// URL")
+  args = parser.parse_args()
+
   geo = pygeoip.GeoIP(get_config().get("stats", "geoip_db"), pygeoip.MEMORY_CACHE)
   geov6 = pygeoip.GeoIP(get_config().get("stats", "geoipv6_db"), pygeoip.MEMORY_CACHE)
-  result = parse_stdin(geo, geov6, verbose)
 
-  with codecs.open(get_config().get("stats", "tempFile"), "wb", encoding="utf-8") as file:
-    json.dump(result, file, indent=2, sort_keys=True)
+  if args.mirror_name and args.server_type and args.log_file:
+    parse_file(args.mirror_name, args.server_type, args.log_file, geo, geov6, args.verbose)
+  else:
+    for mirror_name, server_type, log_file in get_stats_files():
+      try:
+        parse_file(mirror_name, server_type, log_file, geo, geov6, args.verbose)
+      except:
+        print >>sys.stderr, "Unable to process log file '%s'" % log_file
+        traceback.print_exc()
+

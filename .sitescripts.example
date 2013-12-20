@@ -97,11 +97,10 @@ nightlyIndexPage=extensions/template/nightlies.html
 [stats]
 geoip_db=%(root)s/data/GeoIP.dat
 geoipv6_db=%(root)s/data/GeoIPv6.dat
-tempFile=%(root)s/tmp/stats.json
 
-mirror_foo=subscription ssh://stats@foo.example.com/
-mirror_bar=subscription ssh://stats@bar.example.com/
-mirror_bas=download ssh://stats@bas.example.com/
+mirror_foo=subscription ssh://stats@foo.example.com/access_log.subscriptions.1.gz
+mirror_bar=subscription ssh://stats@bar.example.com/access_log.subscriptions.1.gz
+mirror_bas=download ssh://stats@bas.example.com/access_log.downloads.1.gz
 
 baseURL_subscription=https://easylist-downloads.adblockplus.org/
 baseURL_download=https://download.adblockplus.org/
