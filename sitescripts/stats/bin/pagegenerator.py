@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, re, codecs, simplejson, time, itertools
+import os, re, codecs, json, time, itertools
 from datetime import date
 from sitescripts.utils import get_config, setupStderr, get_custom_template_environment, cached
 import sitescripts.stats.common as common
@@ -105,7 +105,7 @@ def generate_pages(datadir, outputdir):
       for filename, path in get_names(month_dir, False):
         filename = re.sub(r"\.json$", "", filename)
         with codecs.open(path, "rb", encoding="utf-8") as file:
-          data = simplejson.load(file)
+          data = json.load(file)
 
         overview_url = "../../overview-" + common.filename_encode(filename + ".html")
         filtered_urls = {}
