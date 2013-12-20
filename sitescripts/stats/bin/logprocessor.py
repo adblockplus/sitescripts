@@ -207,10 +207,15 @@ def process_ip(ip, geo, geov6):
   if match:
     ip = match.group(1)
 
-  if ":" in ip:
-    country = geov6.country_code_by_addr(ip)
-  else:
-    country = geo.country_code_by_addr(ip)
+  try:
+    if ":" in ip:
+      country = geov6.country_code_by_addr(ip)
+    else:
+      country = geo.country_code_by_addr(ip)
+  except:
+    traceback.print_exc()
+    country = ""
+
   if country in (None, "", "--"):
     country = "unknown"
   country = country.lower()
