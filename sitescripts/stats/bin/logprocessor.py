@@ -23,6 +23,7 @@ import errno
 import gzip
 import json
 import math
+import multiprocessing
 import os
 import re
 import pygeoip
@@ -490,19 +491,34 @@ def save_stats(server_type, data):
       with codecs.open(path, "wb", encoding="utf-8") as fileobj:
         json.dump(existing, fileobj, indent=2, sort_keys=True)
 
-def parse_file(mirror_name, server_type, log_file, geo, geov6, verbose):
-  ignored = set()
-  fileobj = open_stats_file(log_file)
+def parse_source((mirror_name, server_type, log_file)):
   try:
-    data = parse_fileobj(mirror_name, fileobj, geo, geov6, ignored)
-  finally:
-    fileobj.close()
-  save_stats(server_type, data)
+    geo = pygeoip.GeoIP(get_config().get("stats", "geoip_db"), pygeoip.MEMORY_CACHE)
+    geov6 = pygeoip.GeoIP(get_config().get("stats", "geoipv6_db"), pygeoip.MEMORY_CACHE)
 
-  if verbose:
-    print "Ignored files for %s" % log_file
-    print "============================================================"
-    print "\n".join(sorted(ignored))
+    ignored = set()
+    fileobj = open_stats_file(log_file)
+    try:
+      data = parse_fileobj(mirror_name, fileobj, geo, geov6, ignored)
+    finally:
+      fileobj.close()
+    return server_type, log_file, data, ignored
+  except:
+    print >>sys.stderr, "Unable to process log file '%s'" % log_file
+    traceback.print_exc()
+    return None, None, None, None
+
+def parse_sources(sources, verbose):
+  pool = multiprocessing.Pool()
+  for server_type, log_file, data, ignored in pool.imap(parse_source, sources, chunksize=1):
+    if server_type == None:
+      continue
+
+    save_stats(server_type, data)
+    if verbose:
+      print "Ignored files for %s" % log_file
+      print "============================================================"
+      print "\n".join(sorted(ignored))
 
 if __name__ == "__main__":
   setupStderr()
@@ -514,16 +530,8 @@ if __name__ == "__main__":
   parser.add_argument("log_file", nargs="?", help="Log file path, can be a local file path, http:// or ssh:// URL")
   args = parser.parse_args()
 
-  geo = pygeoip.GeoIP(get_config().get("stats", "geoip_db"), pygeoip.MEMORY_CACHE)
-  geov6 = pygeoip.GeoIP(get_config().get("stats", "geoipv6_db"), pygeoip.MEMORY_CACHE)
-
   if args.mirror_name and args.server_type and args.log_file:
-    parse_file(args.mirror_name, args.server_type, args.log_file, geo, geov6, args.verbose)
+    sources = [(args.mirror_name, args.server_type, args.log_file)]
   else:
-    for mirror_name, server_type, log_file in get_stats_files():
-      try:
-        parse_file(mirror_name, server_type, log_file, geo, geov6, args.verbose)
-      except:
-        print >>sys.stderr, "Unable to process log file '%s'" % log_file
-        traceback.print_exc()
-
+    sources = get_stats_files()
+  parse_sources(sources, args.verbose)
