@@ -29,7 +29,6 @@ import os
 import re
 import pygeoip
 import socket
-from StringIO import StringIO
 import subprocess
 import sys
 import traceback
@@ -53,18 +52,17 @@ def open_stats_file(path):
     ]
     if parseresult.port:
       command[1:1] = ["-P", str(parseresult.port)]
-
-    # Not using StringIO here would be better but gzip module needs seeking
-    result = StringIO(subprocess.check_output(command))
+    result = subprocess.Popen(command, stdout=subprocess.PIPE).stdout
   elif parseresult.scheme in ("http", "https"):
-    result = StringIO(urllib.urlopen(path).read())
+    result = urllib.urlopen(path)
   elif os.path.exists(path):
     result = open(path, "rb")
   else:
     raise IOError("Path '%s' not recognized" % path)
 
   if path.endswith(".gz"):
-    result = gzip.GzipFile(fileobj=result)
+    # Built-in gzip module doesn't support streaming (fixed in Python 3.2)
+    result = subprocess.Popen(["gzip", "-cd"], stdin=result, stdout=subprocess.PIPE).stdout
   return result
 
 def get_stats_files():
