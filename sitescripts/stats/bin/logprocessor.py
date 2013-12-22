@@ -41,16 +41,20 @@ log_regexp = None
 gecko_apps = None
 
 def open_stats_file(path):
-  match = re.search(r"^ssh://(\w+)@([^/:]+)(?::(\d+))?/([^/]+)", path)
-  if match:
-    user, host, port, filename = match.groups()
-    command = ["ssh", "-q", "-o", "NumberOfPasswordPrompts 0", "-T", "-k", "-l", user, host, filename]
-    if port:
-      command[1:1] = ["-P", port]
+  parseresult = urlparse.urlparse(path)
+  if parseresult.scheme == "ssh" and parseresult.username and parseresult.hostname and parseresult.path:
+    command = [
+      "ssh", "-q", "-o", "NumberOfPasswordPrompts 0", "-T", "-k",
+      "-l", parseresult.username,
+      parseresult.hostname,
+      parseresult.path.lstrip("/")
+    ]
+    if parseresult.port:
+      command[1:1] = ["-P", str(parseresult.port)]
 
     # Not using StringIO here would be better but gzip module needs seeking
     result = StringIO(subprocess.check_output(command))
-  elif path.startswith("http://") or path.startswith("https://"):
+  elif parseresult.scheme in ("http", "https"):
     result = StringIO(urllib.urlopen(path).read())
   elif os.path.exists(path):
     result = open(path, "rb")
