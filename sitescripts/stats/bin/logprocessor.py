@@ -457,18 +457,15 @@ def parse_fileobj(mirror_name, fileobj, geo, geov6, ignored):
     add_record(info, section)
   return data
 
-def merge_objects(object1, object2):
+def merge_objects(object1, object2, factor=1):
   for key, value in object2.iteritems():
     key = unicode(key)
-    if key in object1:
-      if isinstance(value, numbers.Number):
-        object1[key] += value
-      else:
-        merge_objects(object1[key], value)
+    if isinstance(value, numbers.Number):
+      object1[key] = object1.get(key, 0) + factor * value
     else:
-      object1[key] = value
+      merge_objects(object1.setdefault(key, {}), value, factor)
 
-def save_stats(server_type, data):
+def save_stats(server_type, data, factor=1):
   base_dir = os.path.join(get_config().get("stats", "dataDirectory"), common.filename_encode(server_type))
   for month, month_data in data.iteritems():
     for name, file_data in month_data.iteritems():
@@ -479,7 +476,7 @@ def save_stats(server_type, data):
       else:
         existing = {}
 
-      merge_objects(existing, file_data)
+      merge_objects(existing, file_data, factor)
 
       dir = os.path.dirname(path)
       try:
@@ -508,13 +505,13 @@ def parse_source((mirror_name, server_type, log_file)):
     traceback.print_exc()
     return None, None, None, None
 
-def parse_sources(sources, verbose):
+def parse_sources(sources, factor=1, verbose=False):
   pool = multiprocessing.Pool()
   for server_type, log_file, data, ignored in pool.imap(parse_source, sources, chunksize=1):
     if server_type == None:
       continue
 
-    save_stats(server_type, data)
+    save_stats(server_type, data, factor)
     if verbose:
       print "Ignored files for %s" % log_file
       print "============================================================"
@@ -526,6 +523,7 @@ if __name__ == "__main__":
 
   parser = argparse.ArgumentParser(description="Processes log files and merges them into the stats database")
   parser.add_argument("--verbose", dest="verbose", action="store_const", const=True, default=False, help="Verbose mode, ignored requests will be listed")
+  parser.add_argument("--revert", dest="factor", action="store_const", const=-1, default=1, help="Remove log data from the database")
   parser.add_argument("mirror_name", nargs="?", help="Name of the mirror server that the file belongs to")
   parser.add_argument("server_type", nargs="?", help="Server type like download, update or subscription")
   parser.add_argument("log_file", nargs="?", help="Log file path, can be a local file path, http:// or ssh:// URL")
@@ -535,4 +533,4 @@ if __name__ == "__main__":
     sources = [(args.mirror_name, args.server_type, args.log_file)]
   else:
     sources = get_stats_files()
-  parse_sources(sources, args.verbose)
+  parse_sources(sources, args.factor, args.verbose)
