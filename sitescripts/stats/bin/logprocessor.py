@@ -519,6 +519,7 @@ def parse_sources(sources, verbose):
       print "Ignored files for %s" % log_file
       print "============================================================"
       print "\n".join(sorted(ignored))
+  pool.close()
 
 if __name__ == "__main__":
   setupStderr()
