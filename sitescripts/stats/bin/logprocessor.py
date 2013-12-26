@@ -459,7 +459,10 @@ def parse_fileobj(mirror_name, fileobj, geo, geov6, ignored):
 
 def merge_objects(object1, object2, factor=1):
   for key, value in object2.iteritems():
-    key = unicode(key)
+    try:
+      key = unicode(key)
+    except UnicodeDecodeError:
+      key = unicode(key, encoding="latin-1")
     if isinstance(value, numbers.Number):
       object1[key] = object1.get(key, 0) + factor * value
     else:
