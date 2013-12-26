@@ -510,16 +510,18 @@ def parse_source((mirror_name, server_type, log_file)):
 
 def parse_sources(sources, factor=1, verbose=False):
   pool = multiprocessing.Pool()
-  for server_type, log_file, data, ignored in pool.imap(parse_source, sources, chunksize=1):
-    if server_type == None:
-      continue
+  try:
+    for server_type, log_file, data, ignored in pool.imap(parse_source, sources, chunksize=1):
+      if server_type == None:
+        continue
 
-    save_stats(server_type, data, factor)
-    if verbose:
-      print "Ignored files for %s" % log_file
-      print "============================================================"
-      print "\n".join(sorted(ignored))
-  pool.close()
+      save_stats(server_type, data, factor)
+      if verbose:
+        print "Ignored files for %s" % log_file
+        print "============================================================"
+        print "\n".join(sorted(ignored))
+  finally:
+    pool.close()
 
 if __name__ == "__main__":
   setupStderr()
