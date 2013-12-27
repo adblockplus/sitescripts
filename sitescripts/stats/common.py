@@ -15,22 +15,31 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
+import re, hashlib
 
 def filename_encode(name):
   """
     This encodes any string to a valid file name while ensuring that the
     original string can still be reconstructed. All characters except 0-9, A-Z,
     the period and underscore are encoded as "-12cd" where "12cd" stands for the
-    hexadecimal representation of the character's ordinal.
+    hexadecimal representation of the character's ordinal. File names longer
+    than 200 characters will be still be unique but no longer reversible due to
+    file system limitations.
   """
-  return re.sub(r"[^\w\.]", lambda match: "-%04x" % ord(match.group(0)), name)
+  result = re.sub(r"[^\w\.]", lambda match: "-%04x" % ord(match.group(0)), name)
+  if len(result) > 200:
+    hash = hashlib.md5()
+    hash.update(result[200:])
+    result = result[:200] + "--%s" % hash.hexdigest()
+  return result
 
 def filename_decode(path):
   """
     This reconstructs a string encoded with filename_encode().
   """
-  return re.sub(r"-([0-9a-f]{4})", lambda match: unichr(int(match.group(1), 16)), path)
+  path = re.sub(r"--[0-9A-Fa-f]{32}", u"\u2026", path)
+  path = re.sub(r"-([0-9a-f]{4})", lambda match: unichr(int(match.group(1), 16)), path)
+  return path
 
 basic_fields = [
   {

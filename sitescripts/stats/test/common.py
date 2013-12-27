@@ -31,14 +31,19 @@ class Test(unittest.TestCase):
       ("foo/bar.txt", False),
       ("foo/bar+bas-xyz.txt", False),
       (u"foo\u1234-bar\u4321", False),
+      ("foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobar", u"foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfo\u2026")
     ]
     for name, expect_identical in tests:
       path = common.filename_encode(name)
-      if expect_identical:
+      if expect_identical == True:
         self.assertEqual(path, name, "Encoding '%s' shouldn't change string" % name)
       else:
         self.assertTrue(re.match(r"^[\w\.\-]*$", path), "Encoding '%s' should replace all special characters" % name)
-      self.assertEqual(common.filename_decode(path), name, "Encoding and decoding '%s' should produce the original string" % name)
+
+      if isinstance(expect_identical, basestring):
+        self.assertEqual(common.filename_decode(path), expect_identical, "Encoding and decoding '%s' should produce a truncated string as result" % name)
+      else:
+        self.assertEqual(common.filename_decode(path), name, "Encoding and decoding '%s' should produce the original string" % name)
 
 if __name__ == '__main__':
   unittest.main()
