@@ -23,14 +23,14 @@ def filename_encode(name):
     original string can still be reconstructed. All characters except 0-9, A-Z,
     the period and underscore are encoded as "-12cd" where "12cd" stands for the
     hexadecimal representation of the character's ordinal. File names longer
-    than 200 characters will be still be unique but no longer reversible due to
+    than 150 characters will be still be unique but no longer reversible due to
     file system limitations.
   """
   result = re.sub(r"[^\w\.]", lambda match: "-%04x" % ord(match.group(0)), name)
-  if len(result) > 200:
+  if len(result) > 150:
     hash = hashlib.md5()
-    hash.update(result[200:])
-    result = result[:200] + "--%s" % hash.hexdigest()
+    hash.update(result[150:])
+    result = result[:150] + "--%s" % hash.hexdigest()
   return result
 
 def filename_decode(path):
