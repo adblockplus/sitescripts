@@ -318,7 +318,6 @@ class Test(unittest.TestCase):
       (
         '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/adblockpluschrome/updates.xml?os=mac&arch=x86&nacl_arch=x86-32&prod=chromecrx&prodchannel=stable&prodversion=28.0.1500.71&x=id%3Dldcecbkkoecffmfljeihcmifjjdoepkn%26v%3D1.5.3.977%26uc HTTP/1.1" 200 867 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36" "-" https" "en-US" "downloads.adblockplus.org" "-"',
         {
-          "mirror": "mirror123",
           "ip": "1.2.3.4",
           "country": "xy",
           "time": datetime(2013, 7, 31, 17, 33, 8),
@@ -356,7 +355,6 @@ class Test(unittest.TestCase):
       (
         '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/abpcustomization/update.rdf?reqVersion=2&id=customization@adblockplus.org&version=1.0.4a.74&maxAppVersion=26.0&status=userEnabled&appID={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&appVersion=25.0a1&appOS=WINNT&appABI=x86_64-msvc&locale=en-US&currentAppVersion=25.0a1&updateType=97 HTTP/1.1" 200 867 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20130730 Firefox/25.0" "-" https" "en-US" "downloads.adblockplus.org" "-"',
         {
-          "mirror": "mirror123",
           "ip": "1.2.3.4",
           "country": "xy",
           "time": datetime(2013, 7, 31, 17, 33, 8),
@@ -382,7 +380,6 @@ class Test(unittest.TestCase):
       (
         '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/adblockplusie/update.json?addonName=adblockplusie&addonVersion=2.0&application=msie64&applicationVersion=10.0&platform=libadblockplus&platformVersion=1.0&lastVersion=0 HTTP/1.1" 200 867 "-" "Adblock Plus" "-" https" "en-US" "downloads.adblockplus.org" "-"',
         {
-          "mirror": "mirror123",
           "ip": "1.2.3.4",
           "country": "xy",
           "time": datetime(2013, 7, 31, 17, 33, 8),
@@ -414,7 +411,6 @@ class Test(unittest.TestCase):
       (
         '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /adblockplusandroid-1.1.2.apk HTTP/1.1" 200 49152 "https://adblockplus.org/en/android-install" "Mozilla/5.0 (Linux; U; Android 4.1.2; es-es; GT-I9100 Build/JZO54K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30" "-" https "en-US" "downloads.adblockplus.org" "-"',
         {
-          "mirror": "mirror123",
           "ip": "1.2.3.4",
           "country": "xy",
           "time": datetime(2013, 7, 31, 17, 33, 8),
@@ -435,7 +431,6 @@ class Test(unittest.TestCase):
       (
         '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/adblockplus/adblockplus-2.3.2.3712.xpi?update HTTP/1.1" 200 827261 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0" "-" https',
         {
-          "mirror": "mirror123",
           "ip": "1.2.3.4",
           "country": "xy",
           "time": datetime(2013, 7, 31, 17, 33, 8),
@@ -456,7 +451,6 @@ class Test(unittest.TestCase):
       (
         '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /exceptionrules.txt?addonName=adblockplus&addonVersion=2.3.2&application=firefox&applicationVersion=22.0&platform=gecko&platformVersion=22.0&lastVersion=201307311503 HTTP/1.1" 200 14303 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0" "-" https "en-US,en;q=0.5" "easylist-downloads.adblockplus.org" "-"',
         {
-          "mirror": "mirror123",
           "ip": "1.2.3.4",
           "country": "xy",
           "time": datetime(2013, 7, 31, 17, 33, 8),
@@ -487,7 +481,6 @@ class Test(unittest.TestCase):
       (
         '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /easylist.txt?_=1375446528229 HTTP/1.1" 200 326120 "-" "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36" "-" https "nl-NL,nl;q=0.8,en-US;q=0.6,en;q=0.4" "easylist-downloads.adblockplus.org" "AdBlock/2.6.2"',
         {
-          "mirror": "mirror123",
           "ip": "1.2.3.4",
           "country": "xy",
           "time": datetime(2013, 7, 31, 17, 33, 8),
@@ -518,7 +511,6 @@ class Test(unittest.TestCase):
       (
         '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /easylistitaly.txt HTTP/1.1" 200 85879 "-" "-" "-" https "-" "easylist-downloads.adblockplus.org" "-"',
         {
-          "mirror": "mirror123",
           "ip": "1.2.3.4",
           "country": "xy",
           "time": datetime(2013, 7, 31, 17, 33, 8),
@@ -549,7 +541,6 @@ class Test(unittest.TestCase):
       (
         '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /easylistitaly.tpl HTTP/1.1" 200 85879 "-" "-" "-" https "-" "easylist-downloads.adblockplus.org" "-"',
         {
-          "mirror": "mirror123",
           "ip": "1.2.3.4",
           "country": "xy",
           "time": datetime(2013, 7, 31, 17, 33, 8),
@@ -569,7 +560,6 @@ class Test(unittest.TestCase):
       (
         '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /notification.json?addonName=adblockpluschrome&addonVersion=1.5.3&application=chrome&applicationVersion=28.0.1500.72&platform=chromium&platformVersion=28.0.1500.72&lastVersion=201307292310 HTTP/1.1" 200 299 "-" "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36" "-" https',
         {
-          "mirror": "mirror123",
           "ip": "1.2.3.4",
           "country": "xy",
           "time": datetime(2013, 7, 31, 17, 33, 8),
@@ -600,7 +590,6 @@ class Test(unittest.TestCase):
       ),
     ]
     for line, expected_record in tests:
-      logprocessor.mirror_name = "mirror123"
       self.assertEqual(logprocessor.parse_record(line, set(), FakeGeo(), FakeGeo()), expected_record, "Parsing log line '%s'" % line)
 
   def test_record_adding(self):
