@@ -105,7 +105,7 @@
     {# Using selectattr filter would be nice but servers don't have Jinja 2.7 yet #}
     {%- set filterFields = [] %}
     {%- for field in fields %}
-      {%- if field.filter and field.name in data and "true" in data[field.name] %}
+      {%- if field.filter and field.name in data and "True" in data[field.name] %}
         {%- set dummy = filterFields.append(field) %}
       {%- endif %}
     {%- endfor %}
@@ -138,8 +138,8 @@
             <th bgcolor="#2EA495" colspan="2">Bandwidth</th>
           </tr>
           {%- for field in filterFields %}
-            {{row(field.title, data[field.name].true, params, chart=False,
-                  filtered_url=filtered_urls.get(field.name, {}).get("true", None))}}
+            {{row(field.title, data[field.name].True, params, chart=False,
+                  filtered_url=filtered_urls.get(field.name, {}).get("True", None))}}
           {%- endfor %}
           {{row("Total", {"hits": params.totalhits, "bandwidth": params.totalbandwidth}, params, special=True, emph=True, chart=False)}}
         </table>
