@@ -149,6 +149,8 @@ def parse_ua(ua):
   if match:
     if re.search(r"\bMobile;", ua):
       return "Firefox Mobile", match.group(1)
+    elif re.search(r"\bTablet;", ua):
+      return "Firefox Tablet", match.group(1)
     else:
       return "Firefox", match.group(1)
 

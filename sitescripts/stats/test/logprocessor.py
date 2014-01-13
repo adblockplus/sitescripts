@@ -30,6 +30,7 @@ class Test(unittest.TestCase):
       ("Firefox", "25.0", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0.1) Gecko/20130730 Firefox/25.0.1"),
       ("Firefox Mobile", "15.0", "Mozilla/5.0 (Maemo; Mobile; rv:15.0) Gecko/20120829 Firefox/15.0 Fennec/15.0"),
       ("Firefox Mobile", "14.0", "Mozilla/5.0 (Android; Mobile; rv:14.0) Gecko/14.0 Firefox/14.0a2"),
+      ("Firefox Tablet", "26.0", "Mozilla/5.0 (Android; Tablet; rv:26.0) Gecko/26.0 Firefox/26.0"),
       ("Thunderbird", "24.0", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Thunderbird/24.0a2 Lightning/2.6a2"),
       ("SeaMonkey", "2.19", "Mozilla/5.0 (Windows NT 5.1; rv:22.0) Gecko/20100101 Firefox/22.0 SeaMonkey/2.19"),
       ("K-Meleon", "1.5", "Mozilla/5.0 (Windows; U; Windows NT 6.1; ru-RU; rv:1.8.1.24pre) Gecko/20100228 K-Meleon/1.5.4"),
