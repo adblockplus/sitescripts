@@ -47,6 +47,7 @@ basic_fields = [
     "title": "Days of month",
     "coltitle": "Day",
     "showaverage": True,
+    "defaultcount": 31,
     "sort": lambda obj: sorted(obj.items(), key=lambda (k,v): int(k)),
   },
   {

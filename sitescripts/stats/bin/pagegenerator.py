@@ -33,6 +33,7 @@ def get_template_environment():
     "sumhits": lambda items: max(sum(value["hits"] for key, value in items), 1),
     "sumbandwidth": lambda items: max(sum(value["bandwidth"] for key, value in items), 1),
     "isspecial": lambda name, field: field["isspecial"](name) if "isspecial" in field else False,
+    "defaultcount": get_default_count,
   })
 
 @cached(float("inf"))
@@ -93,6 +94,9 @@ def get_names(dir, needdirectories):
     if (needdirectories and os.path.isdir(path)) or (not needdirectories and os.path.isfile(path)):
       yield common.filename_decode(file), path
 
+def get_default_count(field):
+  return field.get("defaultcount", 30)
+
 def generate_pages(datadir, outputdir):
   for server_type, server_type_dir in get_names(datadir, True):
     baseURL = get_config().get("stats", "baseURL_" + server_type)
@@ -114,7 +118,8 @@ def generate_pages(datadir, outputdir):
             continue
           # Create filtered views for the first thirty values of a field if they
           # have filtered data.
-          for name, value in get_template_environment().filters["sortfield"](data[field["name"]], field)[0:30]:
+          sorted_field = get_template_environment().filters["sortfield"](data[field["name"]], field)
+          for name, value in sorted_field[0:get_default_count(field)]:
             if filter(lambda k: k not in ("hits", "bandwidth"), value.iterkeys()):
               outputfile = os.path.join(outputdir,
                   common.filename_encode(server_type),

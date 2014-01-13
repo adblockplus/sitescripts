@@ -161,11 +161,11 @@
               <th bgcolor="#66DDEE" colspan="2">Hits</th>
               <th bgcolor="#2EA495" colspan="2">Bandwidth</th>
             </tr>
-            {%- for name, value in items[0:30] %}
+            {%- for name, value in items[0:field|defaultcount] %}
               {{row(name, value, params, special=name|isspecial(field),
                 filtered_url=filtered_urls.get(field.name, {}).get(name, None))}}
             {%- endfor %}
-            {%- if count > 30 %}
+            {%- if count > field|defaultcount %}
             <tr id="{{field.name}}_showAll" class="special">
               <td>
                 Other
@@ -173,14 +173,14 @@
                   Show all
                 </a>
               </td>
-              <td align="right">{{items[30:]|sumhits}}</td>
+              <td align="right">{{items[field|defaultcount:]|sumhits}}</td>
               <td>&nbsp;</td>
-              <td align="right">{{items[30:]|sumbandwidth|bytes}}</td>
+              <td align="right">{{items[field|defaultcount:]|sumbandwidth|bytes}}</td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
             </tr>
             <tbody id="{{field.name}}_additionalItems" style="display: none;">
-              {%- for name, value in items[30:] %}
+              {%- for name, value in items[field|defaultcount:] %}
                 {{row(name, value, params, special=name|isspecial(field),
                   filtered_url=filtered_urls.get(field.name, {}).get(name, None))}}
               {%- endfor %}
