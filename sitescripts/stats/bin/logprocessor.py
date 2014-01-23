@@ -399,7 +399,7 @@ def parse_record(line, ignored, geo, geov6):
   elif ext == ".tpl":
     # MSIE TPL download, no additional data here
     pass
-  elif ext in (".xpi", ".crx", ".apk", ".msi", ".exe"):
+  elif ext in (".xpi", ".crx", ".apk", ".msi", ".exe", ".safariextz"):
     # Package download, might be an update
     info["installType"] = parse_update_flag(info["query"])
   elif filename == "update.rdf":
@@ -411,6 +411,9 @@ def parse_record(line, ignored, geo, geov6):
     # Chrome update check
     info["addonName"] = parse_addon_name(info["file"])
     info["addonVersion"], info["application"], info["applicationVersion"] = parse_chrome_query(info["query"])
+  elif filename == "updates.plist":
+    # Safari update check, no additional data
+    pass
   else:
     ignored.add(info["file"])
     return None
