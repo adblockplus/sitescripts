@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import re, hashlib
+import re
+import hashlib
 
 def filename_encode(name):
   """
@@ -28,9 +29,7 @@ def filename_encode(name):
   """
   result = re.sub(r"[^\w\.]", lambda match: "-%04x" % ord(match.group(0)), name)
   if len(result) > 150:
-    hash = hashlib.md5()
-    hash.update(result[150:])
-    result = result[:150] + "--%s" % hash.hexdigest()
+    result = result[:150] + "--%s" % hashlib.md5(result[150:]).hexdigest()
   return result
 
 def filename_decode(path):
