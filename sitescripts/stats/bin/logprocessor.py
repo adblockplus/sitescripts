@@ -521,7 +521,7 @@ def parse_source(factor, lock, (mirror_name, server_type, log_file)):
     return None, None, None, None
 
 def parse_sources(sources, factor=1, verbose=False):
-  pool = multiprocessing.Pool(processes=4)
+  pool = multiprocessing.Pool()
   lock = multiprocessing.Manager().Lock()
   callback = functools.partial(parse_source, factor, lock)
   try:
