@@ -20,6 +20,7 @@ import codecs
 from collections import OrderedDict
 from datetime import datetime, timedelta
 import errno
+import functools
 import gzip
 import json
 import math
@@ -506,7 +507,7 @@ def save_stats(server_type, data, factor=1):
       with codecs.open(path, "wb", encoding="utf-8") as fileobj:
         json.dump(existing, fileobj, indent=2, sort_keys=True)
 
-def parse_source((mirror_name, server_type, log_file)):
+def parse_source(factor, lock, (mirror_name, server_type, log_file)):
   try:
     geo = pygeoip.GeoIP(get_config().get("stats", "geoip_db"), pygeoip.MEMORY_CACHE)
     geov6 = pygeoip.GeoIP(get_config().get("stats", "geoipv6_db"), pygeoip.MEMORY_CACHE)
@@ -517,7 +518,13 @@ def parse_source((mirror_name, server_type, log_file)):
       data = parse_fileobj(mirror_name, fileobj, geo, geov6, ignored)
     finally:
       fileobj.close()
-    return server_type, log_file, data, ignored
+
+    lock.acquire()
+    try:
+      save_stats(server_type, data, factor)
+    finally:
+      lock.release()
+    return log_file, ignored
   except:
     print >>sys.stderr, "Unable to process log file '%s'" % log_file
     traceback.print_exc()
@@ -525,13 +532,11 @@ def parse_source((mirror_name, server_type, log_file)):
 
 def parse_sources(sources, factor=1, verbose=False):
   pool = multiprocessing.Pool()
+  lock = multiprocessing.Manager().Lock()
+  callback = functools.partial(parse_source, factor, lock)
   try:
-    for server_type, log_file, data, ignored in pool.imap(parse_source, sources, chunksize=1):
-      if server_type == None:
-        continue
-
-      save_stats(server_type, data, factor)
-      if verbose:
+    for log_file, ignored in pool.imap_unordered(callback, sources, chunksize=1):
+      if verbose and ignored:
         print "Ignored files for %s" % log_file
         print "============================================================"
         print "\n".join(sorted(ignored))
