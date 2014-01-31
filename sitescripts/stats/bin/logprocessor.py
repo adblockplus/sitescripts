@@ -431,17 +431,7 @@ def add_record(info, section, ignore_fields=()):
   section["hits"] = section.get("hits", 0) + 1
   section["bandwidth"] = section.get("bandwidth", 0) + info["size"]
 
-  def is_visible(name):
-    from ..common import fields
-    for field in fields:
-      if field["name"] == name:
-        return not field.get("hidden", False)
-    return False
-
-  # Allow nesting filters two levels deep but only consider visible fields,
-  # fields that aren't displayed on the web can be nested deeper.
-  filter_level = len(filter(is_visible, ignore_fields))
-  if filter_level < 2:
+  if len(ignore_fields) < 2:
     for field in map(lambda f: f["name"], common.fields):
       if field in ignore_fields or field not in info:
         continue
