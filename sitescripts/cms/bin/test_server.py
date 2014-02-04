@@ -49,7 +49,7 @@ def get_data(path):
   locale, page = path.split("/", 1)
   for format in converters.iterkeys():
     if source.has_page(page, format):
-      return process_page(source, locale, page, format).encode("utf-8")
+      return process_page(source, locale, page, format, "http://127.0.0.1:5000").encode("utf-8")
   if source.has_localizable_file(locale, page):
     return source.read_localizable_file(locale, page)
 

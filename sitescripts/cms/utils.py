@@ -17,7 +17,7 @@
 
 from .converters import converters, TemplateConverter
 
-def process_page(source, locale, page, format):
+def process_page(source, locale, page, format, site_url_override=None):
   params = {
     "source": source,
     "template": "default",
@@ -32,6 +32,12 @@ def process_page(source, locale, page, format):
   if params["config"].has_option("locale_overrides", page):
     localefile = params["config"].get("locale_overrides", page)
   params["localedata"] = source.read_locale(params["locale"], localefile)
+
+  if params["config"].has_option("general", "siteurl"):
+    if site_url_override:
+      params["site_url"] = site_url_override
+    else:
+      params["site_url"] = params["config"].get("general", "siteurl")
 
   try:
     converter = converters[format](params)
