@@ -239,14 +239,16 @@ class TemplateConverter(Converter):
       localedata = self._params["source"].read_locale(self._params["locale"], page)
     return jinja2.Markup(self.localize_string(name, localedata, html_escapes, links=links))
 
-  def linkify(self, page, locale=None):
+  def linkify(self, page, locale=None, **attrs):
     if locale == None:
       locale = self._params["locale"]
 
     locale, url = self._params["source"].resolve_link(page, locale)
-    return jinja2.Markup('<a href="%s" hreflang="%s">' % (
-      jinja2.Markup.escape(url),
-      jinja2.Markup.escape(locale)
+    return jinja2.Markup('<a%s>' % ''.join(
+      ' %s="%s"' % (name, jinja2.escape(value)) for name, value in [
+        ('href', url),
+        ('hreflang', locale)
+      ] + attrs.items()
     ))
 
   def toclist(self, content):
