@@ -47,10 +47,10 @@
           <th bgcolor="#2EA495">Bandwidth</th>
           <th>&nbsp;</th>
         </tr>
-        {%- set data = data.items() %}
+        {%- set data = data|dictsort(true) %}
         {%- set maxhits = data|maxhits %}
         {%- set maxbandwidth = data|maxbandwidth %}
-        {%- for name, value in data %}
+        {%- for name, value in data|reverse %}
         <tr>
           <td><a href="{{value.url}}">{{name|monthname}}</a></td>
           <td align="right">{{value.hits}}</td>
