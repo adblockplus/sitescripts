@@ -89,7 +89,7 @@ def process_subscription_file(source_name, sources, save_file, filename, timeout
   def check_line(line):
     if line == "":
       return False
-    match = re.search(r"^\s*!\s*(Redirect|Homepage|Title|Checksum|Version)\s*:", line, re.M | re.I)
+    match = re.search(r"^\s*!\s*(Redirect|Homepage|Title|Checksum|Version|Expires)\s*:", line, re.M | re.I)
     if not match:
       return True
     key = match.group(1).lower()
@@ -138,8 +138,7 @@ def resolve_includes(source_name, sources, lines, timeout, level=0):
         # that it is UTF-8. However, some of the Google Code mirrors are
         # misconfigured and will return ISO-8859-1 as charset instead of UTF-8.
         newlines = data.decode("utf-8").splitlines()
-        newlines = filter(lambda l: not re.search(r"^\s*!.*?\bExpires\s*(?::|after)\s*(\d+)\s*(h)?", l, re.M | re.I), newlines)
-        newlines = filter(lambda l: not re.search(r"^\s*!\s*(Redirect|Homepage|Title|Version)\s*:", l, re.M | re.I), newlines)
+        newlines = filter(lambda l: not re.search(r"^\s*!\s*(Redirect|Homepage|Title|Version|Expires)\s*:", l, re.M | re.I), newlines)
       else:
         result.append("! *** %s ***" % filename)
 
@@ -171,7 +170,7 @@ def write_tpl(save_file, filename, lines):
   for line in lines:
     if re.search(r"^\s*!", line):
       # This is a comment. Handle "Expires" comment in a special way, keep the rest.
-      match = re.search(r"\bExpires\s*(?::|after)\s*(\d+)\s*(h)?", line, re.I)
+      match = re.search(r"^\s*!\s*Expires\s*:\s*(\d+)\s*(h)?", line, re.I)
       if match:
         interval = int(match.group(1))
         if match.group(2):
