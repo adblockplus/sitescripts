@@ -89,19 +89,21 @@ def formatBugLinks(value):
     linkNum = int(match.group(3))
     if linkType == 'topic':
       link = 'https://adblockplus.org/forum/viewtopic.php?t=%i' % linkNum
+    elif linkApp == None and linkType == 'issue':
+      link = 'https://issues.adblockplus.org/ticket/%i' % linkNum
     elif linkApp == 'webkit':
       link = 'https://bugs.webkit.org/show_bug.cgi?id=%i' % linkNum
     elif linkApp != None:
       link = 'http://code.google.com/p/chromium/issues/detail?id=%i' % linkNum
-    elif linkNum > 100000:
-      link = 'https://bugzilla.mozilla.org/show_bug.cgi?id=%i' % linkNum
     else:
-      link = 'https://www.mozdev.org/bugs/show_bug.cgi?id=%i' % linkNum
+      link = 'https://bugzilla.mozilla.org/show_bug.cgi?id=%i' % linkNum
     return '<a href="%s">%s</a>' % (link, match.group(0))
 
-  regexp = re.compile(r'(?:\b(WebKit|Chrome|Chromium)\s+)?\b(bug|issue|topic)\s+(\d+)', re.I | re.U)
+  regexp = re.compile(r'(https?://\S+?)([.,:;!?"\']?(?:\s|$))', re.I | re.U)
+  regexp2 = re.compile(r'(?:\b(WebKit|Chrome|Chromium)\s+)?\b(bug|issue|topic)\s+(\d+)', re.I | re.U)
   value = unicode(Markup.escape(value))
-  value = re.sub(regexp, addLink, value)
+  value = re.sub(regexp, r'<a href="\1">\1</a>\2', value);
+  value = re.sub(regexp2, addLink, value)
   return Markup(value)
 
 def urlencode(value):
