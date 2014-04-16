@@ -1,13 +1,14 @@
 To: {{email}}
 From: subscriptionlist@adblockplus.org
 Subject: Adblock Plus issue reports for {{subscription.name|mime}}
+Precedence: bulk
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset="UTF-8"
 
 You can now view your issue reports on the web (the link changes weekly):
 {{digestLink}}
 This list updates every 30 minutes.
-  
+
 The following reports have been received for your filter list "{{subscription.name}}"
 through the Adblock Plus issue reporter. Legend for the information displayed at
 the line start:
