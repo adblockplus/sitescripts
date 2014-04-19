@@ -138,6 +138,9 @@ class Configuration(object):
   galleryID = _defineLocalProperty('galleryID', '')
   downloadPage = _defineLocalProperty('downloadPage', '')
   experimental = _defineLocalProperty('experimental', '')
+  clientID = _defineLocalProperty('clientID', '')
+  clientSecret = _defineLocalProperty('clientSecret', '')
+  refreshToken = _defineLocalProperty('refreshToken', '')
 
   latestRevision = _defineNightlyProperty('latestRevision')
 

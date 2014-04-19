@@ -26,8 +26,9 @@ Nightly builds generation script
 """
 
 import sys, os, os.path, codecs, subprocess, ConfigParser, traceback, json, hashlib
-import tempfile, re, shutil, urlparse, pipes
+import tempfile, re, shutil, urlparse, pipes, time, urllib2, struct
 from datetime import datetime
+from urllib import urlencode
 from xml.dom.minidom import parse as parseXml
 from sitescripts.utils import get_config, setupStderr, get_template
 from sitescripts.extensions.utils import compareVersions, Configuration
@@ -286,11 +287,11 @@ class NightlyBuild(object):
     if not os.path.exists(baseDir):
       os.makedirs(baseDir)
     outputFile = "%s-%s%s" % (self.basename, self.version, self.config.packageSuffix)
-    outputPath = os.path.join(baseDir, outputFile)
+    self.path = os.path.join(baseDir, outputFile)
     self.updateURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + outputFile + '?update')
 
     if self.config.type == 'android':
-      apkFile = open(outputPath, 'wb')
+      apkFile = open(self.path, 'wb')
 
       try:
         try:
@@ -302,29 +303,29 @@ class NightlyBuild(object):
         subprocess.check_call(buildCommand, stdout=apkFile, close_fds=True)
       except:
         # clear broken output if any
-        if os.path.exists(outputPath):
-          os.remove(outputPath)
+        if os.path.exists(self.path):
+          os.remove(self.path)
         raise
     elif self.config.type == 'chrome' or self.config.type == 'opera':
       import buildtools.packagerChrome as packager
-      packager.createBuild(self.tempdir, type=self.config.type, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile, experimentalAPI=self.config.experimental)
+      packager.createBuild(self.tempdir, type=self.config.type, outFile=self.path, buildNum=self.revision, keyFile=self.config.keyFile, experimentalAPI=self.config.experimental)
     elif self.config.type == 'safari':
       import buildtools.packagerSafari as packager
-      packager.createBuild(self.tempdir, type=self.config.type, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile)
+      packager.createBuild(self.tempdir, type=self.config.type, outFile=self.path, buildNum=self.revision, keyFile=self.config.keyFile)
     else:
       import buildtools.packagerGecko as packager
-      packager.createBuild(self.tempdir, outFile=outputPath, buildNum=self.revision, keyFile=self.config.keyFile)
+      packager.createBuild(self.tempdir, outFile=self.path, buildNum=self.revision, keyFile=self.config.keyFile)
 
-    if not os.path.exists(outputPath):
+    if not os.path.exists(self.path):
       raise Exception("Build failed, output file hasn't been created")
 
     linkPath = os.path.join(baseDir, '00latest%s' % self.config.packageSuffix)
     if hasattr(os, 'symlink'):
       if os.path.exists(linkPath):
         os.remove(linkPath)
-      os.symlink(os.path.basename(outputPath), linkPath)
+      os.symlink(os.path.basename(self.path), linkPath)
     else:
-      shutil.copyfile(outputPath, linkPath)
+      shutil.copyfile(self.path, linkPath)
 
   def retireBuilds(self):
     """
@@ -392,6 +393,44 @@ class NightlyBuild(object):
     finally:
       shutil.rmtree(docsdir, ignore_errors=True)
 
+  def uploadToChromeWebStore(self):
+    # use refresh token to obtain a valid access token
+    # https://developers.google.com/accounts/docs/OAuth2WebServer#refresh
+
+    response = json.load(urllib2.urlopen(
+      'https://accounts.google.com/o/oauth2/token',
+
+      urlencode([
+        ('refresh_token', self.config.refreshToken),
+        ('client_id', self.config.clientID),
+        ('client_secret', self.config.clientSecret),
+        ('grant_type', 'refresh_token'),
+      ])
+    ))
+
+    # upload a new version with the Chrome Web Store API
+    # https://developer.chrome.com/webstore/using_webstore_api#uploadexisitng
+
+    request = urllib2.Request('https://www.googleapis.com/upload/chromewebstore/v1.1/items/' + self.config.galleryID)
+    request.get_method = lambda: 'PUT'
+    request.add_header('Authorization', '%s %s' % (response['token_type'], response['access_token']))
+    request.add_header('x-goog-api-version', '2')
+
+    with open(self.path, 'rb') as file:
+      if file.read(8) != 'Cr24\x02\x00\x00\x00':
+        raise Exception('not a chrome extension or unknown CRX version')
+
+      # skip public key and signature
+      file.seek(sum(struct.unpack('<II', file.read(8))), os.SEEK_CUR)
+
+      request.add_header('Content-Length', os.fstat(file.fileno()).st_size - file.tell())
+      request.add_data(file)
+
+      response = json.load(urllib2.urlopen(request))
+
+    if response['uploadState'] == 'FAILURE':
+      raise Exception(response['itemError'])
+
   def run(self):
     """
       Run the nightly build process for one extension
@@ -438,6 +477,9 @@ class NightlyBuild(object):
 
       # update nightlies config
       self.config.latestRevision = self.revision
+
+      if self.type == 'chrome' and self.config.clientID and self.config.clientSecret and self.config.refreshToken:
+        self.uploadToChromeWebStore()
     finally:
       # clean up
       if self.tempdir:
