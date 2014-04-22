@@ -478,7 +478,7 @@ class NightlyBuild(object):
       # update nightlies config
       self.config.latestRevision = self.revision
 
-      if self.type == 'chrome' and self.config.clientID and self.config.clientSecret and self.config.refreshToken:
+      if self.config.type == 'chrome' and self.config.clientID and self.config.clientSecret and self.config.refreshToken:
         self.uploadToChromeWebStore()
     finally:
       # clean up
