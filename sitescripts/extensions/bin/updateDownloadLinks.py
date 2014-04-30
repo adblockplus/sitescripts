@@ -28,7 +28,7 @@ import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
 from sitescripts.utils import get_config, get_template
-from sitescripts.extensions.utils import compareVersions, Configuration
+from sitescripts.extensions.utils import compareVersions, Configuration, getSafariCertificateID
 from buildtools.packagerGecko import KNOWN_APPS
 
 def urlencode(value):
@@ -106,7 +106,12 @@ def getLocalLink(repo):
 
   highestURL = None
   highestVersion = None
-  prefix = os.path.basename(repo.repository) + '-'
+
+  if repo.type == 'android':
+    prefix = os.path.basename(repo.repository)
+  else:
+    prefix = readRawMetadata(repo).get('general', 'basename')
+  prefix += '-'
   suffix = repo.packageSuffix
 
   # go through the downloads repository looking for downloads matching this extension
@@ -170,6 +175,23 @@ def getDownloadLinks(result):
     if qrcode != None:
       result.set(repo.repositoryName, "qrcode", qrcode)
 
+def readRawMetadata(repo, version='tip'):
+  files = subprocess.check_output(['hg', '-R', repo.repository, 'locate', '-r', version]).splitlines()
+  genericFilename = 'metadata'
+  filename = '%s.%s' % (genericFilename, repo.type)
+
+  # Fall back to platform-independent metadata file
+  if filename not in files:
+    filename = genericFilename
+
+  command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, filename)]
+  result = subprocess.check_output(command)
+
+  parser = SafeConfigParser()
+  parser.readfp(StringIO(result))
+
+  return parser
+
 def readMetadata(repo, version):
   """
   reads extension ID and compatibility information from metadata file in the
@@ -189,36 +211,35 @@ def readMetadata(repo, version):
       'revision': revision,
       'minSdkVersion': usesSdk.attributes["android:minSdkVersion"].value,
     }
-  else:
-    files = subprocess.check_output(['hg', '-R', repo.repository, 'locate', '-r', version]).splitlines()
-    if 'metadata.%s' % repo.type in files:
-      command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata.%s' % repo.type)]
-      result = subprocess.check_output(command)
-    else:
-      # Fall back to platform-independent metadata file for now
-      command = ['hg', '-R', repo.repository, 'cat', '-r', version, os.path.join(repo.repository, 'metadata')]
-      result = subprocess.check_output(command)
-
-    parser = SafeConfigParser()
-    parser.readfp(StringIO(result))
-
+  elif repo.type == 'safari':
+    metadata = readRawMetadata(repo, version)
+    return {
+      'certificateID': getSafariCertificateID(repo.keyFile),
+      'version': version,
+      'shortVersion': version,
+      'basename': metadata.get('general', 'basename'),
+    }
+  elif repo.type == 'gecko':
+    metadata = readRawMetadata(repo, version)
     result = {
-      'extensionID': parser.get('general', 'id'),
+      'extensionID': metadata.get('general', 'id'),
       'version': version,
       'compat': []
     }
     for key, value in KNOWN_APPS.iteritems():
-      if parser.has_option('compat', key):
-        minVersion, maxVersion = parser.get('compat', key).split('/')
+      if metadata.has_option('compat', key):
+        minVersion, maxVersion = metadata.get('compat', key).split('/')
         result['compat'].append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
     return result
+  else:
+    raise Exception('unknown repository type %r' % repo.type)
 
 def writeUpdateManifest(links):
   """
   writes an update manifest for all Gecko extensions and Android apps
   """
 
-  extensions = {'gecko': [], 'android': []}
+  extensions = {'gecko': [], 'android': [], 'safari': []}
   for repo in Configuration.getRepositoryConfigurations():
     if repo.type not in extensions or not links.has_section(repo.repositoryName):
       continue

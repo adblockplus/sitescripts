@@ -86,6 +86,7 @@ downloadsURL=https://downloads.adblockplus.org/
 downloadLinksFile=%(root)s/tmp/downloadLinks.ini
 geckoUpdateManifestPath=%(root)s/www/update.rdf
 androidUpdateManifestPath=%(root)s/www/androidupdates.xml
+safariUpdateManifestPath=%(root)s/www/updates.plist
 docsDirectory=%(root)s/www/jsdoc
 errorTemplate=extensions/template/error.html
 languageCheckTemplate=extensions/template/languageCheckResult.html

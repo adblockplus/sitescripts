@@ -26,12 +26,12 @@ Nightly builds generation script
 """
 
 import sys, os, os.path, codecs, subprocess, ConfigParser, traceback, json, hashlib
-import tempfile, re, shutil, urlparse, pipes, time, urllib2, struct
+import tempfile, shutil, urlparse, pipes, time, urllib2, struct
 from datetime import datetime
 from urllib import urlencode
 from xml.dom.minidom import parse as parseXml
 from sitescripts.utils import get_config, setupStderr, get_template
-from sitescripts.extensions.utils import compareVersions, Configuration
+from sitescripts.extensions.utils import compareVersions, Configuration, getSafariCertificateID
 
 MAX_BUILDS = 50
 
@@ -176,28 +176,10 @@ class NightlyBuild(object):
       self.compat.append({'id': 'chrome', 'minVersion': metadata.get('compat', 'chrome')})
 
   def readSafariMetadata(self):
-    # get the certificate ID from the developer certificate's common name
-    import M2Crypto
-    bio = M2Crypto.BIO.openfile(self.config.keyFile)
-    try:
-      while not hasattr(self, 'certificateID'):
-        try:
-          cert = M2Crypto.X509.load_cert_bio(bio)
-        except M2Crypto.X509.X509Error:
-          raise Exception('No safari developer certificate found in chain')
-
-        subject = cert.get_subject()
-        for entry in subject.get_entries_by_nid(subject.nid['CN']):
-          m = re.match(r'Safari Developer: \((.*?)\)', entry.get_data().as_text())
-          if m:
-            self.certificateID = m.group(1)
-            break
-    finally:
-      bio.close()
-
-    # read metadata file
     import buildtools.packagerSafari as packager
     metadata = packager.readMetadata(self.tempdir, self.config.type)
+
+    self.certificateID = getSafariCertificateID(self.config.keyFile)
     self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
     self.shortVersion = metadata.get("general", "version")
     self.basename = metadata.get("general", "basename")
