@@ -107,10 +107,10 @@ def getLocalLink(repo):
   highestURL = None
   highestVersion = None
 
-  if repo.type == 'android':
-    prefix = os.path.basename(repo.repository)
-  else:
+  if repo.type in ('gecko', 'chrome', 'opera', 'safari'):
     prefix = readRawMetadata(repo).get('general', 'basename')
+  else:
+    prefix = os.path.basename(repo.repository)
   prefix += '-'
   suffix = repo.packageSuffix
 
