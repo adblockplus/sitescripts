@@ -413,6 +413,20 @@ class NightlyBuild(object):
     if response['uploadState'] == 'FAILURE':
       raise Exception(response['itemError'])
 
+    # publish the new version on the Chrome Web Store
+    # https://developer.chrome.com/webstore/using_webstore_api#publishpublic
+
+    request = urllib2.Request('https://www.googleapis.com/upload/chromewebstore/v1.1/items/%s/publish' % self.config.galleryID)
+    request.get_method = lambda: 'POST'
+    request.add_header('Authorization', '%s %s' % (response['token_type'], response['access_token']))
+    request.add_header('x-goog-api-version', '2')
+    request.add_header('Content-Length', '0')
+
+    response = json.load(urllib2.urlopen(request))
+
+    if any(status != 'ITEM_PENDING_REVIEW' for status in response['status']):
+      raise Exception(response['statusDetail'])
+
   def run(self):
     """
       Run the nightly build process for one extension
