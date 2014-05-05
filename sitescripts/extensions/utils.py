@@ -136,6 +136,7 @@ class Configuration(object):
   keyFile = _defineLocalProperty('key', '')
   name = _defineLocalProperty('name')
   galleryID = _defineLocalProperty('galleryID', '')
+  devbuildGalleryID = _defineLocalProperty('devbuildGalleryID', '')
   downloadPage = _defineLocalProperty('downloadPage', '')
   experimental = _defineLocalProperty('experimental', '')
   clientID = _defineLocalProperty('clientID', '')

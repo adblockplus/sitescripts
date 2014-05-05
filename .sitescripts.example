@@ -50,6 +50,7 @@ abpchrome_repository=%(root)s/hg/adblockpluschrome
 abpchrome_type=chrome
 abpchrome_name=Adblock Plus for Google Chrome
 abpchrome_galleryID=cfhdojbkjhnklbpkdaibdccddilifddb
+abpchrome_devbuildGalleryID=ldcecbkkoecffmfljeihcmifjjdoepkn
 abpchrome_key=%(root)s/data/adblockpluschrome.pem
 abpchrome_clientID=...apps.googleusercontent.com
 abpchrome_clientSecret=secret
