@@ -390,12 +390,14 @@ class NightlyBuild(object):
       ])
     ))
 
+    auth_token = '%s %s' % (response['token_type'], response['access_token'])
+
     # upload a new version with the Chrome Web Store API
     # https://developer.chrome.com/webstore/using_webstore_api#uploadexisitng
 
     request = urllib2.Request('https://www.googleapis.com/upload/chromewebstore/v1.1/items/' + self.config.devbuildGalleryID)
     request.get_method = lambda: 'PUT'
-    request.add_header('Authorization', '%s %s' % (response['token_type'], response['access_token']))
+    request.add_header('Authorization', auth_token)
     request.add_header('x-goog-api-version', '2')
 
     with open(self.path, 'rb') as file:
@@ -418,7 +420,7 @@ class NightlyBuild(object):
 
     request = urllib2.Request('https://www.googleapis.com/upload/chromewebstore/v1.1/items/%s/publish' % self.config.devbuildGalleryID)
     request.get_method = lambda: 'POST'
-    request.add_header('Authorization', '%s %s' % (response['token_type'], response['access_token']))
+    request.add_header('Authorization', auth_token)
     request.add_header('x-goog-api-version', '2')
     request.add_header('Content-Length', '0')
 
