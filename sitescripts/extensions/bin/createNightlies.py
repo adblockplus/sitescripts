@@ -418,7 +418,7 @@ class NightlyBuild(object):
     # publish the new version on the Chrome Web Store
     # https://developer.chrome.com/webstore/using_webstore_api#publishpublic
 
-    request = urllib2.Request('https://www.googleapis.com/upload/chromewebstore/v1.1/items/%s/publish' % self.config.devbuildGalleryID)
+    request = urllib2.Request('https://www.googleapis.com/chromewebstore/v1.1/items/%s/publish' % self.config.devbuildGalleryID)
     request.get_method = lambda: 'POST'
     request.add_header('Authorization', auth_token)
     request.add_header('x-goog-api-version', '2')
