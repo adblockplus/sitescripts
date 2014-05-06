@@ -383,7 +383,7 @@ class NightlyBuild(object):
       def http_error_default(self, req, fp, code, msg, hdrs):
         raise urllib2.HTTPError(req.get_full_url(), code, '%s\n%s' % (msg, fp.read()), hdrs, fp)
 
-    opener = urllib2.build_opener(HTTPErrorHandler)
+    opener = urllib2.build_opener(HTTPErrorBodyHandler)
 
     # use refresh token to obtain a valid access token
     # https://developers.google.com/accounts/docs/OAuth2WebServer#refresh
