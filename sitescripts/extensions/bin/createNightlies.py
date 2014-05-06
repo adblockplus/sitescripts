@@ -376,10 +376,19 @@ class NightlyBuild(object):
       shutil.rmtree(docsdir, ignore_errors=True)
 
   def uploadToChromeWebStore(self):
+    # Google APIs use HTTP error codes with error message in body. So we add
+    # the response body to the HTTPError to get more meaningful error messages.
+
+    class HTTPErrorBodyHandler(urllib2.HTTPDefaultErrorHandler):
+      def http_error_default(self, req, fp, code, msg, hdrs):
+        raise urllib2.HTTPError(req.get_full_url(), code, '%s\n%s' % (msg, fp.read()), hdrs, fp)
+
+    opener = urllib2.build_opener(HTTPErrorHandler)
+
     # use refresh token to obtain a valid access token
     # https://developers.google.com/accounts/docs/OAuth2WebServer#refresh
 
-    response = json.load(urllib2.urlopen(
+    response = json.load(opener.open(
       'https://accounts.google.com/o/oauth2/token',
 
       urlencode([
@@ -410,7 +419,7 @@ class NightlyBuild(object):
       request.add_header('Content-Length', os.fstat(file.fileno()).st_size - file.tell())
       request.add_data(file)
 
-      response = json.load(urllib2.urlopen(request))
+      response = json.load(opener.open(request))
 
     if response['uploadState'] == 'FAILURE':
       raise Exception(response['itemError'])
@@ -424,7 +433,7 @@ class NightlyBuild(object):
     request.add_header('x-goog-api-version', '2')
     request.add_header('Content-Length', '0')
 
-    response = json.load(urllib2.urlopen(request))
+    response = json.load(opener.open(request))
 
     if any(status != 'ITEM_PENDING_REVIEW' for status in response['status']):
       raise Exception({'status': response['status'], 'statusDetail': response['statusDetail']})
