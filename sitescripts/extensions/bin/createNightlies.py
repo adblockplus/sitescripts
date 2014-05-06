@@ -435,7 +435,7 @@ class NightlyBuild(object):
 
     response = json.load(opener.open(request))
 
-    if any(status != 'ITEM_PENDING_REVIEW' for status in response['status']):
+    if any(status not in ('OK', 'ITEM_PENDING_REVIEW') for status in response['status']):
       raise Exception({'status': response['status'], 'statusDetail': response['statusDetail']})
 
   def run(self):
