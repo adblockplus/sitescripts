@@ -427,7 +427,7 @@ class NightlyBuild(object):
     response = json.load(urllib2.urlopen(request))
 
     if any(status != 'ITEM_PENDING_REVIEW' for status in response['status']):
-      raise Exception(response['statusDetail'])
+      raise Exception({'status': response['status'], 'statusDetail': response['statusDetail']})
 
   def run(self):
     """
