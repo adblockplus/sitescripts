@@ -73,9 +73,9 @@ class NightlyBuild(object):
     """
 
     command = ['hg', 'log', '-R', self.config.repository, '-r', 'tip:0',
-      '-b', 'default', '-l', '50',
+      '-b', 'default', '-l', '50', '--encoding', 'utf-8',
       '--template', '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0']
-    result = subprocess.check_output(command)
+    result = subprocess.check_output(command).decode('utf-8')
 
     for change in result.split('\0\0'):
       if change:
@@ -104,7 +104,7 @@ class NightlyBuild(object):
     self.changelogURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + changelogFile)
 
     template = get_template(get_config().get('extensions', 'changelogTemplate'))
-    template.stream({'changes': changes}).dump(changelogPath)
+    template.stream({'changes': changes}).dump(changelogPath, encoding='utf-8')
 
     linkPath = os.path.join(baseDir, '00latest.changelog.xhtml')
     if hasattr(os, 'symlink'):
