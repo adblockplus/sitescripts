@@ -16,7 +16,10 @@
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-from ConfigParser import NoOptionError
+import os
+import subprocess
+from ConfigParser import SafeConfigParser, NoOptionError
+from StringIO import StringIO
 from sitescripts.utils import get_config
 
 def compareVersionParts(part1, part2):
@@ -89,26 +92,19 @@ class Configuration(object):
     changed (latestRevision), others come from the global config and are
     read-only (repository, repositoryName, nightliesDirectory).
   """
+  def _defineProperty(name, local=False, type='', default=None):
+    def getter(self):
+      method = getattr(self.config, 'get' + type)
+      key = '%s_%s' % (self.repositoryName, name) if local else name
 
-  def _defineGlobalProperty(key):
-    """
-      Creates a property corresponding with a key in the config file
-    """
-    return property(lambda self: self.config.get('extensions', key))
-
-  def _defineLocalProperty(key, default = None):
-    """
-      Creates a property corresponding with a repository-specific key in the config file
-    """
-    def getLocalProperty(self):
       try:
-        return self.config.get('extensions', self.repositoryName + '_' + key)
-      except NoOptionError, e:
-        if default != None:
-          return default
-        else:
-          raise e
-    return property(getLocalProperty)
+        return method('extensions', key)
+      except NoOptionError:
+        if default is None:
+          raise
+        return default
+
+    return property(getter)
 
   def _defineNightlyProperty(key):
     """
@@ -122,26 +118,30 @@ class Configuration(object):
   repositoryName = None
   repository = None
 
-  buildRepository = _defineGlobalProperty('buildRepository')
-  nightliesDirectory = _defineGlobalProperty('nightliesDirectory')
-  nightliesURL = _defineGlobalProperty('nightliesURL')
-  downloadsRepo = _defineGlobalProperty('downloadsRepo')
-  downloadsURL = _defineGlobalProperty('downloadsURL')
-  docsDirectory = _defineGlobalProperty('docsDirectory')
-  signtool = _defineGlobalProperty('signtool')
-  certname = _defineGlobalProperty('signtool_certname')
-  dbdir = _defineGlobalProperty('signtool_dbdir')
-  dbpass = _defineGlobalProperty('signtool_dbpass')
+  buildRepository = _defineProperty('buildRepository')
+  nightliesDirectory = _defineProperty('nightliesDirectory')
+  nightliesURL = _defineProperty('nightliesURL')
+  downloadsRepo = _defineProperty('downloadsRepo')
+  downloadsURL = _defineProperty('downloadsURL')
+  docsDirectory = _defineProperty('docsDirectory')
+  signtool = _defineProperty('signtool')
+  certname = _defineProperty('signtool_certname')
+  dbdir = _defineProperty('signtool_dbdir')
+  dbpass = _defineProperty('signtool_dbpass')
+  padDirectory = _defineProperty('padDirectory')
+  padURL = _defineProperty('padURL')
+  padTemplate = _defineProperty('padTemplate')
 
-  keyFile = _defineLocalProperty('key', '')
-  name = _defineLocalProperty('name')
-  galleryID = _defineLocalProperty('galleryID', '')
-  devbuildGalleryID = _defineLocalProperty('devbuildGalleryID', '')
-  downloadPage = _defineLocalProperty('downloadPage', '')
-  experimental = _defineLocalProperty('experimental', '')
-  clientID = _defineLocalProperty('clientID', '')
-  clientSecret = _defineLocalProperty('clientSecret', '')
-  refreshToken = _defineLocalProperty('refreshToken', '')
+  keyFile = _defineProperty('key', local=True, default='')
+  name = _defineProperty('name', local=True)
+  galleryID = _defineProperty('galleryID', local=True, default='')
+  devbuildGalleryID = _defineProperty('devbuildGalleryID', local=True, default='')
+  downloadPage = _defineProperty('downloadPage', local=True, default='')
+  experimental = _defineProperty('experimental', local=True, default='')
+  clientID = _defineProperty('clientID', local=True, default='')
+  clientSecret = _defineProperty('clientSecret', local=True, default='')
+  refreshToken = _defineProperty('refreshToken', local=True, default='')
+  pad = _defineProperty('pad', local=True, type='boolean', default=False)
 
   latestRevision = _defineNightlyProperty('latestRevision')
 
@@ -180,6 +180,46 @@ class Configuration(object):
       Provides a string representation of this configuration
     """
     return self.repositoryName
+
+  def listContents(self, version='tip'):
+    return subprocess.check_output(['hg', '-R', self.repository, 'locate', '-r', version]).splitlines()
+
+  def readMetadata(self, version='tip'):
+    genericFilename = 'metadata'
+    filename = '%s.%s' % (genericFilename, self.type)
+    files = self.listContents(version)
+
+    if filename not in files:
+      # some repositories like those for Android and
+      # Internet Explorer don't have metadata files
+      if genericFilename not in files:
+        return None
+
+      # Fall back to platform-independent metadata file
+      filename = genericFilename
+
+    command = ['hg', '-R', self.repository, 'cat', '-r', version, os.path.join(self.repository, filename)]
+    result = subprocess.check_output(command)
+
+    parser = SafeConfigParser()
+    parser.readfp(StringIO(result))
+
+    return parser
+
+  @property
+  def basename(self):
+    metadata = self.readMetadata()
+    if metadata:
+      return metadata.get('general', 'basename')
+    return os.path.basename(self.repository)
+
+  def getDownloads(self):
+    prefix = self.basename + '-'
+    command = ['hg', 'locate', '-R', self.downloadsRepo, '-r', 'default']
+
+    for filename in subprocess.check_output(command).splitlines():
+      if filename.startswith(prefix) and filename.endswith(self.packageSuffix):
+        yield (filename, filename[len(prefix):len(filename) - len(self.packageSuffix)])
 
   @staticmethod
   def getRepositoryConfigurations(nightlyConfig = None):
