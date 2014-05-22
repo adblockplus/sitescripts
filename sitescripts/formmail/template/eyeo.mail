@@ -1,5 +1,5 @@
 To: info@eyeo.com
-From: {{name|mime}} <{{email|mime}}>
+From: {{(name,email)|emailaddr|mime}}
 Subject: {{subject|mime}} (via Contact form)
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset="UTF-8"

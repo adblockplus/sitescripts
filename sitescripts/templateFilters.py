@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import re, email.header, urllib, time, json
+import re, email.header, email.utils, urllib, time, json
 from datetime import date
 from jinja2.utils import Markup
 from urlparse import urlparse
@@ -128,6 +128,10 @@ def subscriptionSort(value, prioritizeRecommended=True):
   return value
 
 def formatmime(text):
+  # See http://bugs.python.org/issue5871 (not really fixed), Header() will
+  # happily accept non-printable characters including newlines. Make sure to
+  # remove them.
+  text = re.sub(r'[\x00-\x1F]', '', text)
   return email.header.Header(text).encode()
 
 def ljust(value, width=80):
@@ -175,6 +179,7 @@ filters = {
   'urlencode': urlencode,
   'subscriptionSort': subscriptionSort,
   'mime': formatmime,
+  'emailaddr': email.utils.formataddr,
   'ljust': ljust,
   'rjust': rjust,
   'ltruncate': ltruncate,
