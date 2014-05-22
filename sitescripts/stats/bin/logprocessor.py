@@ -299,15 +299,18 @@ def parse_downloader_query(info):
       else:
         info["downloadInterval"] = "%i hour(s)" % (diff.seconds / 3600)
 
-      diffdays = (info["time"].date() - last_update.date()).days
-      if diffdays == 0:
-        info["previousDownload"] = "same day"
-      elif diffdays < 30:
-        info["previousDownload"] = "%i day(s)" % diffdays
-      elif diffdays < 365:
-        info["previousDownload"] = "%i month(s)" % (diffdays / 30)
+      if info["addonName"].startswith("adblockplus"):
+        diffdays = (info["time"].date() - last_update.date()).days
+        if diffdays == 0:
+          info["previousDownload"] = "same day"
+        elif diffdays < 30:
+          info["previousDownload"] = "%i day(s)" % diffdays
+        elif diffdays < 365:
+          info["previousDownload"] = "%i month(s)" % (diffdays / 30)
+        else:
+          info["previousDownload"] = "%i year(s)" % (diffdays / 365)
       else:
-        info["previousDownload"] = "%i year(s)" % (diffdays / 365)
+        info["previousDownload"] = "unknown"
 
       if last_update.year != info["time"].year or last_update.month != info["time"].month:
         info["firstInMonth"] = info["firstInDay"] = True

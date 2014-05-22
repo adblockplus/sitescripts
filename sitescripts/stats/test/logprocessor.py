@@ -229,6 +229,18 @@ class Test(unittest.TestCase):
       (
         datetime(2013, 07, 31, 12, 03, 00),
         "easylist.txt",
+        "addonName=adblockedge&addonVersion=2.1.2&platform=gecko&platformVersion=23.0.1&lastVersion=201206302200",
+        "-",
+        "adblockedge/2.1.2",
+        "unknown/unknown",
+        "gecko/23.0",
+        "1 year(s)",
+        "unknown",
+        "firstInMonth firstInWeek firstInDay",
+      ),
+      (
+        datetime(2013, 07, 31, 12, 03, 00),
+        "easylist.txt",
         "_=1375142394357",
         "AdBlock/2.5.4",
         "chromeadblock/2.5.4",
