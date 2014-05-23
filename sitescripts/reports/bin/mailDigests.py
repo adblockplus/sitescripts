@@ -20,7 +20,8 @@ from datetime import date
 from time import time
 from email.utils import parseaddr
 from sitescripts.utils import get_config, setupStderr
-from sitescripts.templateFilters import formatmime, emailaddr
+from sitescripts.templateFilters import formatmime
+from email.utils import formataddr
 from sitescripts.reports.utils import mailDigest, getReports, getReportSubscriptions, calculateReportSecret, getDigestId, getDigestSecret, getUserUsefulnessScore
 import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 
@@ -127,7 +128,7 @@ def sendMail(subscription, groups):
     email = subscription['email']
 
   name, address = parseaddr(email)
-  email = formatmime(emailaddr((name, address)))
+  email = formatmime(formataddr((name, address)))
 
   id = getDigestId(address)
   digestLink = get_config().get('reports', 'urlRoot') + 'digest?id=%s&secret=%s' % (id, getDigestSecret(id, date.today().isocalendar()))
