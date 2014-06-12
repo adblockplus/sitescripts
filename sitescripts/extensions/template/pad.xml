@@ -106,6 +106,7 @@ Annoyed by the icon? Please read this: https://adblockplus.org/en/android-faq#ic
 Adblock Plus is an open-source, community driven project. Many volunteers are contributing to the development and maintenance of Adblock Plus. Currently, there are over forty continuously updating filter lists in over a dozen different languages, ensuring that all obtrusive ads remain blocked.
 Please note that Adblock Plus will probably become the highest data-using application on your Android device. However, this is only because Adblock Plus needs to filter the data to ensure that the ads can be blocked. Adblock Plus is actually only using a fraction of the data shown on your device.
 Adblock Plus is also available for Mozilla Firefox, Google Chrome, Opera, Safari and Internet Explorer.</Char_Desc_2000>
+        </English>
   {%- else %}
             <Char_Desc_45>Blocks all annoying ads on the web.</Char_Desc_45>
             <Char_Desc_80>Blocks all annoying ads on the web: YouTube ads, Facebook ads, banners and more.</Char_Desc_80>
@@ -163,8 +164,114 @@ Found a bug or need help? Visit our forum: https://adblockplus.org/redirect?link
 *************
 Feeling adventurous? Try out a development build to always get the latest features of Adblock Plus: https://adblockplus.org/en/development-builds (updated separately, independent settings).</Char_Desc_2000>
     {%- endif %}
-  {%- endif %}
         </English>
+        <German>
+            <Keywords>adblock, Werbeblocker, Sicherheit, Privatsphäre, {{ browser_name }}</Keywords>
+            <Char_Desc_45>Blockiert störende Werbung im Netz</Char_Desc_45>
+            <Char_Desc_80>Blockt störende Online-Werbung: YouTube- und Facebook Werbung, Pop-Ups, Banner</Char_Desc_80>
+    {%- if basename == 'adblockplussafari' %}
+            <Char_Desc_250>Erlebe das Internet ohne störende Werbung mit dem besten Adblocker für Safari! Adblock Plus für Safari blockiert jede YouTube-, Facebook- und Twitter Werbung sowie Pop-Ups und Banner.</Char_Desc_250>
+            <Char_Desc_450>Adblock Plus für Safari entfernt automatisch Facebook Werbung, Banner, Pop-Ups, Alle andere nervige Werbeformate. Der weltweit bekannteste Werbeblocker ist sehr flexibel und beinhaltet eine Anti -Tracking und -Malware Option. Im Gegensatz zu anderen Adblocking-Lösungen für Mac OS X, ist die ABP Version für Safari die einzige, die jede Werbung auf YouTube ausschaltet und zudem anzeigt wie viele Anzeigen pro Seite blockiert werden.</Char_Desc_450>
+            <Char_Desc_2000>Erlebe das Internet ohne störende Werbung mit dem besten Adblocker für Safari!
+
+Unser Adblocker für Safari unterdrückt sämtliche YouTube Werbung, Pop-Ups, Banner und sogar die Anzeigen auf Facebook und Twitter. Adblock Plus ist die weltweit-bekannteste Browser-Erweiterung und wird von Zig-Millionen Nutzern auf der ganzen Welt genutzt.
+
+Adblock Plus unterdrückt jede aufdringliche Werbung. Werbung, die nicht störend ist wird gemäß Standardeinstellungen nicht blockiert.
+
+Adblock Plus für Safari entfernt automatisch:
+* YouTube Werbung, einschließlich 30-Sekunden Pre-Roll Spots
+* Facebook Werbung
+* Banner
+* Pop-Ups
+* Alle andere nervige Werbeformate
+
+Der weltweit bekannteste Werbeblocker ist sehr anpassbar und beinhaltet eine Option, die es schafft Tracking und Malware zu blockieren. Im Gegensatz zu anderen Adblocking-Lösungen für Mac OS X, ist die Adblock Plus Version für Safari die einzige Anwendung, die jede Werbung auf YouTube ausschaltet. Zudem zeigt die Erweiterung als einzige für Safari an, wie viele Anzeigen tatsächlich pro Seite blockiert werden.
+
+Adblock Plus ist auch erhältlich für Google Chrome, Mozilla Firefox, Internet Explorer, Opera und Android.
+
+Durch die Teilnahme an unserer Initiative für akzeptable Werbung ermöglichst du es der Werbung, die unseren Kriterien entspricht, durchgelassen zu werden. Auf diese Weise unterstützt du Webseiten, die auf ihre Werbung angewiesen sind, sich aber dazu entschieden haben, diese Werbung unaufdringlich und gewissenhaft zu gestalten. Diese Funktion kann jedoch jederzeit deaktiviert werden. Besuch unsere Webseite und erfahre mehr über unsere Initiative auf http://adblockplus.org/en/acceptable-ads
+
+Lade dir Adblock Plus für Safari kostenfrei herunter und erlebe das Internet ohne störende Werbung!</Char_Desc_2000>
+    {%- else %}
+            <Char_Desc_2000>Adblock Plus blockiert nervige Werbung und unterstützt Webseiten, indem es unaufdringliche Werbung standardmäßig nicht blockiert (änderbar).
+
+Erleben Sie das Internet ohne störende Werbung! Adblock Plus für {{ browser_name }} blockiert:
+* Werbebanner
+* Werbespots in YouTube Videos
+* Werbung auf Facebook
+* Pop-ups
+* Jede andere aufdringliche Werbung
+
+Adblock Plus ist weltweit die beliebteste Browser-Erweiterung und wird auf verschiedenen Browsern von über 20 Millionen Menschen täglich genutzt. Adblock Plus ist Open-Source und wird von einer großen Community freiwilliger Helfer unterstützt, sodass immer jede störende Werbung automatisch blockiert wird.
+
+Wichtig: Bei der Installation wird eine Warnung angezeigt, dass Adblock Plus Zugriff auf private Informationen wie den Browserverlauf hat. Dies ist eine Standard-Meldung, Adblock Plus erhebt NIEMALS persönliche Daten.
+
+Die Adblock Plus Community hat kürzlich die Acceptable Ads Initiative eingeführt. Durch das Zulassen  von ein wenig unaufdringlich gestalteter Werbung können Sie Websites unterstützen, die von Werbung abhängig sind und auf dezente Werbung setzen. Diese Funktionalität kann jederzeit dektiviert werden. Unter   https://adblockplus.org/de/acceptable-ads erfahren Sie mehr.
+
+***********
+Die neusten Änderungen finden Sie hier: https://adblockplus.org/releases/
+
+Probleme? Starten Sie {{ browser_name }} neu und/oder klicken Sie den "Jetzt aktualisieren" Button in den Adblock Plus Optionen.
+
+Wenn Sie ein Problem gefunden haben oder Hilfe benötigen, dann besuchen Sie unser Forum: https://adblockplus.org/redirect?link={{ type }}_support
+
+*************
+Wenn Sie abenteuerlustig sind, können Sie auch eine Entwicklungsversion ausprobieren, um stets die neuesten Features von Adblock Plus zu erhalten: https://adblockplus.org/de/development-builds (separat aktualisiert, unabhängige Einstellungen).</Char_Desc_2000>
+    {%- endif %}
+        </German>
+        <Russian>
+            <Keywords>adblock, adblocker, защита, конфиденциальность, {{ browser_name }}</Keywords>
+            <Char_Desc_45>Блокирует всю навязчивую рекламу в сети</Char_Desc_45>
+            <Char_Desc_80>Блокирует навязчивую рекламу: на YouTube, в Facebook, всплывающие окна, баннеры</Char_Desc_80>
+    {%- if basename == 'adblockplussafari' %}
+            <Char_Desc_250>Работайте в Интернет без навязчивой рекламы с лучшим блокировщиком рекламы для Safari! Adblock Plus для Safari блокирует всю рекламу на YouTube, всплывающие окна, баннеры, рекламу в Facebook и Twitter.</Char_Desc_250>
+            <Char_Desc_450>Adblock Plus для Safari автоматически убирает: Рекламу на YouTube, включая 30-секундные ролики перед видео, рекламу на Facebook, баннеры, всплывающие окна, всю другую навязчивую рекламу. Являясь самым популярным блокировщиком рекламы, Adblock Plus является легко настраиваемым и включает в себя возможность блокирования отслеживание пользователя и блокирование вредоносных программ.</Char_Desc_450>
+            <Char_Desc_2000>Навигация в Интернет без навязчивой рекламы с лучшим блокировщиком рекламы для Safari!
+
+Наш блокировщик рекламы для Safari блокирует всю рекламу в YouTube, всплывающие окна, баннеры и даже рекламу в ваших Facebook и Twitter-лентах. Adblock Plus является самым популярным расширением для браузера в мире, используется десятками миллионов пользователей по всему миру.
+
+Adblock Plus блокирует всю навязчивую рекламу. С настройками по умолчанию Adblock Plus поддерживает веб-сайты и поощряет хорошую рекламу, пропуская только ненавязчивую (настраивается).
+
+Adblock Plus для Safari автоматически убирает:
+* Рекламу на YouTube, включая 30-секундные ролики перед видео
+* Рекламу на Facebook
+* Баннеры
+* Всплывающие окна
+* Всю другую навязчивую рекламу
+
+Являясь самым популярным блокировщиком рекламы, Adblock Plus прост в настройке и включает в себя возможность блокирования отслеживания пользователя, а также блокирования вредоносных программ. В отличие от других решений для блокировки рекламы для Mac OS X, Adblock Plus для Safari является единственным инструментом, который блокирует все объявления в YouTube. Это также единственный AdBlocker для Safari, который показывает, сколько объявлений вы блокируете на каждом сайте.
+
+Adblock Plus также доступен для Google Chrome, Mozilla Firefox, Internet Explorer, Opera, а также для Android.
+
+Поддерживая нашу инициативу Ненавязчивой Рекламы, вы пропускаете рекламу, которая удовлетворяют наши условия. Поступая таким образом, вы поддерживаете сайты, которые полагаются на рекламу, но делают это в ненавязчивый способ. Эта функция может быть отключена в любое время. Перейдите на http://adblockplus.org/en/acceptable-ads, чтобы узнать больше.
+
+Скачайте Adblock Plus для Safari бесплатно и работайте в Интернете без навязчивой рекламы!</Char_Desc_2000>
+    {%- else %}
+            <Char_Desc_2000>Adblock Plus для {{ browser_name }} блокирует:
+
+* Баннеры
+* Видео рекламу на Youtube
+* Всплывающие окна
+* Всю другую отвлекающую и назойливую рекламу
+
+Adblock Plus является самым популярным в мире расширением для браузеров (более 200 миллионов скачиваний). Этот проект поддерживается большим сообществом, насчитывающим сотни добровольцев, что позволяет найти и заблокировать максимальное количество рекламы.
+
+Пожалуйста, обратите внимание: при установке Adblock Plus для {{ browser_name }} ваш браузер покажет предупреждение о том, что расширение имеет доступ к вашей истории посещений и личным данным. Это стандартное сообщение, мы НИКОГДА не собираем личную информацию и не шпионим за вами.
+
+Недавно сообщество Adblock Plus представило идею Допустимой Рекламы. Не блокируя некоторые маленькие неподижные рекламные блоки вы поддерживаете веб-сайты, которые живут только за счет этого. В то же время, вы делаете это ненавязчиывм для вас образом. Эта функция может быть отключена в любое время. Больше информации по адресу http://adblockplus.org/en/acceptable-ads.
+
+*************
+Сообщения о выходе новых версий и списки изменений есть здесь: http://adblockplus.org/releases/
+
+Проблемы? Попробуйте сначала перезапустить {{ browser_name }} и/или нажать "Обновить сейчас" в настройках Adblock Plus.
+
+Если вы нашли ошибку или просто нужна помощь, посетите наш форум: https://adblockplus.org/redirect?link={{ type }}_support
+
+*************
+Хочется приключений? Попробуйте наши тестовые сборки: http://adblockplus.org/en/development-builds (обновляются и настраиваются независимо от стабильной версии).</Char_Desc_2000>
+    {%- endif %}
+        </Russian>
+  {%- endif %}
     </Program_Descriptions>
     <Web_Info>
         <Application_URLs>

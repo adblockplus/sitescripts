@@ -18,6 +18,7 @@ import warnings
 import re
 import urllib2
 from xml.dom import minidom
+from sitescripts.extensions.pad.language import get_pad_languages
 
 FIELDS = [
   (['XML_DIZ_INFO', 'MASTER_PAD_VERSION_INFO', 'MASTER_PAD_VERSION'], r'^4\.0\Z'),
@@ -66,7 +67,7 @@ FIELDS = [
   (['XML_DIZ_INFO', 'Program_Info', 'Program_Release_Status'], r'^(Major Update|Minor Update|New Release|Beta|Alpha|Media Only)\Z'),
   (['XML_DIZ_INFO', 'Program_Info', 'Program_Install_Support'], r'^(Install and Uninstall|Install Only|No Install Support|Uninstall Only)\Z'),
   (['XML_DIZ_INFO', 'Program_Info', 'Program_OS_Support'], r'^((Android|BlackBerry|Handheld\/Mobile Other|iPhone|iPad|iPod|iTouch|Java|Linux|Linux Console|Linux Gnome|Linux GPL|Linux Open Source|Mac OS X|Mac Other|MS-DOS|Netware|OpenVMS|Palm|Pocket PC|Symbian|Unix|Win2000|Win7 x32|Win7 x64|Win98|WinMobile|WinOther|WinServer|WinVista|WinVista x64|WinXP|Windows 8|Windows Phone 7|Windows Phone 8|Windows RT|Other|Not Applicable)[, ]*)+\Z'),
-  (['XML_DIZ_INFO', 'Program_Info', 'Program_Language'], r'^(Abkhazian|Afar|Afrikaans|Albanian|Amharic|Arabic|Armenian|Assamese|Aymara|Azerbaijani|Bashkir|Basque|Bengali|Bhutani|Bihari|Bislama|Breton|Bulgarian|Burmese|Byelorussian|Cambodian|Catalan|Chinese|ChineseSimplified|ChineseTraditional|Corsican|Croatian|Czech|Danish|Dutch|English|Esperanto|Estonian|Faeroese|Fiji|Finnish|French|Frisian|Gaelic|Galician|Georgian|German|Greek|Greenlandic|Guarani|Gujarati|Hausa|Hebrew|Hindi|Hungarian|Icelandic|Indonesian|Interlingua|Interlingue|Inupiak|Irish|Italian|Japanese|Javanese|Kannada|Kashmiri|Kazakh|Kinyarwanda|Kirghiz|Kirundi|Korean|Kurdish|Laothian|Latin|Latvian|Lingala|Lithuanian|Macedonian|Malagasy|Malay|Malayalam|Maltese|Maori|Marathi|Moldavian|Mongolian|Nauru|Nepali|Norwegian|Occitan|Oriya|Oromo|Other|Pashto|Persian|Polish|Portuguese|Punjabi|Quechua|Rhaeto-Romance|Romanian|Russian|Samoan|Sangro|Sanskrit|Serbian|Serbo-Croatian|Sesotho|Setswana|Shona|Sindhi|Singhalese|Siswati|Slovak|Slovenian|Somali|Spanish|Sudanese|Swahili|Swedish|Tagalog|Tajik|Tamil|Tatar|Telugu|Thai|Tibetan|Tigrinya|Tonga|Tsonga|Turkish|Turkmen|Twi|Ukrainian|Urdu|Uzbek|Vietnamese|Volapuk|Welsh|Wolof|Xhosa|Yiddish|Yoruba|Zulu|,)+\Z'),
+  (['XML_DIZ_INFO', 'Program_Info', 'Program_Language'], r'^(%s|Other|,)+\Z' % '|'.join(get_pad_languages())),
   (['XML_DIZ_INFO', 'Program_Info', 'File_Info', 'File_Size_Bytes'], r'^[0-9]{3,16}\Z'),
   (['XML_DIZ_INFO', 'Program_Info', 'File_Info', 'File_Size_K'], r'^[0-9.]{1,12}\Z'),
   (['XML_DIZ_INFO', 'Program_Info', 'File_Info', 'File_Size_MB'], r'^[0-9.]{1,8}\Z'),
@@ -83,12 +84,6 @@ FIELDS = [
   (['XML_DIZ_INFO', 'Program_Info', 'Program_System_Requirements'], r'^[^<\x09]{0,100}\Z'),
   (['XML_DIZ_INFO', 'Program_Info', 'FacebookProductPage'], r'^((http|https):\/\/.{4,120}|)\Z'),
   (['XML_DIZ_INFO', 'Program_Info', 'GooglePlusProductPage'], r'^((http|https):\/\/.{4,120}|)\Z'),
-  (['XML_DIZ_INFO', 'Program_Descriptions', 'English', 'Keywords'], r'^[^<\x09]{0,250}\Z'),
-  (['XML_DIZ_INFO', 'Program_Descriptions', 'English', 'Char_Desc_45'], r'^[^<\x09\x0a\x0d]{0,45}\Z'),
-  (['XML_DIZ_INFO', 'Program_Descriptions', 'English', 'Char_Desc_80'], r'^[^<\x09\x0a\x0d]{0,80}\Z'),
-  (['XML_DIZ_INFO', 'Program_Descriptions', 'English', 'Char_Desc_250'], r'^[^<\x09\x0a\x0d]{0,250}\Z'),
-  (['XML_DIZ_INFO', 'Program_Descriptions', 'English', 'Char_Desc_450'], r'^[^<\x09\x0a\x0d]{0,450}\Z'),
-  (['XML_DIZ_INFO', 'Program_Descriptions', 'English', 'Char_Desc_2000'], r'^[^<]{0,2000}\Z'),
   (['XML_DIZ_INFO', 'Web_Info', 'Application_URLs', 'Application_Info_URL'], r'^(http|https):\/\/.{2,120}\Z'),
   (['XML_DIZ_INFO', 'Web_Info', 'Application_URLs', 'Application_Order_URL'], r'^((http|https):\/\/.{2,120})?\Z'),
   (['XML_DIZ_INFO', 'Web_Info', 'Application_URLs', 'Application_Screenshot_URL'], r'^(http|https):\/\/.{2,120}\.(gif|jpg|png)\Z'),
@@ -129,6 +124,16 @@ FIELDS = [
   (['XML_DIZ_INFO', 'ASP', 'ASP_Member'], r'^[YyNn]\Z'),
   (['XML_DIZ_INFO', 'ASP', 'ASP_Member_Number'], None),
 ]
+
+for language in get_pad_languages():
+  FIELDS.extend([
+    (['XML_DIZ_INFO', 'Program_Descriptions', language, 'Keywords'], r'^[^<\x09]{0,250}\Z'),
+    (['XML_DIZ_INFO', 'Program_Descriptions', language, 'Char_Desc_45'], r'^[^<\x09\x0a\x0d]{0,45}\Z'),
+    (['XML_DIZ_INFO', 'Program_Descriptions', language, 'Char_Desc_80'], r'^[^<\x09\x0a\x0d]{0,80}\Z'),
+    (['XML_DIZ_INFO', 'Program_Descriptions', language, 'Char_Desc_250'], r'^[^<\x09\x0a\x0d]{0,250}\Z'),
+    (['XML_DIZ_INFO', 'Program_Descriptions', language, 'Char_Desc_450'], r'^[^<\x09\x0a\x0d]{0,450}\Z'),
+    (['XML_DIZ_INFO', 'Program_Descriptions', language, 'Char_Desc_2000'], r'^[^<]{0,2000}\Z'),
+  ])
 
 def validate_fields(fields, nodes, filename):
   expected_nodes = set()

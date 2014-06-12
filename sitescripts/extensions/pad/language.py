@@ -173,3 +173,6 @@ def iso2pad(iso_languages):
     pad_languages.append('Other')
 
   return pad_languages
+
+def get_pad_languages():
+  return ISO2PAD.values()
