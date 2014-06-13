@@ -168,7 +168,7 @@ class Configuration(object):
     elif self.type == 'safari':
       self.packageSuffix = '.safariextz'
     elif self.type == 'ie':
-      self.packageSuffix = '-x64.msi'
+      self.packageSuffix = '.exe'
     elif self.type == 'android':
       self.packageSuffix = '.apk'
 

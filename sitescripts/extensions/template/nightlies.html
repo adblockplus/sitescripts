@@ -54,11 +54,7 @@
 {%- for link in links %}
 <tr{%if loop.first%} style="font-weight: bold;"{%endif%}>
   <td>
-    {%- if config.type == 'ie' %}
-    {{config.name}} {{link.version}} <a href="{{link.download}}">(64-bit Windows)</a> <a href="{{link.download|replace('-x64', '-x86')}}">(32-bit Windows)</a>
-    {%- else %}
     <a href="{{link.download}}">{{config.name}} {{link.version}}</a>
-    {%- endif %}
     {%- if link.changelog %}
       <a href="{{link.changelog}}"> (changelog)</a>
     {%- endif %}
