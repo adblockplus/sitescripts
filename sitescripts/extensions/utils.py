@@ -15,9 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
 import os
+import re
 import subprocess
+import time
+import urlparse
+import urllib
+import urllib2
+import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser, NoOptionError
 from StringIO import StringIO
 from sitescripts.utils import get_config
@@ -256,3 +261,139 @@ def getSafariCertificateID(keyFile):
           return m.group(1)
   finally:
     bio.close()
+
+def _urlencode(value):
+  return urllib.quote(value.encode('utf-8'), '')
+
+def _urlopen(url, attempts=3):
+  """
+  Tries to open a particular URL, retries on failure.
+  """
+  for i in range(attempts):
+    try:
+      return urllib.urlopen(url)
+    except IOError, e:
+      error = e
+      time.sleep(5)
+  raise error
+
+def _getMozillaDownloadLink(galleryID):
+  """
+  gets download link for a Gecko add-on from the Mozilla Addons site
+  """
+  url = 'https://services.addons.mozilla.org/en-US/firefox/api/1/addon/%s' % _urlencode(galleryID)
+  document = dom.parse(_urlopen(url))
+  linkTags = document.getElementsByTagName('install')
+  linkTag = linkTags[0] if len(linkTags) > 0 else None
+  versionTags = document.getElementsByTagName('version')
+  versionTag = versionTags[0] if len(versionTags) > 0 else None
+  if linkTag and versionTag and linkTag.firstChild and versionTag.firstChild:
+    return (linkTag.firstChild.data, versionTag.firstChild.data)
+  else:
+    return (None, None)
+
+def _getGoogleDownloadLink(galleryID):
+  """
+  gets download link for a Chrome add-on from the Chrome Gallery site
+  """
+  galleryID = _urlencode(galleryID)
+
+  url = 'https://clients2.google.com/service/update2/crx?x=%s' % _urlencode('id=%s&uc' % galleryID)
+  document = dom.parse(_urlopen(url))
+  updateTags = document.getElementsByTagName('updatecheck')
+  version = updateTags and updateTags[0].getAttribute('version')
+
+  if not version:
+    return (None, None)
+
+  request = urllib2.Request('https://chrome.google.com/webstore/detail/_/' + galleryID)
+  request.get_method = lambda : 'HEAD'
+  url = urllib2.urlopen(request).geturl()
+
+  return (url, version)
+
+def _getOperaDownloadLink(galleryID):
+  """
+  gets download link for an Opera add-on from the Opera Addons site
+  """
+  galleryID = _urlencode(galleryID)
+
+  request = urllib2.Request('https://addons.opera.com/extensions/download/%s/' % galleryID)
+  request.get_method = lambda : 'HEAD'
+  response = urllib2.urlopen(request)
+
+  content_disposition = response.info().getheader('Content-Disposition')
+  if content_disposition:
+    match = re.search(r'filename=\S+-([\d.]+)-\d+\.crx$', content_disposition)
+    if match:
+      return ('https://addons.opera.com/extensions/details/%s/' % galleryID , match.group(1))
+
+  return (None, None)
+
+def _getLocalLink(repo):
+  """
+  gets the link for the newest download of an add-on in the local downloads
+  repository
+  """
+  highestURL = None
+  highestVersion = None
+
+  for filename, version in repo.getDownloads():
+    if not highestVersion or compareVersions(version, highestVersion) > 0:
+      highestURL = urlparse.urljoin(repo.downloadsURL, filename)
+      highestVersion = version
+
+  return (highestURL, highestVersion)
+
+def _getDownloadLink(repo):
+  """
+  gets the download link to the most current version of an extension
+  """
+  # you can't easily install extensions from third-party sources on Chrome
+  # and Opera. So always get the link for the version on the Web Store.
+  if repo.galleryID:
+    if repo.type == "chrome":
+      return _getGoogleDownloadLink(repo.galleryID)
+    if repo.type == "opera":
+      return _getOperaDownloadLink(repo.galleryID)
+
+  (localURL, localVersion) = _getLocalLink(repo)
+
+  # get a link to Firefox Add-Ons, if the latest version has been published there
+  if repo.type == 'gecko' and repo.galleryID:
+    (galleryURL, galleryVersion) = _getMozillaDownloadLink(repo.galleryID)
+    if not localVersion or (galleryVersion and
+                            compareVersions(galleryVersion, localVersion) >= 0):
+      return (galleryURL, galleryVersion)
+
+  return (localURL, localVersion)
+
+def _getQRCode(text):
+  try:
+    import qrcode
+    import base64
+    import Image    # required by qrcode but not formally a dependency
+  except:
+    return None
+
+  data = StringIO()
+  qrcode.make(text, box_size=5).save(data, 'png')
+  return 'data:image/png;base64,' + base64.b64encode(data.getvalue())
+
+def getDownloadLinks(result):
+  """
+  gets the download links for all extensions and puts them into the config
+  object
+  """
+  for repo in Configuration.getRepositoryConfigurations():
+    (downloadURL, version) = _getDownloadLink(repo)
+    if downloadURL == None:
+      continue
+    if not result.has_section(repo.repositoryName):
+      result.add_section(repo.repositoryName)
+    result.set(repo.repositoryName, "downloadURL", downloadURL)
+    result.set(repo.repositoryName, "version", version)
+
+    qrcode = _getQRCode(downloadURL)
+    if qrcode != None:
+      result.set(repo.repositoryName, "qrcode", qrcode)
