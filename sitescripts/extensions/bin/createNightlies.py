@@ -232,19 +232,11 @@ class NightlyBuild(object):
     updateURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + packageName + '?update')
     self.writeLibabpUpdateManifest({
       "%s/%s" % (self.basename, "msie64"): {
-        "url": updateURL,
-        "version": version,
-      },
-      "%s/%s" % (self.basename, "win64"): {
-        "url": updateURL,
+        "url": updateURL.replace(".exe", "-x64.msi"),
         "version": version,
       },
       "%s/%s" % (self.basename, "msie32"): {
-        "url": updateURL.replace("-x64", "-x86"),
-        "version": version,
-      },
-      "%s/%s" % (self.basename, "win32"): {
-        "url": updateURL.replace("-x64", "-x86"),
+        "url": updateURL.replace(".exe", "-x86.msi"),
         "version": version,
       },
     })
