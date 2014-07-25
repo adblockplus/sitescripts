@@ -22,13 +22,15 @@ Generate update manifests
   This script generates update manifests for all extensions and apps
 """
 
+import os
 import re
 import subprocess
 from buildtools.packagerGecko import KNOWN_APPS
 from ConfigParser import SafeConfigParser
 from sitescripts.utils import get_config, get_template
-from sitescripts.extensions.utils import (Configuration, getDownloadLinks,
-                                          getSafariCertificateID)
+from sitescripts.extensions.utils import (
+  Configuration, getDownloadLinks, getSafariCertificateID,
+  writeIEUpdateManifest)
 from sitescripts.extensions.android import get_min_sdk_version
 
 def readMetadata(repo, version):
@@ -65,6 +67,11 @@ def readMetadata(repo, version):
         minVersion, maxVersion = metadata.get('compat', key).split('/')
         result['compat'].append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
     return result
+  elif repo.type == 'ie':
+    return {
+      'version': version,
+      'basename': os.path.basename(repo.repository)
+    }
   else:
     raise Exception('unknown repository type %r' % repo.type)
 
@@ -73,7 +80,7 @@ def writeUpdateManifest(links):
   writes an update manifest for all extensions and Android apps
   """
 
-  extensions = {'gecko': [], 'android': [], 'safari': []}
+  extensions = {'gecko': [], 'android': [], 'safari': [], 'ie': []}
   for repo in Configuration.getRepositoryConfigurations():
     if repo.type not in extensions or not links.has_section(repo.repositoryName):
       continue
@@ -88,8 +95,11 @@ def writeUpdateManifest(links):
 
   for repoType in extensions.iterkeys():
     manifestPath = get_config().get('extensions', '%sUpdateManifestPath' % repoType)
-    template = get_template(get_config().get('extensions', '%sUpdateManifest' % repoType))
-    template.stream({'extensions': extensions[repoType]}).dump(manifestPath)
+    if repoType == 'ie':
+      writeIEUpdateManifest(manifestPath, extensions[repoType])
+    else:
+      template = get_template(get_config().get('extensions', '%sUpdateManifest' % repoType))
+      template.stream({'extensions': extensions[repoType]}).dump(manifestPath)
 
 def updateUpdateManifests():
   """

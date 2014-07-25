@@ -25,7 +25,7 @@ Nightly builds generation script
 
 """
 
-import sys, os, os.path, codecs, subprocess, ConfigParser, traceback, json, hashlib
+import sys, os, os.path, subprocess, ConfigParser, traceback, json, hashlib
 import tempfile, shutil, urlparse, pipes, time, urllib2, struct
 from datetime import datetime
 from urllib import urlencode
@@ -207,19 +207,6 @@ class NightlyBuild(object):
     template = get_template(get_config().get('extensions', templateName))
     template.stream({'extensions': [self]}).dump(manifestPath)
 
-  def writeLibabpUpdateManifest(self, updates):
-    """
-      Writes update.json file for libadblockplus
-    """
-    baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
-    if not os.path.exists(baseDir):
-      os.makedirs(baseDir)
-    manifestPath = os.path.join(baseDir, "update.json")
-
-    handle = codecs.open(manifestPath, "wb", encoding="UTF-8")
-    json.dump(updates, handle, ensure_ascii=False, indent=2, separators=(",", ": "))
-    handle.close()
-
   def writeIEUpdateManifest(self, versions):
     """
       Writes update.json file for the latest IE build
@@ -228,30 +215,27 @@ class NightlyBuild(object):
       return
 
     version = versions[0]
-    packageName = self.basename + '-' + versions[0] + self.config.packageSuffix
+    packageName = self.basename + '-' + version + self.config.packageSuffix
     updateURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + packageName + '?update')
-    self.writeLibabpUpdateManifest({
-      "%s/%s" % (self.basename, "msie64"): {
-        "url": updateURL.replace(".exe", "-x64.msi"),
-        "version": version,
-      },
-      "%s/%s" % (self.basename, "msie32"): {
-        "url": updateURL.replace(".exe", "-x86.msi"),
-        "version": version,
-      },
-    })
-
     baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
+    manifestPath = os.path.join(baseDir, 'update.json')
+
+    from sitescripts.extensions.utils import writeIEUpdateManifest as doWrite
+    doWrite(manifestPath, [{
+      'basename': self.basename,
+      'version': version,
+      'updateURL': updateURL
+    }])
+
     for suffix in (self.config.packageSuffix, self.config.packageSuffix.replace("-x64", "-x86")):
       linkPath = os.path.join(baseDir, '00latest%s' % suffix)
-      outputPath = os.path.join(baseDir, self.basename + '-' + versions[0] + suffix)
+      outputPath = os.path.join(baseDir, self.basename + '-' + version + suffix)
       if hasattr(os, 'symlink'):
         if os.path.exists(linkPath):
           os.remove(linkPath)
         os.symlink(os.path.basename(outputPath), linkPath)
       else:
         shutil.copyfile(outputPath, linkPath)
-
 
   def build(self):
     """

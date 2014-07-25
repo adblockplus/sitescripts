@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
+import codecs
 import os
+import json
 import re
 import subprocess
 import time
@@ -397,3 +399,39 @@ def getDownloadLinks(result):
     qrcode = _getQRCode(downloadURL)
     if qrcode != None:
       result.set(repo.repositoryName, "qrcode", qrcode)
+
+def writeLibabpUpdateManifest(path, updates):
+  """
+    Writes update.json file for libadblockplus
+  """
+
+  baseDir = os.path.dirname(path)
+  if not os.path.exists(baseDir):
+    os.makedirs(baseDir)
+
+  handle = codecs.open(path, "wb", encoding="UTF-8")
+  json.dump(updates, handle, ensure_ascii=False, indent=2, separators=(",", ": "))
+  handle.close()
+
+def writeIEUpdateManifest(path, extensions):
+  """
+    Writes update.json for IE
+  """
+
+  if not extensions:
+    return
+
+  updates = {}
+  for extension in extensions:
+    basename = extension['basename']
+    updateURL = extension['updateURL']
+    version = extension['version']
+    updates["%s/%s" % (basename, "msie64")] = {
+      "url": updateURL.replace(".exe", "-x64.msi"),
+      "version": version
+    }
+    updates["%s/%s" % (basename, "msie32")] = {
+      "url": updateURL.replace(".exe", "-x86.msi"),
+      "version": version
+    }
+  writeLibabpUpdateManifest(path, updates)
