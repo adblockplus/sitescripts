@@ -64,7 +64,8 @@ class NightlyBuild(object):
     """
       retrieves the current revision number from the repository
     """
-    command = ['hg', 'log', '-R', self.config.repository, '-r', 'default', '--template', '{rev}']
+    command = ['hg', 'log', '-R', self.config.repository, '-r', 'default',
+      '--template', '{rev}', '--config', 'defaults.log=']
     return subprocess.check_output(command)
 
   def getChanges(self):
@@ -74,7 +75,8 @@ class NightlyBuild(object):
 
     command = ['hg', 'log', '-R', self.config.repository, '-r', 'tip:0',
       '-b', 'default', '-l', '50', '--encoding', 'utf-8',
-      '--template', '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0']
+      '--template', '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0',
+      '--config', 'defaults.log=']
     result = subprocess.check_output(command).decode('utf-8')
 
     for change in result.split('\0\0'):
