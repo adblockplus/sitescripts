@@ -30,7 +30,7 @@ from ConfigParser import SafeConfigParser
 from sitescripts.utils import get_config, get_template
 from sitescripts.extensions.utils import (
   Configuration, getDownloadLinks, getSafariCertificateID,
-  writeIEUpdateManifest)
+  writeIEUpdateManifest, writeLibabpUpdateManifest)
 from sitescripts.extensions.android import get_min_sdk_version
 
 def readMetadata(repo, version):
@@ -98,6 +98,13 @@ def writeUpdateManifest(links):
     if repoType == 'ie':
       writeIEUpdateManifest(manifestPath, extensions[repoType])
     else:
+      # ABP for Android used to have its own update manifest format. We need to
+      # generate both that and the new one in the libadblockplus format as long
+      # as a significant amount of users is on an old version.
+      if repoType == 'android':
+        newManifestPath = get_config().get("extensions",
+                                           "androidNewUpdateManifestPath")
+        writeLibabpUpdateManifest(newManifestPath, extensions[repoType])
       template = get_template(get_config().get('extensions', '%sUpdateManifest' % repoType))
       template.stream({'extensions': extensions[repoType]}).dump(manifestPath)
 
