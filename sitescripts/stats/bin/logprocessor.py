@@ -372,7 +372,7 @@ def parse_update_flag(query):
 def parse_record(line, ignored, geo, geov6):
   global log_regexp
   if log_regexp == None:
-    log_regexp = re.compile(r'(\S+) \S+ \S+ \[([^]\s]+) ([+\-]\d\d)(\d\d)\] "GET ([^"\s]+) [^"]+" (\d+) (\d+) "[^"]*" "([^"]*)"(?: "[^"]*" \S+ "[^"]*" "[^"]*" "([^"]*)")?')
+    log_regexp = re.compile(r'(\S+) \S+ \S+ \[([^]\s]+) ([+\-]\d\d)(\d\d)\] "GET ([^"\s]+) [^"]+" (\d+) (\d+) "([^"]*)" "([^"]*)"(?: "[^"]*" \S+ "[^"]*" "[^"]*" "([^"]*)")?')
 
   match = re.search(log_regexp, line)
   if not match:
@@ -389,9 +389,10 @@ def parse_record(line, ignored, geo, geov6):
   info["ip"], info["country"] = process_ip(match.group(1), geo, geov6)
   info["time"], info["month"], info["day"], info["weekday"], info["hour"] = parse_time(match.group(2), int(match.group(3)), int(match.group(4)))
   info["file"], info["query"] = parse_path(match.group(5))
-  info["ua"], info["uaversion"] = parse_ua(match.group(8))
+  info["referrer"] = match.group(8)
+  info["ua"], info["uaversion"] = parse_ua(match.group(9))
   info["fullua"] = "%s %s" % (info["ua"], info["uaversion"])
-  info["clientid"] = match.group(9)
+  info["clientid"] = match.group(10)
 
   # Additional metadata depends on file type
   filename = os.path.basename(info["file"])
