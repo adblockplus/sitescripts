@@ -65,3 +65,4 @@ import reports.web.showUser
 import formmail.web.formmail
 import crawler.web.crawler
 import urlfixer.web.submitData
+import extensions.web.downloads

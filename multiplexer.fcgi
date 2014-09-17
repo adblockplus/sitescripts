@@ -29,6 +29,10 @@ class MultiplexerApp:
       if request.path in handlers:
         return handlers[request.path](environ, start_response)
 
+      request_dir = re.sub(r'[^/]+$', '', request.path)
+      if request_dir in handlers:
+        return handlers[request_dir](environ, start_response)
+
     start_response('404 Not Found', [('Content-Type', 'text/html')])
     return ["Not Found"]
 
