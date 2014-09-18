@@ -4,6 +4,18 @@ mailer=/usr/sbin/sendmail
 mailerDebug=no
 secret=somerandomstringhere
 
+[multiplexer]
+sitescripts.subscriptions.web.fallback =
+sitescripts.crashes.web.submitCrash =
+sitescripts.reports.web.submitReport =
+sitescripts.reports.web.updateReport =
+sitescripts.reports.web.showDigest =
+sitescripts.reports.web.showUser =
+sitescripts.formmail.web.formmail =
+sitescripts.crawler.web.crawler =
+sitescripts.urlfixer.web.submitData =
+sitescripts.extensions.web.downloads =
+
 [subscriptions]
 repository=%(root)s/hg/subscriptionlist
 statusTemplate=subscriptions/template/status.html

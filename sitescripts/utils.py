@@ -73,6 +73,7 @@ def get_config():
     path = os.path.abspath(path)
     if os.path.exists(path):
       config = SafeConfigParser()
+      config.optionxform = lambda x: x
       config.read(path)
       return config
 

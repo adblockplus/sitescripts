@@ -16,6 +16,7 @@
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
 import base64
+import importlib
 from sitescripts.utils import get_config
 
 handlers = {}
@@ -56,13 +57,5 @@ def authenticate(f, environ, start_response, config_section):
                  [("WWW-Authenticate", 'Basic realm="%s"' % realm)])
   return ""
 
-import subscriptions.web.fallback
-import crashes.web.submitCrash
-import reports.web.submitReport
-import reports.web.updateReport
-import reports.web.showDigest
-import reports.web.showUser
-import formmail.web.formmail
-import crawler.web.crawler
-import urlfixer.web.submitData
-import extensions.web.downloads
+for module in set(get_config().options("multiplexer")) - set(get_config().defaults()):
+  importlib.import_module(module)
