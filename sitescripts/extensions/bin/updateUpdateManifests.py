@@ -45,7 +45,9 @@ def readMetadata(repo, version):
 
     return {
       'revision': revision,
+      'version': version,
       'minSdkVersion': get_min_sdk_version(repo, version),
+      'basename': os.path.basename(repo.repository)
     }
   elif repo.type == 'safari':
     metadata = repo.readMetadata(version)
@@ -104,7 +106,13 @@ def writeUpdateManifest(links):
       if repoType == 'android':
         newManifestPath = get_config().get("extensions",
                                            "androidNewUpdateManifestPath")
-        writeLibabpUpdateManifest(newManifestPath, extensions[repoType])
+        updates = {}
+        for extension in extensions[repoType]:
+          updates[extension['basename']] = {
+            'version': extension['version'],
+            'url': extension['updateURL']
+          }
+        writeLibabpUpdateManifest(newManifestPath, updates)
       template = get_template(get_config().get('extensions', '%sUpdateManifest' % repoType))
       template.stream({'extensions': extensions[repoType]}).dump(manifestPath)
 
