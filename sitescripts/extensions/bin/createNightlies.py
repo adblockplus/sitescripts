@@ -94,6 +94,17 @@ class NightlyBuild(object):
     command = ['hg', 'clone', '-q', self.config.repository, '-u', 'default', self.tempdir]
     subprocess.check_call(command)
 
+    # Make sure to process the dependencies file if it is present
+    import logging
+    logging.disable(logging.WARNING)
+    try:
+      from buildtools.ensure_dependencies import resolve_deps
+      resolve_deps(self.tempdir, self_update=False,
+          overrideroots={"hg": os.path.dirname(self.config.repository)},
+          skipdependencies={"buildtools"})
+    finally:
+      logging.disable(logging.NOTSET)
+
   def writeChangelog(self, changes):
     """
       write the changelog file into the cloned repository
