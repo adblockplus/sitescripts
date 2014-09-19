@@ -31,7 +31,9 @@ from datetime import datetime
 from urllib import urlencode
 from xml.dom.minidom import parse as parseXml
 from sitescripts.utils import get_config, setupStderr, get_template
-from sitescripts.extensions.utils import compareVersions, Configuration, getSafariCertificateID
+from sitescripts.extensions.utils import (
+  compareVersions, Configuration, getSafariCertificateID,
+  writeAndroidUpdateManifest)
 
 MAX_BUILDS = 50
 
@@ -213,6 +215,16 @@ class NightlyBuild(object):
     elif self.config.type == 'android':
       manifestPath = os.path.join(baseDir, "updates.xml")
       templateName = 'androidUpdateManifest'
+
+      # ABP for Android used to have its own update manifest format. We need to
+      # generate both that and the new one in the libadblockplus format as long
+      # as a significant amount of users is on an old version.
+      newManifestPath = os.path.join(baseDir, "update.json")
+      writeAndroidUpdateManifest(newManifestPath, [{
+        'basename': self.basename,
+        'version': self.version,
+        'updateURL': self.updateURL
+      }])
     else:
       manifestPath = os.path.join(baseDir, "update.rdf")
       templateName = 'geckoUpdateManifest'

@@ -30,7 +30,7 @@ from ConfigParser import SafeConfigParser
 from sitescripts.utils import get_config, get_template
 from sitescripts.extensions.utils import (
   Configuration, getDownloadLinks, getSafariCertificateID,
-  writeIEUpdateManifest, writeLibabpUpdateManifest)
+  writeIEUpdateManifest, writeAndroidUpdateManifest)
 from sitescripts.extensions.android import get_min_sdk_version
 
 def readMetadata(repo, version):
@@ -106,13 +106,7 @@ def writeUpdateManifest(links):
       if repoType == 'android':
         newManifestPath = get_config().get("extensions",
                                            "androidNewUpdateManifestPath")
-        updates = {}
-        for extension in extensions[repoType]:
-          updates[extension['basename']] = {
-            'version': extension['version'],
-            'url': extension['updateURL']
-          }
-        writeLibabpUpdateManifest(newManifestPath, updates)
+        writeAndroidUpdateManifest(newManifestPath, extensions[repoType])
       template = get_template(get_config().get('extensions', '%sUpdateManifest' % repoType))
       template.stream({'extensions': extensions[repoType]}).dump(manifestPath)
 

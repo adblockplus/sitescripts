@@ -435,3 +435,19 @@ def writeIEUpdateManifest(path, extensions):
       "version": version
     }
   writeLibabpUpdateManifest(path, updates)
+
+def writeAndroidUpdateManifest(path, extensions):
+  """
+    Writes update.json for Android
+  """
+
+  if not extensions:
+    return
+
+  updates = {}
+  for extension in extensions:
+    updates[extension['basename']] = {
+      "url": extension['updateURL'],
+      "version": extension['version']
+    }
+  writeLibabpUpdateManifest(path, updates)
