@@ -379,10 +379,11 @@ def parse_record(line, ignored, geo, geov6):
     return None
 
   status = int(match.group(6))
-  if status != 200:
+  if status not in (200, 301, 302):
     return None
 
   info = {
+    "status": status,
     "size": int(match.group(7)),
   }
 

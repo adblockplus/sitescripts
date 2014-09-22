@@ -85,6 +85,11 @@ basic_fields = [
     "coltitle": "Referrer",
   },
   {
+    "name": "status",
+    "title": "Status codes",
+    "coltitle": "Status code",
+  },
+  {
     "name": "mirror",
     "title": "Download mirrors",
     "coltitle": "Download mirror",
