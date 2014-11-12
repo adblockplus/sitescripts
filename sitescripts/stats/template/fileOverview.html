@@ -56,8 +56,8 @@
           <td align="right">{{value.hits}}</td>
           <td align="right">{{value.bandwidth|bytes}}</td>
           <td class="chart">
-            <div class="hitsChart" style="width: {{(value.hits / maxhits * 100)|round(method='ceil')|int}}px;"></div><br />
-            <div class="bandwidthChart" style="width: {{(value.bandwidth / maxbandwidth * 100)|round(method='ceil')|int}}px;"></div>
+            <div class="hitsChart" style="width: {{value.hits|percentage(maxhits)|round(method='ceil')|int}}px;"></div><br />
+            <div class="bandwidthChart" style="width: {{value.bandwidth|percentage(maxbandwidth)|round(method='ceil')|int}}px;"></div>
           </td>
         </tr>
         {%- endfor %}

@@ -88,13 +88,13 @@
           {%- endif %}
         </td>
         <td align="right">{{value.hits}}</td>
-        <td align="right">{{(value.hits / params.totalhits * 100)|round(precision=1)}}%</td>
+        <td align="right">{{value.hits|percentage(params.totalhits)|round(precision=1)}}%</td>
         <td align="right">{{value.bandwidth|bytes}}</td>
-        <td align="right">{{(value.bandwidth / params.totalbandwidth * 100)|round(precision=1)}}%</td>
+        <td align="right">{{value.bandwidth|percentage(params.totalbandwidth)|round(precision=1)}}%</td>
         {%- if chart %}
           <td class="chart">
-            <div class="hitsChart" style="width: {{(value.hits / params.maxhits * 100)|round(method='ceil')|int}}px;"></div><br />
-            <div class="bandwidthChart" style="width: {{(value.bandwidth / params.maxbandwidth * 100)|round(method='ceil')|int}}px;"></div>
+            <div class="hitsChart" style="width: {{value.hits|percentage(params.maxhits)|round(method='ceil')|int}}px;"></div><br />
+            <div class="bandwidthChart" style="width: {{value.bandwidth|percentage(params.maxbandwidth)|round(method='ceil')|int}}px;"></div>
           </td>
         {%- else %}
           <td>&nbsp;</td>
