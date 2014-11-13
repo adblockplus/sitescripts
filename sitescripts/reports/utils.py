@@ -30,7 +30,7 @@ def getReportSubscriptions(guid):
   return rows
 
 def getReports(startTime):
-  count = 1000
+  count = 10000
   offset = 0
   while True:
     cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
