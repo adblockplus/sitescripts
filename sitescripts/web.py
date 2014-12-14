@@ -16,6 +16,7 @@
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
 import base64
+import imp
 import importlib
 from sitescripts.utils import get_config
 
@@ -58,4 +59,8 @@ def authenticate(f, environ, start_response, config_section):
   return ""
 
 for module in set(get_config().options("multiplexer")) - set(get_config().defaults()):
-  importlib.import_module(module)
+  module_path = get_config().get("multiplexer", module)
+  if module_path:
+    imp.load_source(module, module_path)
+  else:
+    importlib.import_module(module)
