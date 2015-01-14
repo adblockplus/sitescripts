@@ -523,7 +523,7 @@ def parse_source(factor, lock, (mirror_name, server_type, log_file)):
   except:
     print >>sys.stderr, "Unable to process log file '%s'" % log_file
     traceback.print_exc()
-    return None, None, None, None
+    return None, None
 
 def parse_sources(sources, factor=1, verbose=False):
   pool = multiprocessing.Pool()
