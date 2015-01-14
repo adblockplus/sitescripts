@@ -102,7 +102,7 @@ class NightlyBuild(object):
     try:
       from buildtools.ensure_dependencies import resolve_deps
       resolve_deps(self.tempdir, self_update=False,
-          overrideroots={"hg": os.path.dirname(self.config.repository)},
+          overrideroots={"hg": os.path.abspath(os.path.join(self.config.repository, os.pardir))},
           skipdependencies={"buildtools"})
     finally:
       logging.disable(logging.NOTSET)
