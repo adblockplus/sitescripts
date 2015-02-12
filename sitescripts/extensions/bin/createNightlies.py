@@ -252,7 +252,7 @@ class NightlyBuild(object):
       'updateURL': updateURL
     }])
 
-    for suffix in (self.config.packageSuffix, self.config.packageSuffix.replace("-x64", "-x86")):
+    for suffix in ["-x86.msi", "-x64.msi", "-gpo-x86.msi", "-gpo-x64.msi"]:
       linkPath = os.path.join(baseDir, '00latest%s' % suffix)
       outputPath = os.path.join(baseDir, self.basename + '-' + version + suffix)
       if hasattr(os, 'symlink'):
