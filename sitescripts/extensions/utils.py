@@ -218,7 +218,7 @@ class Configuration(object):
     metadata = self.readMetadata()
     if metadata:
       return metadata.get('general', 'basename')
-    return os.path.basename(self.repository)
+    return os.path.basename(os.path.normpath(self.repository))
 
   def getDownloads(self):
     prefix = self.basename + '-'
