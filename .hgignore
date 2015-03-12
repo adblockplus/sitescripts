@@ -1,5 +1,7 @@
 syntax: glob
 
 *.pyc
+*.pyo
 build
 dist
+sitescripts/filterhits/test/temp
