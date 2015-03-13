@@ -15,8 +15,6 @@ sitescripts.formmail.web.formmail =
 sitescripts.crawler.web.crawler =
 sitescripts.urlfixer.web.submitData =
 sitescripts.extensions.web.downloads =
-sitescripts.filterhits.web.submit =
-sitescripts.filterhits.web.query =
 
 [subscriptions]
 repository=%(root)s/hg/subscriptionlist
@@ -170,11 +168,3 @@ example_targetfile=third-party/publicSuffixList.txt
 [notifications]
 repository=%(root)s/hg/notifications
 output=%(root)s/www/notification.json
-
-[filterhitstats]
-interval=3600
-log_dir=/var/log/filterhits
-dbuser=user
-dbpasswrd=password
-database=db
-test_database=test_db

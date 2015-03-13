@@ -4,4 +4,3 @@ syntax: glob
 *.pyo
 build
 dist
-sitescripts/filterhits/test/temp
