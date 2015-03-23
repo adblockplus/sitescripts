@@ -18,6 +18,7 @@
 import base64
 import imp
 import importlib
+import re
 from sitescripts.utils import get_config
 
 handlers = {}
@@ -57,6 +58,19 @@ def authenticate(f, environ, start_response, config_section):
   start_response("401 UNAUTHORIZED",
                  [("WWW-Authenticate", 'Basic realm="%s"' % realm)])
   return ""
+
+def multiplex(environ, start_response):
+  try:
+    path = environ["PATH_INFO"]
+    try:
+      handler = handlers[path]
+    except KeyError:
+      handler = handlers[re.sub(r"[^/]+$", "", path)]
+  except KeyError:
+    start_response("404 Not Found", [("Content-Type", "text/plain")])
+    return ["Not Found"]
+
+  return handler(environ, start_response)
 
 for module in set(get_config().options("multiplexer")) - set(get_config().defaults()):
   module_path = get_config().get("multiplexer", module)
