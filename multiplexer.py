@@ -24,7 +24,7 @@ except ImportError:
   from wsgiref.simple_server import make_server
 
   def run_simple(host, port, app, **kwargs):
-    server = make_server(host, port, wrapper)
+    server = make_server(host, port, app)
     print " * Running on http://%s:%i/" % server.server_address
     server.serve_forever()
 
