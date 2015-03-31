@@ -42,29 +42,46 @@ from sitescripts.utils import get_config, setupStderr
 log_regexp = None
 gecko_apps = None
 
-def open_stats_file(path):
-  parseresult = urlparse.urlparse(path)
-  if parseresult.scheme == "ssh" and parseresult.username and parseresult.hostname and parseresult.path:
-    command = [
-      "ssh", "-q", "-o", "NumberOfPasswordPrompts 0", "-T", "-k",
-      "-l", parseresult.username,
-      parseresult.hostname,
-      parseresult.path.lstrip("/")
-    ]
-    if parseresult.port:
-      command[1:1] = ["-P", str(parseresult.port)]
-    result = subprocess.Popen(command, stdout=subprocess.PIPE).stdout
-  elif parseresult.scheme in ("http", "https"):
-    result = urllib.urlopen(path)
-  elif os.path.exists(path):
-    result = open(path, "rb")
-  else:
-    raise IOError("Path '%s' not recognized" % path)
+class StatsFile:
+  def __init__(self, path):
+    self._inner_file = None
+    self._processes = []
 
-  if path.endswith(".gz"):
-    # Built-in gzip module doesn't support streaming (fixed in Python 3.2)
-    result = subprocess.Popen(["gzip", "-cd"], stdin=result, stdout=subprocess.PIPE).stdout
-  return result
+    parseresult = urlparse.urlparse(path)
+    if parseresult.scheme == "ssh" and parseresult.username and parseresult.hostname and parseresult.path:
+      command = [
+        "ssh", "-q", "-o", "NumberOfPasswordPrompts 0", "-T", "-k",
+        "-l", parseresult.username,
+        parseresult.hostname,
+        parseresult.path.lstrip("/")
+      ]
+      if parseresult.port:
+        command[1:1] = ["-P", str(parseresult.port)]
+      ssh_process = subprocess.Popen(command, stdout=subprocess.PIPE)
+      self._processes.push(ssh_process)
+      self._file = ssh_process.stdout
+    elif parseresult.scheme in ("http", "https"):
+      self._file = urllib.urlopen(path)
+    elif os.path.exists(path):
+      self._file = open(path, "rb")
+    else:
+      raise IOError("Path '%s' not recognized" % path)
+
+    if path.endswith(".gz"):
+      # Built-in gzip module doesn't support streaming (fixed in Python 3.2)
+      gzip_process = subprocess.Popen(["gzip", "-cd"], stdin=self._file, stdout=subprocess.PIPE)
+      self._processes.append(gzip_process)
+      self._file, self._inner_file = gzip_process.stdout, self._file
+
+  def __getattr__(self, name):
+    return getattr(self._file, name)
+
+  def close(self):
+    self._file.close()
+    if self._inner_file:
+      self._inner_file.close()
+    for process in self._processes:
+      process.wait()
 
 def get_stats_files():
   config = get_config()
@@ -508,7 +525,7 @@ def parse_source(factor, lock, (mirror_name, server_type, log_file)):
     geov6 = pygeoip.GeoIP(get_config().get("stats", "geoipv6_db"), pygeoip.MEMORY_CACHE)
 
     ignored = set()
-    fileobj = open_stats_file(log_file)
+    fileobj = StatsFile(log_file)
     try:
       data = parse_fileobj(mirror_name, fileobj, geo, geov6, ignored)
     finally:
