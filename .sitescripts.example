@@ -102,7 +102,6 @@ urlfixer_name=URL fixer
 urlfixer_galleryID=url-fixer
 urlfixer_pad=true
 buildRepository=%(root)s/hg/buildtools
-jsdocRepository=%(root)s/hg/jsdoc-toolkit
 nightliesData=%(root)s/data/nightlies
 nightliesDirectory=%(root)s/www/devbuilds
 nightliesURL=https://adblockplus.org/devbuilds/

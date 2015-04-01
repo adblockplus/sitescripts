@@ -365,16 +365,9 @@ class NightlyBuild(object):
     if not self.config.type == 'gecko':
       return
 
-    docsdir = tempfile.mkdtemp(prefix='jsdoc')
-    command = ['hg', 'archive', '-R', get_config().get('extensions', 'jsdocRepository'), '-r', 'default', docsdir]
-    subprocess.check_call(command)
-
-    try:
-      import buildtools.build as build
-      outputPath = os.path.join(self.config.docsDirectory, self.basename)
-      build.generateDocs(self.tempdir, None, [("-t", docsdir), ("-q", "")], [outputPath], self.config.type)
-    finally:
-      shutil.rmtree(docsdir, ignore_errors=True)
+    import buildtools.build as build
+    outputPath = os.path.join(self.config.docsDirectory, self.basename)
+    build.generateDocs(self.tempdir, None, [('--quiet', '')], [outputPath], self.config.type)
 
   def uploadToChromeWebStore(self):
     # Google APIs use HTTP error codes with error message in body. So we add
