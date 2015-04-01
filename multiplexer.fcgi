@@ -21,10 +21,12 @@ from flup.server.fcgi import WSGIServer
 
 from sitescripts.web import multiplex
 
-bindAddress = None
-if 'FCGI_BIND_ADDRESS' in os.environ:
-  match = re.match(r'^(.*?):(\d+)$', os.environ['FCGI_BIND_ADDRESS'])
-  bindAddress = (match.group(1), int(match.group(2)))
+bindAddress = os.environ.get('FCGI_BIND_ADDRESS')
+if bindAddress:
+  match = re.search(r'^(.*?):(\d+)$', bindAddress)
+  if match:
+    bindAddress = (match.group(1), int(match.group(2)))
+
 srv = WSGIServer(multiplex, debug=False, bindAddress=bindAddress)
 
 if __name__ == '__main__':
