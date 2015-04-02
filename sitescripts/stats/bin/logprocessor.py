@@ -58,7 +58,7 @@ class StatsFile:
       if parseresult.port:
         command[1:1] = ["-P", str(parseresult.port)]
       ssh_process = subprocess.Popen(command, stdout=subprocess.PIPE)
-      self._processes.push(ssh_process)
+      self._processes.append(ssh_process)
       self._file = ssh_process.stdout
     elif parseresult.scheme in ("http", "https"):
       self._file = urllib.urlopen(path)
