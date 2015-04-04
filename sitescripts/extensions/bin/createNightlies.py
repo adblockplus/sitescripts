@@ -362,7 +362,7 @@ class NightlyBuild(object):
     template.stream({'config': self.config, 'links': links}).dump(outputPath)
 
   def updateDocs(self):
-    if not self.config.type == 'gecko':
+    if self.config.type not in ('gecko', 'chrome'):
       return
 
     import buildtools.build as build
