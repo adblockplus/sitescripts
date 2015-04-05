@@ -15,101 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, re, subprocess, tarfile, codecs, time, traceback, json
-from StringIO import StringIO
+import codecs
+import json
+import time
+
+from sitescripts.notifications.parser import load_notifications
 from sitescripts.utils import get_config, setupStderr
 
-def parse_targetspec(value, name):
-  target = {}
-  for spec in value.split():
-    known = False
-    for parameter in ("extension", "application", "platform"):
-      if spec.startswith(parameter + "="):
-        target[parameter] = spec[len(parameter + "="):]
-        known = True
-      elif spec.startswith(parameter + "Version>="):
-        target[parameter + "MinVersion"] = spec[len(parameter + "Version>="):]
-        known = True
-      elif spec.startswith(parameter + "Version<="):
-        target[parameter + "MaxVersion"] = spec[len(parameter + "Version<="):]
-        known = True
-      elif spec.startswith(parameter + "Version="):
-        target[parameter + "MinVersion"] = target[parameter + "MaxVersion"] = spec[len(parameter + "Version="):]
-        known = True
-    if not known:
-      raise Exception("Unknown target specifier '%s' in file '%s'" % (spec, name))
-  return target
-
-def parse_notification(data, name):
-  notification = {"id": name, "severity": "information", "message": {}, "title": {}}
-
-  for line in data:
-    if not re.search(r"\S", line):
-      continue
-
-    if line.find("=") < 0:
-      raise Exception("Could not process line '%s' in file '%s'" % (line.strip(), name))
-
-    key, value = map(unicode.strip, line.split("=", 1))
-
-    if key == "inactive":
-      notification["inactive"] = True
-    elif key == "severity":
-      if value not in ("information", "critical"):
-        raise Exception("Unknown severity value '%s' in file '%s'" % (value, name))
-      notification["severity"] = value
-    elif key == "links":
-      notification["links"] = value.split()
-    elif key.startswith("title."):
-      locale = key[len("title."):]
-      notification["title"][locale] = value
-    elif key.startswith("message."):
-      locale = key[len("message."):]
-      notification["message"][locale] = value
-    elif key == "target":
-      target = parse_targetspec(value, name)
-      if "targets" in notification:
-        notification["targets"].append(target)
-      else:
-        notification["targets"] = [target]
-    else:
-      raise Exception("Unknown parameter '%s' in file '%s'" % (key, name))
-
-  if "en-US" not in notification["title"]:
-    raise Exception("No title for en-US (default language) in file '%s'" % name)
-  if "en-US" not in notification["message"]:
-    raise Exception("No message for en-US (default language) in file '%s'" % name)
-  return notification
-
-def generate_notifications(repo, path):
-  command = ["hg", "-R", repo, "archive", "-r", "default", "-t", "tar",
-      "-p", ".", "-X", os.path.join(repo, ".hg_archival.txt"), "-"]
-  data = subprocess.check_output(command)
-
-  result = {"version": time.strftime("%Y%m%d%H%M", time.gmtime()), "notifications": []}
-  with tarfile.open(mode="r:", fileobj=StringIO(data)) as archive:
-    for fileinfo in archive:
-      name = fileinfo.name
-      if name.startswith("./"):
-        name = name[2:]
-
-      if fileinfo.type == tarfile.REGTYPE:
-        data = codecs.getreader("utf8")(archive.extractfile(fileinfo))
-        try:
-          notification = parse_notification(data, name)
-          if "inactive" in notification:
-            continue
-          result["notifications"].append(notification)
-        except:
-          traceback.print_exc()
-
+def generate_notifications(path):
+  notifications = load_notifications()
+  output = {
+    "notifications": notifications,
+    "version": time.strftime("%Y%m%d%H%M", time.gmtime())
+  }
   with codecs.open(path, "wb", encoding="utf-8") as file:
-    json.dump(result, file, ensure_ascii=False, indent=2,
+    json.dump(output, file, ensure_ascii=False, indent=2,
         separators=(',', ': '), sort_keys=True)
 
 if __name__ == "__main__":
   setupStderr()
-  repo = get_config().get("notifications", "repository")
   output = get_config().get("notifications", "output")
-  subprocess.call(["hg", "-R", repo, "pull", "-q"])
-  generate_notifications(repo, output)
+  generate_notifications(output)
