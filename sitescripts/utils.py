@@ -82,8 +82,13 @@ def get_config():
 def setupStderr(stream=sys.stderr):
   """
     Sets up sys.stderr to accept Unicode characters, redirects error output to
-    the stream passed in if any.
+    the stream passed in if any. DEPRECATED
   """
+  import warnings
+  warnings.warn('setupStderr() is deprecated. If you write '
+                'text to stderr that might be non-ASCII use '
+                'the "logging" module instead.', DeprecationWarning, 2)
+
   sys.stderr = codecs.getwriter('utf8')(stream)
 
 def anonymizeMail(email):
