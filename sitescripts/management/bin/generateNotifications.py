@@ -24,6 +24,9 @@ from sitescripts.utils import get_config, setupStderr
 
 def generate_notifications(path):
   notifications = load_notifications()
+  # Ignoring notifications with variants here - we can only process those in a
+  # URL handler.
+  notifications = [x for x in notifications if "variants" in x]
   output = {
     "notifications": notifications,
     "version": time.strftime("%Y%m%d%H%M", time.gmtime())

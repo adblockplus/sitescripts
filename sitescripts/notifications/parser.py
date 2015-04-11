@@ -48,43 +48,54 @@ def _parse_targetspec(value, name):
 
 def _parse_notification(data, name):
   notification = {"id": name, "severity": "information", "message": {}, "title": {}}
+  current = notification
 
   for line in data:
     if not re.search(r"\S", line):
+      continue
+
+    if re.search(r"^\[.*\]$", line):
+      current = {"title": {}, "message": {}}
+      notification.setdefault("variants", []).append(current)
       continue
 
     if line.find("=") < 0:
       raise Exception("Could not process line '%s' in file '%s'" % (line.strip(), name))
 
     key, value = map(unicode.strip, line.split("=", 1))
+    is_variant = current != notification
 
-    if key == "inactive":
-      notification["inactive"] = True
+    if key == "inactive" and not is_variant:
+      current["inactive"] = True
     elif key == "severity":
       if value not in ("information", "critical"):
         raise Exception("Unknown severity value '%s' in file '%s'" % (value, name))
-      notification["severity"] = value
+      current["severity"] = value
     elif key == "links":
-      notification["links"] = value.split()
+      current["links"] = value.split()
     elif key.startswith("title."):
       locale = key[len("title."):]
-      notification["title"][locale] = value
+      current["title"][locale] = value
     elif key.startswith("message."):
       locale = key[len("message."):]
-      notification["message"][locale] = value
+      current["message"][locale] = value
     elif key == "target":
       target = _parse_targetspec(value, name)
       if "targets" in notification:
-        notification["targets"].append(target)
+        current["targets"].append(target)
       else:
-        notification["targets"] = [target]
+        current["targets"] = [target]
+    elif key == "sample" and is_variant:
+      current["sample"] = float(value)
     else:
       raise Exception("Unknown parameter '%s' in file '%s'" % (key, name))
 
-  if "en-US" not in notification["title"]:
-    raise Exception("No title for en-US (default language) in file '%s'" % name)
-  if "en-US" not in notification["message"]:
-    raise Exception("No message for en-US (default language) in file '%s'" % name)
+  for text_key in ("title", "message"):
+    def has_default_locale(variant): return "en-US" in variant[text_key]
+    if (not has_default_locale(notification) and
+        not all(map(has_default_locale, notification.get("variants", [])))):
+      raise Exception("No %s for en-US (default language) in file '%s'" %
+                      (text_key, name))
   return notification
 
 def load_notifications():
