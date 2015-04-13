@@ -17,19 +17,12 @@
 
 import re, os, sys
 from urlparse import parse_qs
-from sitescripts.utils import get_config, get_template, setupStderr
+from sitescripts.utils import get_config, get_template
 from sitescripts.web import url_handler
 import sitescripts.subscriptions.knownIssuesParser as knownIssuesParser
 
-def dataIterator(source, file):
-  for line in source:
-    file.write(line)
-    yield line
-
 @url_handler('/submitReport')
 def handleRequest(environ, start_response):
-  setupStderr(environ['wsgi.errors'])
-
   if not environ.get('HTTP_X_ADBLOCK_PLUS'):
     return showError('Please use Adblock Plus to submit reports', start_response)
 
@@ -50,14 +43,22 @@ def handleRequest(environ, start_response):
   if os.path.exists(path) or os.path.exists(path + '.tmp'):
     return showError('Duplicate GUID', start_response)
 
+  try:
+    request_size= int(environ['CONTENT_LENGTH'])
+  except (KeyError, ValueError):
+    return showError('Invalid or missing Content-Length header', start_response,
+                     '411 Length Required')
+
   dir = os.path.dirname(path)
   if not os.path.exists(dir):
     os.makedirs(dir)
   try:
     file = open(path + '.tmp', 'wb')
-    iter = dataIterator(environ['wsgi.input'], file)
-    knownIssues = knownIssuesParser.findMatches(iter, params.get('lang', ['en-US'])[0])
+    data = environ['wsgi.input'].read(request_size)
+    file.write(data)
     file.close()
+
+    knownIssues = knownIssuesParser.findMatches(data.splitlines(), params.get('lang', ['en-US'])[0])
 
     os.rename(path + '.tmp', path);
   except Exception, e:
@@ -69,7 +70,7 @@ def handleRequest(environ, start_response):
   start_response('200 OK', [('Content-Type', 'application/xhtml+xml; charset=utf-8')])
   return [template.render({'url': get_config().get('reports', 'urlRoot') + guid, 'knownIssues': knownIssues}).encode('utf-8')]
 
-def showError(message, start_response):
+def showError(message, start_response, response_code='400 Processing Error'):
   template = get_template(get_config().get('reports', 'errorTemplate'))
-  start_response('400 Processing Error', [('Content-Type', 'application/xhtml+xml; charset=utf-8')])
+  start_response(response_code, [('Content-Type', 'application/xhtml+xml; charset=utf-8')])
   return [template.render({'message': message}).encode('utf-8')]

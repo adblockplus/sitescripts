@@ -20,9 +20,13 @@
   <title>Report submission</title>
 </head>
 <body>
-  <p>%CONFIRMATION% <a id="link" href="{{url}}">{{url}}</a></p>
   {% if knownIssues -%}
-  <p>%KNOWNISSUE% {% for issue in knownIssues %}<br /><a href="{{issue}}">{{issue}}</a>{% endfor %}</p>
+  <p><strong>%KNOWNISSUE%</strong>
+    {%- for issue in knownIssues -%}
+      <br /><a href="{{issue}}">{{issue}}</a>
+    {%- endfor -%}
+  </p>
   {%- endif %}
+  <p>%CONFIRMATION% <a id="link" href="{{url}}">{{url}}</a></p>
 </body>
 </html>
