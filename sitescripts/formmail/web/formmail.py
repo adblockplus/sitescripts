@@ -16,6 +16,7 @@
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+import time
 from urlparse import parse_qsl
 from sitescripts.utils import get_config, sendMail, setupStderr
 from sitescripts.web import url_handler
@@ -50,5 +51,6 @@ def handleRequest(environ, start_response):
   if not re.match(r'^\w[\w.+!-]+@\w[\w.-]+\.[a-zA-Z]{2,6}$', params['email']):
     return 'Invalid email address'
 
+  params['strftime'] = time.strftime
   sendMail(get_config().get('formmail', 'template'), params)
   return 'Message sent'

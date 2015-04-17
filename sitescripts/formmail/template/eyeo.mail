@@ -5,4 +5,6 @@ Subject: {{subject|mime}} (via Contact form)
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset="UTF-8"
 
+On {{strftime('%d/%m/%y %H:%M')}}, {{(name,email)|emailaddr}} wrote:
+
 {{message}}
