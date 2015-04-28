@@ -113,6 +113,25 @@ def sendMail(template, data):
   else:
     subprocess.Popen([config.get('DEFAULT', 'mailer'), '-t'], stdin=subprocess.PIPE).communicate(mail.encode('utf-8'))
 
+def encode_email_address(email):
+  '''
+  Validates and encodes an email address.
+
+  The validation implemented here is very rudamentery and not meant
+  to be complete, as full email validation can get extremly complicated
+  and is rarely needed. This function is primarily making sure that the
+  email address contains no whitespaces and only valid ASCII characters.
+  '''
+  match = re.search(r'^([^@\s]+)@([^@\s]+)$', email)
+  if not match:
+    raise ValueError
+
+  try:
+    return email.encode('ascii')
+  except UnicodeEncodeError:
+    return '%s@%s' % (match.group(1).encode('ascii'),
+                      match.group(2).encode('idna'))
+
 _template_cache = {}
 
 def get_template(template, autoescape=True):

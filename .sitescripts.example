@@ -12,6 +12,7 @@ sitescripts.reports.web.updateReport =
 sitescripts.reports.web.showDigest =
 sitescripts.reports.web.showUser =
 sitescripts.formmail.web.formmail =
+sitescripts.submit_email.web.submit_email =
 sitescripts.crawler.web.crawler =
 sitescripts.urlfixer.web.submitData =
 sitescripts.extensions.web.downloads =
@@ -160,6 +161,11 @@ auth_file=%(root)s/.ssh/.ssh/authorized_keys
 
 [formmail]
 template=formmail/template/eyeo.mail
+
+[submit_email]
+filename=%(root)s/logs/email_addresses.txt
+verification_email_template=submit_email/template/verification.mail
+successful_verification_redirect_location=https://adblockplus.org/{lang}/adblock-browser/verification-success
 
 [notifications]
 repository=%(root)s/hg/notifications

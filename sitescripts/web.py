@@ -19,6 +19,9 @@ import base64
 import imp
 import importlib
 import re
+import httplib
+from urlparse import parse_qsl
+
 from sitescripts.utils import get_config
 
 handlers = {}
@@ -58,6 +61,41 @@ def authenticate(f, environ, start_response, config_section):
   start_response("401 UNAUTHORIZED",
                  [("WWW-Authenticate", 'Basic realm="%s"' % realm)])
   return ""
+
+def send_simple_response(start_response, status_code, text=None):
+  status_text = httplib.responses[status_code]
+
+  status = '%d %s' % (status_code, status_text)
+  start_response(status, [('Content-Type', 'text/plain')])
+
+  if text is not None:
+    return [text]
+  return [status_text]
+
+def form_handler(func):
+  def wrapper(environ, start_response):
+    if environ['REQUEST_METHOD'] != 'POST':
+      return send_simple_response(start_response, 405)
+
+    if not environ.get('CONTENT_TYPE', '').startswith('application/x-www-form-urlencoded'):
+      return send_simple_response(start_response, 415)
+
+    try:
+      content_length = int(environ['CONTENT_LENGTH'])
+    except (KeyError, ValueError):
+      content_length = None
+    if content_length is None or content_length < 0:
+      return send_simple_response(start_response, 411)
+
+    raw_data = parse_qsl(environ['wsgi.input'].read(content_length))
+    try:
+      data = {k.decode('utf-8'): v.decode('utf-8') for k, v in raw_data}
+    except UnicodeDecodeError:
+      return send_simple_response(start_response, 400, 'Invalid form data encoding')
+
+    return func(environ, start_response, data)
+
+  return wrapper
 
 def multiplex(environ, start_response):
   try:

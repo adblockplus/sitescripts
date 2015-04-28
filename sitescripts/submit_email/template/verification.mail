@@ -1,0 +1,31 @@
+To: {{ recipient|mime }}
+From: info@adblockplus.org
+Subject: Please confirm your Adblock Browser notification
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+
+Hello,
+
+Thanks for signing up to get notified of the Adblock Browser iOS Launch!
+Click the link below to verify your email address.
+
+{{ verification_url }}
+
+You can simply ignore this email if you didn't sign up.
+
+If at any point you decide that you no longer want to be notified, email
+info@adblockplus.org and we'll remove you from the notification list.
+
+
+The Adblock Plus Team
+
+Eyeo GmbH
+Im Klapperhof 7-23
+50670 Cologne, Germany
+
+E-mail: info@adblockplus.org
+Web: https://eyeo.com | https://adblockplus.org
+
+VAT-ID: DE279292414
+District Court Cologne: HRB 73508
+Managing Directors: Wladimir Palant & Till Faida
