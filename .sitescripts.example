@@ -16,6 +16,7 @@ sitescripts.submit_email.web.submit_email =
 sitescripts.crawler.web.crawler =
 sitescripts.urlfixer.web.submitData =
 sitescripts.extensions.web.downloads =
+sitescripts.extensions.web.adblockbrowserUpdates =
 sitescripts.filterhits.web.submit =
 sitescripts.filterhits.web.query =
 
