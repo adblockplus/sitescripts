@@ -84,8 +84,7 @@ def _create_response(notifications, groups):
     "version": _generate_version(groups),
     "notifications": notifications
   }
-  return json.dumps(response, ensure_ascii=False, indent=2,
-                    separators=(",", ": "), sort_keys=True)
+  return response
 
 @url_handler("/notification.json")
 def notification(environ, start_response):
@@ -96,6 +95,10 @@ def notification(environ, start_response):
   if not groups:
     groups = _assign_groups(notifications)
   response = _create_response(notifications, groups)
-  start_response("200 OK",
-                 [("Content-Type", "application/json; charset=utf-8")])
-  return response.encode("utf-8")
+  response_headers = [("Content-Type", "application/json; charset=utf-8"),
+                      ("ABP-Notification-Version", response["version"])]
+  response_body = json.dumps(response, ensure_ascii=False, indent=2,
+                             separators=(",", ": "),
+                             sort_keys=True).encode("utf-8")
+  start_response("200 OK", response_headers)
+  return response_body

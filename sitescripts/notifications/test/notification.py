@@ -301,5 +301,16 @@ class TestNotification(unittest.TestCase):
     notification.notification({"QUERY_STRING": "lastVersion=-//"},
                               lambda *args: None)
 
+  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
+  def test_version_header_present(self, load_notifications_call):
+    load_notifications_call.return_value = [{"id": "1"}]
+    response_header_map = {}
+    def start_response(status, response_headers):
+      for name, value in response_headers:
+        response_header_map[name] = value
+    result = json.loads(notification.notification({}, start_response))
+    self.assertEqual(result["version"],
+                     response_header_map["ABP-Notification-Version"])
+
 if __name__ == '__main__':
   unittest.main()
