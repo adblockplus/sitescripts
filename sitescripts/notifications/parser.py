@@ -16,6 +16,7 @@
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
 import codecs
+import datetime
 import os
 import re
 import subprocess
@@ -87,6 +88,8 @@ def _parse_notification(data, name):
         current["targets"] = [target]
     elif key == "sample" and is_variant:
       current["sample"] = float(value)
+    elif key in ["start", "end"]:
+      current[key] = datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M")
     else:
       raise Exception("Unknown parameter '%s' in file '%s'" % (key, name))
 
@@ -117,6 +120,11 @@ def load_notifications():
         try:
           notification = _parse_notification(data, name)
           if "inactive" in notification:
+            continue
+          current_time = datetime.datetime.now()
+          if "start" in notification and current_time < notification["start"]:
+            continue
+          if "end" in notification and current_time > notification["end"]:
             continue
           notifications.append(notification)
         except:
