@@ -22,17 +22,22 @@ import unittest
 import sitescripts.notifications.web.notification as notification
 
 class TestNotification(unittest.TestCase):
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_no_group(self, load_notifications_call):
-    load_notifications_call.return_value = [{"id": "1"}]
+  def setUp(self):
+    self.load_notifications_patcher = mock.patch("sitescripts.notifications.web.notification.load_notifications")
+    self.load_notifications_mock = self.load_notifications_patcher.start()
+
+  def tearDown(self):
+    self.load_notifications_patcher.stop()
+
+  def test_no_group(self):
+    self.load_notifications_mock.return_value = [{"id": "1"}]
     result = json.loads(notification.notification({}, lambda *args: None))
     self.assertEqual(len(result["notifications"]), 1)
     self.assertEqual(result["notifications"][0]["id"], "1")
     self.assertFalse("-" in result["version"])
 
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_not_in_group(self, load_notifications_call):
-    load_notifications_call.return_value = [
+  def test_not_in_group(self):
+    self.load_notifications_mock.return_value = [
       {"id": "1"},
       {
         "id": "a",
@@ -46,9 +51,8 @@ class TestNotification(unittest.TestCase):
     self.assertEqual(result["notifications"][0]["id"], "1")
     self.assertRegexpMatches(result["version"], r"-a/0")
 
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_in_group(self, load_notifications_call):
-    load_notifications_call.return_value = [
+  def test_in_group(self):
+    self.load_notifications_mock.return_value = [
       {"id": "1"},
       {
         "id": "a",
@@ -62,9 +66,8 @@ class TestNotification(unittest.TestCase):
     self.assertEqual(result["notifications"][0]["id"], "a")
     self.assertRegexpMatches(result["version"], r"-a/1")
 
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_not_in_one_of_many_groups(self, load_notifications_call):
-    load_notifications_call.return_value = [
+  def test_not_in_one_of_many_groups(self):
+    self.load_notifications_mock.return_value = [
       {"id": "1"},
       {
         "id": "a",
@@ -86,9 +89,8 @@ class TestNotification(unittest.TestCase):
     self.assertEqual(result["notifications"][0]["id"], "1")
     self.assertRegexpMatches(result["version"], r"-a/0-b/0-c/0")
 
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_in_one_of_many_groups(self, load_notifications_call):
-    load_notifications_call.return_value = [
+  def test_in_one_of_many_groups(self):
+    self.load_notifications_mock.return_value = [
       {"id": "1"},
       {
         "id": "a",
@@ -110,9 +112,8 @@ class TestNotification(unittest.TestCase):
     self.assertEqual(result["notifications"][0]["id"], "b")
     self.assertRegexpMatches(result["version"], r"-a/0-b/1-c/0")
 
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_not_put_in_group(self, load_notifications_call):
-    load_notifications_call.return_value = [
+  def test_not_put_in_group(self):
+    self.load_notifications_mock.return_value = [
       {"id": "1"},
       {
         "id": "a",
@@ -126,9 +127,8 @@ class TestNotification(unittest.TestCase):
     self.assertEqual(result["notifications"][0]["id"], "1")
     self.assertRegexpMatches(result["version"], r"-a/0")
 
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_put_in_group(self, load_notifications_call):
-    load_notifications_call.return_value = [
+  def test_put_in_group(self):
+    self.load_notifications_mock.return_value = [
       {"id": "1"},
       {
         "id": "a",
@@ -142,9 +142,8 @@ class TestNotification(unittest.TestCase):
     self.assertEqual(result["notifications"][0]["id"], "a")
     self.assertRegexpMatches(result["version"], r"-a/1")
 
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_notification_variant_merged(self, load_notifications_call):
-    load_notifications_call.return_value = [
+  def test_notification_variant_merged(self):
+    self.load_notifications_mock.return_value = [
       {
         "id": "a",
         "title.en-GB": "default",
@@ -167,9 +166,8 @@ class TestNotification(unittest.TestCase):
     self.assertFalse("variants" in result["notifications"][0])
     self.assertFalse("sample" in result["notifications"][0])
 
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_no_variant_no_notifications(self, load_notifications_call):
-    load_notifications_call.return_value = [
+  def test_no_variant_no_notifications(self):
+    self.load_notifications_mock.return_value = [
       {
         "id": "a",
         "variants": [{"sample": 0}]
@@ -179,10 +177,8 @@ class TestNotification(unittest.TestCase):
     self.assertEqual(len(result["notifications"]), 0)
 
   @mock.patch("random.random")
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_probability_distribution_single_group(
-      self, load_notifications_call, random_call):
-    load_notifications_call.return_value = [
+  def test_probability_distribution_single_group(self, random_call):
+    self.load_notifications_mock.return_value = [
       {
         "id": "a",
         "variants": [
@@ -233,10 +229,8 @@ class TestNotification(unittest.TestCase):
     self.assertRegexpMatches(result["version"], r"-a/3")
 
   @mock.patch("random.random")
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_probability_distribution_multiple_groups(
-      self, load_notifications_call, random_call):
-    load_notifications_call.return_value = [
+  def test_probability_distribution_multiple_groups(self, random_call):
+    self.load_notifications_mock.return_value = [
       {
         "id": "a",
         "variants": [
@@ -289,9 +283,8 @@ class TestNotification(unittest.TestCase):
     self.assertEqual(result["notifications"][0]["title.en-GB"], "2")
     self.assertRegexpMatches(result["version"], r"-a/0-b/2")
 
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_invalid_last_version(self, load_notifications_call):
-    load_notifications_call.return_value = []
+  def test_invalid_last_version(self):
+    self.load_notifications_mock.return_value = []
     notification.notification({"QUERY_STRING": "lastVersion="},
                               lambda *args: None)
     notification.notification({"QUERY_STRING": "lastVersion=-"},
@@ -301,9 +294,8 @@ class TestNotification(unittest.TestCase):
     notification.notification({"QUERY_STRING": "lastVersion=-//"},
                               lambda *args: None)
 
-  @mock.patch("sitescripts.notifications.web.notification.load_notifications")
-  def test_version_header_present(self, load_notifications_call):
-    load_notifications_call.return_value = [{"id": "1"}]
+  def test_version_header_present(self):
+    self.load_notifications_mock.return_value = [{"id": "1"}]
     response_header_map = {}
     def start_response(status, response_headers):
       for name, value in response_headers:
