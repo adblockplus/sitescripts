@@ -200,6 +200,7 @@ class NightlyBuild(object):
     self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
     self.shortVersion = metadata.get("general", "version")
     self.basename = metadata.get("general", "basename")
+    self.updatedFromGallery = False
 
   def writeUpdateManifest(self):
     """

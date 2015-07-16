@@ -62,6 +62,7 @@ def readMetadata(repo, version):
       'version': version,
       'shortVersion': version,
       'basename': metadata.get('general', 'basename'),
+      'updatedFromGallery': True
     }
   elif repo.type == 'gecko':
     metadata = repo.readMetadata(version)

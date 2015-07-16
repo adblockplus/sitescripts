@@ -15,6 +15,10 @@
        <string>{{ extension.shortVersion }}</string>
        <key>URL</key>
        <string>{{ extension.updateURL }}</string>
+       {%- if extension.updatedFromGallery %}
+       <key>Update From Gallery</key>
+       <true/>
+       {%- endif %}
      </dict>
      {%- endfor %}
    </array>
