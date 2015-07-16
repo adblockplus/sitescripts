@@ -32,8 +32,9 @@ from urllib import urlencode
 from xml.dom.minidom import parse as parseXml
 from sitescripts.utils import get_config, setupStderr, get_template
 from sitescripts.extensions.utils import (
-  compareVersions, Configuration, getSafariCertificateID,
-  writeAndroidUpdateManifest)
+  compareVersions, Configuration,
+  writeAndroidUpdateManifest
+)
 
 MAX_BUILDS = 50
 
@@ -193,8 +194,9 @@ class NightlyBuild(object):
   def readSafariMetadata(self):
     import buildtools.packagerSafari as packager
     metadata = packager.readMetadata(self.tempdir, self.config.type)
+    certs = packager.get_certificates_and_key(self.config.keyFile)[0]
 
-    self.certificateID = getSafariCertificateID(self.config.keyFile)
+    self.certificateID = packager.get_developer_identifier(certs)
     self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
     self.shortVersion = metadata.get("general", "version")
     self.basename = metadata.get("general", "basename")

@@ -25,11 +25,15 @@ Generate update manifests
 import os
 import re
 import subprocess
-from buildtools.packagerGecko import KNOWN_APPS
 from ConfigParser import SafeConfigParser
+
+from buildtools.packagerGecko import KNOWN_APPS
+from buildtools.packagerSafari import (get_developer_identifier,
+                                       get_certificates_and_key)
+
 from sitescripts.utils import get_config, get_template
 from sitescripts.extensions.utils import (
-  Configuration, getDownloadLinks, getSafariCertificateID,
+  Configuration, getDownloadLinks,
   writeIEUpdateManifest, writeAndroidUpdateManifest)
 from sitescripts.extensions.android import get_min_sdk_version
 
@@ -51,8 +55,10 @@ def readMetadata(repo, version):
     }
   elif repo.type == 'safari':
     metadata = repo.readMetadata(version)
+    certs = get_certificates_and_key(repo.keyFile)[0]
+
     return {
-      'certificateID': getSafariCertificateID(repo.keyFile),
+      'certificateID': get_developer_identifier(certs),
       'version': version,
       'shortVersion': version,
       'basename': metadata.get('general', 'basename'),

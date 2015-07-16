@@ -245,25 +245,6 @@ class Configuration(object):
         if repositoryName:
           yield Configuration(config, nightlyConfig, repositoryName, value)
 
-def getSafariCertificateID(keyFile):
-  import M2Crypto
-
-  bio = M2Crypto.BIO.openfile(keyFile)
-  try:
-    while True:
-      try:
-        cert = M2Crypto.X509.load_cert_bio(bio)
-      except M2Crypto.X509.X509Error:
-        raise Exception('No safari developer certificate found in chain')
-
-      subject = cert.get_subject()
-      for entry in subject.get_entries_by_nid(subject.nid['CN']):
-        m = re.match(r'Safari Developer: \((.*?)\)', entry.get_data().as_text())
-        if m:
-          return m.group(1)
-  finally:
-    bio.close()
-
 def _urlencode(value):
   return urllib.quote(value.encode('utf-8'), '')
 
