@@ -106,5 +106,19 @@ end = %s
     notifications = parser.load_notifications()
     self.assertEqual(len(notifications), 0)
 
+  def test_start_and_end_not_present(self):
+    current_time = datetime.datetime.now()
+    hour_delta = datetime.timedelta(hours=1)
+    start_time = current_time - hour_delta
+    end_time = current_time + hour_delta
+    self.notification_to_load = ("1", """
+start = %s
+end = %s
+""" % (_format_time(start_time), _format_time(end_time)))
+    notifications = parser.load_notifications()
+    self.assertEqual(len(notifications), 1)
+    self.assertNotIn(notifications[0], "start")
+    self.assertNotIn(notifications[0], "end")
+
 if __name__ == "__main__":
   unittest.main()

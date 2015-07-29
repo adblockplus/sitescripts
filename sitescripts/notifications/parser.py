@@ -122,9 +122,11 @@ def load_notifications():
           if "inactive" in notification:
             continue
           current_time = datetime.datetime.now()
-          if "start" in notification and current_time < notification["start"]:
+          start = notification.pop("start", None)
+          if start is not None and current_time < start:
             continue
-          if "end" in notification and current_time > notification["end"]:
+          end = notification.pop("end", None)
+          if end is not None and current_time > end:
             continue
           notifications.append(notification)
         except:
