@@ -117,8 +117,8 @@ end = %s
 """ % (_format_time(start_time), _format_time(end_time)))
     notifications = parser.load_notifications()
     self.assertEqual(len(notifications), 1)
-    self.assertNotIn(notifications[0], "start")
-    self.assertNotIn(notifications[0], "end")
+    self.assertNotIn("start", notifications[0])
+    self.assertNotIn("end", notifications[0])
 
 if __name__ == "__main__":
   unittest.main()
