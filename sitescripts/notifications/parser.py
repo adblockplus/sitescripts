@@ -103,7 +103,6 @@ def _parse_notification(data, name):
 
 def load_notifications():
   repo = get_config().get("notifications", "repository")
-  subprocess.call(["hg", "-R", repo, "pull", "-q"])
   command = ["hg", "-R", repo, "archive", "-r", "default", "-t", "tar",
       "-p", ".", "-X", os.path.join(repo, ".hg_archival.txt"), "-"]
   data = subprocess.check_output(command)
