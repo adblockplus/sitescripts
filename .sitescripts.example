@@ -130,6 +130,8 @@ safariUpdateManifest=extensions/template/updates.plist
 androidUpdateManifest=extensions/template/androidupdates.xml
 nightlyIndexPage=extensions/template/nightlies.html
 padTemplate=extensions/template/pad.xml
+amo_username=me@example.com
+amo_password=password1
 
 [stats]
 geoip_db=%(root)s/data/GeoIP.dat

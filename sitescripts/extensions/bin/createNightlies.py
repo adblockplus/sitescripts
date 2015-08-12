@@ -25,12 +25,15 @@ Nightly builds generation script
 
 """
 
-import sys, os, os.path, subprocess, ConfigParser, traceback, json, hashlib
+import sys, os, os.path, subprocess, ConfigParser, json, hashlib
 import tempfile, shutil, urlparse, pipes, time, urllib2, struct
+import cookielib
+import HTMLParser
+import logging
 from datetime import datetime
 from urllib import urlencode
 from xml.dom.minidom import parse as parseXml
-from sitescripts.utils import get_config, setupStderr, get_template
+from sitescripts.utils import get_config, get_template
 from sitescripts.extensions.utils import (
   compareVersions, Configuration,
   writeAndroidUpdateManifest
@@ -52,6 +55,8 @@ class NightlyBuild(object):
     """
     self.config = config
     self.revision = self.getCurrentRevision()
+    if self.config.type == 'gecko':
+      self.revision += '-beta'
     try:
       self.previousRevision = config.latestRevision
     except:
@@ -372,6 +377,109 @@ class NightlyBuild(object):
     outputPath = os.path.join(self.config.docsDirectory, self.basename)
     build.generateDocs(self.tempdir, None, [('--quiet', '')], [outputPath], self.config.type)
 
+  def uploadToMozillaAddons(self):
+    import urllib3
+
+    username = get_config().get('extensions', 'amo_username')
+    password = get_config().get('extensions', 'amo_password')
+
+    slug = self.config.galleryID
+    login_url= 'https://addons.mozilla.org/en-US/firefox/users/login'
+    upload_url = 'https://addons.mozilla.org/en-US/developers/addon/%s/upload' % slug
+    add_url = 'https://addons.mozilla.org/en-US/developers/addon/%s/versions/add' % slug
+
+    cookie_jar = cookielib.CookieJar()
+    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
+
+    def load_url(url, data=None):
+      content_type = 'application/x-www-form-urlencoded'
+      if isinstance(data, dict):
+        if any(isinstance(v, tuple) for v in data.itervalues()):
+          data, content_type = urllib3.filepost.encode_multipart_formdata(data)
+        else:
+          data = urlencode(data.items())
+
+      request = urllib2.Request(url, data, headers={'Content-Type': content_type})
+      response = opener.open(request)
+      try:
+        return response.read()
+      finally:
+        response.close()
+
+    class CSRFParser(HTMLParser.HTMLParser):
+      result = None
+      dummy_exception = Exception()
+
+      def __init__(self, data):
+        HTMLParser.HTMLParser.__init__(self)
+        try:
+          self.feed(data)
+          self.close()
+        except Exception, e:
+          if e != self.dummy_exception:
+            raise
+
+        if not self.result:
+          raise Exception('Failed to extract CSRF token')
+
+      def set_result(self, value):
+        self.result = value
+        raise self.dummy_exception
+
+      def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'meta' and attrs.get('name') == 'csrf':
+          self.set_result(attrs.get('content'))
+        if tag == 'input' and attrs.get('name') == 'csrfmiddlewaretoken':
+          self.set_result(attrs.get('value'))
+
+    # Extract anonymous CSRF token
+    login_page = load_url(login_url)
+    csrf_token = CSRFParser(login_page).result
+
+    # Log in and get session's CSRF token
+    main_page = load_url(
+      login_url,
+      {
+        'csrfmiddlewaretoken': csrf_token,
+        'username': username,
+        'password': password,
+      }
+    )
+    csrf_token = CSRFParser(main_page).result
+
+    # Upload build
+    with open(self.path, 'rb') as file:
+      upload_response = json.loads(load_url(
+        upload_url,
+        {
+          'csrfmiddlewaretoken': csrf_token,
+          'upload': (os.path.basename(self.path), file.read(), 'application/x-xpinstall'),
+        }
+      ))
+
+    # Wait for validation to finish
+    while not upload_response.get('validation'):
+      time.sleep(2)
+      upload_response = json.loads(load_url(
+        upload_url + '/' + upload_response.get('upload')
+      ))
+
+    if upload_response['validation'].get('errors', 0):
+      raise Exception('Build failed AMO validation, see https://addons.mozilla.org%s' % upload_response.get('full_report_url'))
+
+    # Add version
+    add_response = json.loads(load_url(
+      add_url,
+      {
+        'csrfmiddlewaretoken': csrf_token,
+        'upload': upload_response.get('upload'),
+        'source': ('', '', 'application/octet-stream'),
+        'beta': 'on',
+        'supported_platforms': 1,       # PLATFORM_ANY.id
+      }
+    ))
+
   def uploadToChromeWebStore(self):
     # Google APIs use HTTP error codes with error message in body. So we add
     # the response body to the HTTPError to get more meaningful error messages.
@@ -482,7 +590,9 @@ class NightlyBuild(object):
       # update nightlies config
       self.config.latestRevision = self.revision
 
-      if self.config.type == 'chrome' and self.config.clientID and self.config.clientSecret and self.config.refreshToken:
+      if self.config.type == 'gecko' and self.config.galleryID and get_config().get('extensions', 'amo_username'):
+        self.uploadToMozillaAddons()
+      elif self.config.type == 'chrome' and self.config.clientID and self.config.clientSecret and self.config.refreshToken:
         self.uploadToChromeWebStore()
     finally:
       # clean up
@@ -494,8 +604,6 @@ def main():
   """
     main function for createNightlies.py
   """
-  setupStderr()
-
   nightlyConfig = ConfigParser.SafeConfigParser()
   nightlyConfigFile = get_config().get('extensions', 'nightliesData')
   if os.path.exists(nightlyConfigFile):
@@ -511,8 +619,8 @@ def main():
       if build.hasChanges():
         build.run()
     except Exception, ex:
-      print >>sys.stderr, "The build for %s failed:" % repo
-      traceback.print_exc()
+      logging.error("The build for %s failed:", repo)
+      logging.exception(ex)
 
   file = open(nightlyConfigFile, 'wb')
   nightlyConfig.write(file)
