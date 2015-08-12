@@ -572,8 +572,9 @@ class NightlyBuild(object):
         # write out changelog
         self.writeChangelog(self.getChanges())
 
-        # write update.rdf file
-        self.writeUpdateManifest()
+        # write update manifest
+        if self.config.type != 'gecko':
+          self.writeUpdateManifest()
 
         # update documentation
         self.updateDocs()
