@@ -25,19 +25,31 @@ Nightly builds generation script
 
 """
 
-import sys, os, os.path, subprocess, ConfigParser, json, hashlib
-import tempfile, shutil, urlparse, pipes, time, urllib2, struct
+import ConfigParser
 import cookielib
-import HTMLParser
-import logging
 from datetime import datetime
+import hashlib
+import HTMLParser
+import json
+import logging
+import os
+import pipes
+import shutil
+import struct
+import subprocess
+import sys
+import tempfile
+import time
 from urllib import urlencode
+import urllib2
+import urlparse
 from xml.dom.minidom import parse as parseXml
-from sitescripts.utils import get_config, get_template
+
 from sitescripts.extensions.utils import (
   compareVersions, Configuration,
   writeAndroidUpdateManifest
 )
+from sitescripts.utils import get_config, get_template
 
 MAX_BUILDS = 50
 
