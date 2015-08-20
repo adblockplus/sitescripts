@@ -26,6 +26,7 @@ from sitescripts.utils import get_config, sendMail, encode_email_address
 from sitescripts.web import url_handler, form_handler, send_simple_response
 
 VERIFICATION_PATH = '/verifyEmail'
+DEFAULT_PRODUCT = 'adblockbrowser'
 
 def sign(config, data):
   secret = config.get('submit_email', 'secret')
@@ -49,8 +50,12 @@ def submit_email(environ, start_response, data):
   if lang:
     params.append(('lang', lang))
 
+  product = data.get('product', DEFAULT_PRODUCT)
+  email_template = product + '_verification_email_template'
+  params.append(('product', product))
+
   sendMail(
-    config.get('submit_email', 'verification_email_template'),
+    config.get('submit_email', email_template),
     {
       'recipient': email,
       'verification_url': '%s?%s' % (
@@ -79,7 +84,9 @@ def verify_email(environ, start_response):
       'Invalid signature in verification request.'
     )
 
-  filename = config.get('submit_email', 'filename')
+  product = params.get('product', DEFAULT_PRODUCT)
+  filename = config.get('submit_email', product + '_filename')
+
   with open(filename, 'ab', 0) as file:
     fcntl.lockf(file, fcntl.LOCK_EX)
     try:

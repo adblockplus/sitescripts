@@ -166,9 +166,11 @@ auth_file=%(root)s/.ssh/.ssh/authorized_keys
 template=formmail/template/eyeo.mail
 
 [submit_email]
-filename=%(root)s/logs/email_addresses.txt
-verification_email_template=submit_email/template/verification.mail
-successful_verification_redirect_location=https://adblockplus.org/{lang}/adblock-browser/verification-success
+adblockbrowser_filename=%(root)s/logs/email_addresses.txt
+edge_filename=%(root)s/logs/edge_email_addresses.txt
+adblockbrowser_verification_email_template=submit_email/template/verification.mail
+edge_verification_email_template=submit_email/template/edge_verification.mail
+successful_verification_redirect_location=https://adblockplus.org/{lang}/verification-success
 
 [notifications]
 repository=%(root)s/hg/notifications
