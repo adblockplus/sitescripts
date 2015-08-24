@@ -1,5 +1,5 @@
 To: {{ recipient|mime }}
-From: info@adblockplus.org
+From: Adblock Plus <​info@adblockplus.org>
 Subject: Please confirm your Adblock Browser notification
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset="UTF-8"
