@@ -13,6 +13,7 @@ sitescripts.reports.web.showDigest =
 sitescripts.reports.web.showUser =
 sitescripts.formmail.web.formmail =
 sitescripts.submit_email.web.submit_email =
+sitescripts.send_installation_link.web.send_installation_link =
 sitescripts.crawler.web.crawler =
 sitescripts.urlfixer.web.submitData =
 sitescripts.extensions.web.downloads =
@@ -171,6 +172,9 @@ edge_filename=%(root)s/logs/edge_email_addresses.txt
 adblockbrowser_verification_email_template=submit_email/template/verification.mail
 edge_verification_email_template=submit_email/template/edge_verification.mail
 successful_verification_redirect_location=https://adblockplus.org/{lang}/verification-success
+
+[send_installation_link]
+email_template=send_installation_link/template/adblockbrowser_installation_link.tmpl
 
 [notifications]
 repository=%(root)s/hg/notifications
