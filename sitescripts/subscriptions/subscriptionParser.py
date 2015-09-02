@@ -193,7 +193,7 @@ class Subscription(object):
 
     if len(self.variants) == 0:
       warn('No list locations given in %s' % (path))
-    if self.type != 'ads' and self.type != 'other':
+    if self.type not in ('ads', 'anti-adblock', 'other', 'malware', 'social', 'privacy'):
       warn('Unknown type given in %s' % (path))
     if self.digest != 'daily' and self.digest != 'weekly':
       warn('Unknown digest frequency given in %s' % (path))
@@ -201,7 +201,7 @@ class Subscription(object):
       warn('Unknown digest day given in %s' % (path))
       self.digestDay = 'wed'
     self.digestDay = weekdays[self.digestDay[0:3].lower()]
-    if self.recommendation != None and (self.languages == None or not re.search(r'\S', self.languages)):
+    if self.recommendation is not None and self.type == 'ads' and not (self.languages and self.languages.strip()):
       warn('Recommendation without languages in %s' % (path))
     if len(self.supplements) == 0:
       for [name, url, complete] in self.variants:
@@ -218,7 +218,8 @@ def calculate_supplemented(lists):
   for filedata in lists.itervalues():
     for supplements in filedata.supplements:
       if supplements in lists:
-        lists[supplements].supplemented.append(filedata)
+        if lists[supplements].type == filedata.type:
+          lists[supplements].supplemented.append(filedata)
       else:
         warn('Subscription %s supplements an unknown subscription %s' % (filedata.name, supplements))
 

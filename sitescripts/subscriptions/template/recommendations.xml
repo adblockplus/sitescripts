@@ -27,7 +27,8 @@
                 url="{{url}}"
                 homepage="{{homepage}}"
                 prefixes="{{subscription.languages}}"
-                author="{{subscription.maintainer}}"/>
+                author="{{subscription.maintainer}}"
+                type="{{subscription.type}}"/>
   {% endif -%}
   {% endfor -%}
 </subscriptions>
