@@ -68,23 +68,35 @@ def _get_active_variant(notifications, groups):
       notification.pop(key_to_remove, None)
     return notification
 
+def _can_be_shown(notification):
+  return "title" in notification and "message" in notification
+
 def _generate_version(groups):
   version = time.strftime("%Y%m%d%H%M", time.gmtime())
   for group in groups:
     version += "-%s/%s" % (group["id"], group["variant"])
   return version
 
-def _create_response(notifications, groups):
+def _get_notifications_to_send(notifications, groups):
   active_variant = _get_active_variant(notifications, groups)
   if active_variant:
-    notifications = [active_variant]
-  else:
-    notifications = [x for x in notifications if "variants" not in x]
-  response = {
+    return [active_variant] if _can_be_shown(active_variant) else []
+
+  notifications_to_send = []
+  for notification in notifications:
+    if not _can_be_shown(notification):
+      continue
+    if "variants" in notification:
+      notification = copy.deepcopy(notification)
+      del notification["variants"]
+    notifications_to_send.append(notification)
+  return notifications_to_send
+
+def _create_response(notifications, groups):
+  return {
     "version": _generate_version(groups),
-    "notifications": notifications
+    "notifications": _get_notifications_to_send(notifications, groups)
   }
-  return response
 
 @url_handler("/notification.json")
 def notification(environ, start_response):
