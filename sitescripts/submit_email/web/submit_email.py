@@ -19,6 +19,7 @@ import fcntl
 import hmac
 import hashlib
 import wsgiref.util
+import ConfigParser
 from urlparse import parse_qsl, urljoin
 from urllib import urlencode, quote
 
@@ -26,7 +27,6 @@ from sitescripts.utils import get_config, sendMail, encode_email_address
 from sitescripts.web import url_handler, form_handler, send_simple_response
 
 VERIFICATION_PATH = '/verifyEmail'
-DEFAULT_PRODUCT = 'adblockbrowser'
 
 def sign(config, data):
   secret = config.get('submit_email', 'secret')
@@ -35,6 +35,14 @@ def sign(config, data):
 @url_handler('/submitEmail')
 @form_handler
 def submit_email(environ, start_response, data):
+  config = get_config()
+
+  try:
+    product = data['product']
+    template = config.get('submit_email', product + '_verification_email_template')
+  except (KeyError, ConfigParser.NoOptionError):
+    return send_simple_response(start_response, 400, 'Unknown product')
+
   email = data.get('email', '').strip()
   try:
     email = encode_email_address(email)
@@ -44,18 +52,13 @@ def submit_email(environ, start_response, data):
       'Please enter a valid email address.'
     )
 
-  config = get_config()
-  params = [('email', email), ('signature', sign(config, email))]
+  params = [('email', email), ('signature', sign(config, email)), ('product', product)]
   lang = data.get('lang')
   if lang:
     params.append(('lang', lang))
 
-  product = data.get('product', DEFAULT_PRODUCT)
-  email_template = product + '_verification_email_template'
-  params.append(('product', product))
-
   sendMail(
-    config.get('submit_email', email_template),
+    template,
     {
       'recipient': email,
       'verification_url': '%s?%s' % (
@@ -76,6 +79,11 @@ def verify_email(environ, start_response):
   config = get_config()
   params = dict(parse_qsl(environ.get('QUERY_STRING', '')))
 
+  try:
+    filename = config.get('submit_email', params['product'] + '_filename')
+  except (KeyError, ConfigParser.NoOptionError):
+    return send_simple_response(start_response, 400, 'Unknown product')
+
   email = params.get('email', '')
   signature = params.get('signature', '')
   if sign(config, email) != signature:
@@ -83,9 +91,6 @@ def verify_email(environ, start_response):
       start_response, 403,
       'Invalid signature in verification request.'
     )
-
-  product = params.get('product', DEFAULT_PRODUCT)
-  filename = config.get('submit_email', product + '_filename')
 
   with open(filename, 'ab', 0) as file:
     fcntl.lockf(file, fcntl.LOCK_EX)
