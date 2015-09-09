@@ -45,6 +45,7 @@ class Subscription(object):
   unavailable = define_property("unavailable", readonly=True)
   catchall = define_property("catchall", readonly=True)
   supplements = define_property("supplements", readonly=True)
+  supplementsType = define_property("supplementsType", readonly=True)
   supplemented = define_property("supplemented", readonly=True)
   variants = define_property("variants", readonly=True)
   homepage = define_property("homepage")
@@ -69,6 +70,7 @@ class Subscription(object):
       'unavailable': False,
       'catchall': False,
       'supplements': [],
+      'supplementsType': set(),
       'supplemented': [],
       'variants': [],
       'recommendation': None,
@@ -220,6 +222,7 @@ def calculate_supplemented(lists):
       if supplements in lists:
         if lists[supplements].type == filedata.type:
           lists[supplements].supplemented.append(filedata)
+        filedata.supplementsType.add(lists[supplements].type)
       else:
         warn('Subscription %s supplements an unknown subscription %s' % (filedata.name, supplements))
 
