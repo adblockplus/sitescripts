@@ -118,15 +118,12 @@ def load_notifications():
         data = codecs.getreader("utf8")(archive.extractfile(fileinfo))
         try:
           notification = _parse_notification(data, name)
-          if "inactive" in notification:
-            continue
-          current_time = datetime.datetime.now()
-          start = notification.pop("start", None)
-          if start is not None and current_time < start:
-            continue
-          end = notification.pop("end", None)
-          if end is not None and current_time > end:
-            continue
+          if not "inactive" in notification:
+            current_time = datetime.datetime.now()
+            start = notification.pop("start", current_time)
+            end = notification.pop("end", current_time)
+            if not start <= current_time <= end:
+              notification["inactive"] = True
           notifications.append(notification)
         except:
           traceback.print_exc()

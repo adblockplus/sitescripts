@@ -63,13 +63,15 @@ message.en-US = The message
     self.assertEqual(notifications[0]["severity"], "information")
     self.assertEqual(notifications[0]["title"]["en-US"], "The title")
     self.assertEqual(notifications[0]["message"]["en-US"], "The message")
+    self.assertNotIn("inactive", notifications[0])
 
   def test_inactive(self):
     self.notification_to_load = ("1", """
 inactive = True
 """)
     notifications = parser.load_notifications()
-    self.assertEqual(len(notifications), 0)
+    self.assertEqual(len(notifications), 1)
+    self.assertTrue(notifications[0]["inactive"])
 
   def test_in_range(self):
     current_time = datetime.datetime.now()
@@ -83,6 +85,7 @@ end = %s
     notifications = parser.load_notifications()
     self.assertEqual(len(notifications), 1)
     self.assertEqual(notifications[0]["id"], "1")
+    self.assertNotIn("inactive", notifications[0])
 
   def test_after_range(self):
     current_time = datetime.datetime.now()
@@ -93,7 +96,8 @@ start = %s
 end = %s
 """ % (_format_time(start_time), _format_time(end_time)))
     notifications = parser.load_notifications()
-    self.assertEqual(len(notifications), 0)
+    self.assertEqual(len(notifications), 1)
+    self.assertTrue(notifications[0]["inactive"])
 
   def test_before_range(self):
     current_time = datetime.datetime.now()
@@ -104,7 +108,8 @@ start = %s
 end = %s
 """ % (_format_time(start_time), _format_time(end_time)))
     notifications = parser.load_notifications()
-    self.assertEqual(len(notifications), 0)
+    self.assertEqual(len(notifications), 1)
+    self.assertTrue(notifications[0]["inactive"])
 
   def test_start_and_end_not_present(self):
     current_time = datetime.datetime.now()
@@ -117,6 +122,7 @@ end = %s
 """ % (_format_time(start_time), _format_time(end_time)))
     notifications = parser.load_notifications()
     self.assertEqual(len(notifications), 1)
+    self.assertNotIn("inactive", notifications[0])
     self.assertNotIn("start", notifications[0])
     self.assertNotIn("end", notifications[0])
 

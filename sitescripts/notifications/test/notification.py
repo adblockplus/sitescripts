@@ -299,5 +299,44 @@ class TestNotification(unittest.TestCase):
     self.assertEqual(len(result["notifications"]), 1)
     self.assertEqual(result["notifications"][0]["id"], "1")
 
+  def test_stays_in_group_when_notification_present(self):
+    self.load_notifications_mock.return_value = [
+      {"id": "a"}
+    ]
+    result = json.loads(notification.notification({
+      "QUERY_STRING": "lastVersion=197001010000-a/0-b/1"
+    }, lambda *args: None))
+    self.assertEqual(len(result["notifications"]), 0)
+    self.assertRegexpMatches(result["version"], r"-a/0")
+
+  def test_leaves_group_when_notification_absent(self):
+    self.load_notifications_mock.return_value = []
+    result = json.loads(notification.notification({
+      "QUERY_STRING": "lastVersion=197001010000-a/0-b/1"
+    }, lambda *args: None))
+    self.assertEqual(len(result["notifications"]), 0)
+    self.assertRegexpMatches(result["version"], r"[^-]*")
+
+  def test_stays_in_group_when_notification_inactive(self):
+    self.load_notifications_mock.return_value = [
+      {"id": "a", "inactive": True}
+    ]
+    result = json.loads(notification.notification({
+      "QUERY_STRING": "lastVersion=197001010000-a/0-b/1"
+    }, lambda *args: None))
+    self.assertEqual(len(result["notifications"]), 0)
+    self.assertRegexpMatches(result["version"], r"-a/0")
+
+  def test_inactive_notifications_not_returned(self):
+    self.load_notifications_mock.return_value = [
+      {"id": "a", "title": {}, "message": {}, "inactive": True},
+      {"id": "b", "title": {}, "message": {}, "inactive": False},
+      {"id": "c", "title": {}, "message": {}}
+    ]
+    result = json.loads(notification.notification({}, lambda *args: None))
+    self.assertEqual(len(result["notifications"]), 2)
+    self.assertEqual(result["notifications"][0]["id"], "b")
+    self.assertEqual(result["notifications"][1]["id"], "c")
+
 if __name__ == '__main__':
   unittest.main()

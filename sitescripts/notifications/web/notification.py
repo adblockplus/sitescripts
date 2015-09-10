@@ -29,8 +29,6 @@ def _determine_groups(version, notifications):
                         if x.count("/") == 1)
   groups = []
   for notification in notifications:
-    if "variants" not in notification:
-      continue
     group_id = notification["id"]
     if group_id in version_groups:
       groups.append({"id": group_id, "variant": int(version_groups[group_id])})
@@ -104,6 +102,7 @@ def notification(environ, start_response):
   version = params.get("lastVersion", [""])[0]
   notifications = load_notifications()
   groups = _determine_groups(version, notifications)
+  notifications = [x for x in notifications if not x.get("inactive", False)]
   if not groups:
     groups = _assign_groups(notifications)
   response = _create_response(notifications, groups)
