@@ -69,7 +69,7 @@ def _parse_notification(data, name):
     if key == "inactive" and not is_variant:
       current["inactive"] = True
     elif key == "severity":
-      if value not in ("information", "critical"):
+      if value not in ("information", "critical", "normal"):
         raise Exception("Unknown severity value '%s' in file '%s'" % (value, name))
       current["severity"] = value
     elif key == "links":
