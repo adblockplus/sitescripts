@@ -67,7 +67,7 @@ def _get_active_variant(notifications, groups):
     return notification
 
 def _can_be_shown(notification):
-  return "title" in notification and "message" in notification
+  return notification.get("title", None) and notification.get("message", None)
 
 def _generate_version(groups):
   version = time.strftime("%Y%m%d%H%M", time.gmtime())

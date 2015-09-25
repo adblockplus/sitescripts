@@ -31,7 +31,7 @@ class TestNotification(unittest.TestCase):
 
   def test_no_group(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}}
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}}
     ]
     result = json.loads(notification.notification({}, lambda *args: None))
     self.assertEqual(len(result["notifications"]), 1)
@@ -40,8 +40,10 @@ class TestNotification(unittest.TestCase):
 
   def test_not_in_group(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}},
-      {"id": "a", "variants": [{"title": {}, "message": {}}]}
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}},
+      {"id": "a", "variants": [
+        {"title": {"en-US": ""}, "message": {"en-US": ""}}
+      ]}
     ]
     result = json.loads(notification.notification({
       "QUERY_STRING": "lastVersion=197001010000-a/0"
@@ -52,8 +54,10 @@ class TestNotification(unittest.TestCase):
 
   def test_in_group(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}},
-      {"id": "a", "variants": [{"title": {}, "message": {}}]}
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}},
+      {"id": "a", "variants": [
+        {"title": {"en-US": ""}, "message": {"en-US": ""}}
+      ]}
     ]
     result = json.loads(notification.notification({
       "QUERY_STRING": "lastVersion=197001010000-a/1"
@@ -64,10 +68,16 @@ class TestNotification(unittest.TestCase):
 
   def test_not_in_one_of_many_groups(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}},
-      {"id": "a", "variants": [{"title": {}, "message": {}}]},
-      {"id": "b", "variants": [{"title": {}, "message": {}}]},
-      {"id": "c", "variants": [{"title": {}, "message": {}}]}
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}},
+      {"id": "a", "variants": [
+        {"title": {"en-US": ""}, "message": {"en-US": ""}}
+      ]},
+      {"id": "b", "variants": [
+        {"title": {"en-US": ""}, "message": {"en-US": ""}}
+      ]},
+      {"id": "c", "variants": [
+        {"title": {"en-US": ""}, "message": {"en-US": ""}}
+      ]}
     ]
     result = json.loads(notification.notification({
       "QUERY_STRING": "lastVersion=197001010000-a/0-b/0-c/0"
@@ -78,10 +88,16 @@ class TestNotification(unittest.TestCase):
 
   def test_in_one_of_many_groups(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}},
-      {"id": "a", "variants": [{"title": {}, "message": {}}]},
-      {"id": "b", "variants": [{"title": {}, "message": {}}]},
-      {"id": "c", "variants": [{"title": {}, "message": {}}]}
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}},
+      {"id": "a", "variants": [
+        {"title": {"en-US": ""}, "message": {"en-US": ""}}
+      ]},
+      {"id": "b", "variants": [
+        {"title": {"en-US": ""}, "message": {"en-US": ""}}
+      ]},
+      {"id": "c", "variants": [
+        {"title": {"en-US": ""}, "message": {"en-US": ""}}
+      ]}
     ]
     result = json.loads(notification.notification({
       "QUERY_STRING": "lastVersion=197001010000-a/0-b/1-c/0"
@@ -92,8 +108,10 @@ class TestNotification(unittest.TestCase):
 
   def test_not_put_in_group(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}},
-      {"id": "a", "variants": [{"sample": 0, "title": {}, "message": {}}]}
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}},
+      {"id": "a", "variants": [
+        {"sample": 0, "title": {"en-US": ""}, "message": {"en-US": ""}}
+      ]}
     ]
     result = json.loads(notification.notification({
       "QUERY_STRING": "lastVersion=197001010000"
@@ -104,8 +122,10 @@ class TestNotification(unittest.TestCase):
 
   def test_put_in_group(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}},
-      {"id": "a", "variants": [{"sample": 1, "title": {}, "message": {}}]}
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}},
+      {"id": "a", "variants": [
+        {"sample": 1, "title": {"en-US": ""}, "message": {"en-US": ""}}
+      ]}
     ]
     result = json.loads(notification.notification({
       "QUERY_STRING": "lastVersion=197001010000"
@@ -146,9 +166,9 @@ class TestNotification(unittest.TestCase):
       {
         "id": "a",
         "variants": [
-          {"sample": 0.5, "title": {"en-US": "1"}, "message": {}},
-          {"sample": 0.25, "title": {"en-US": "2"}, "message": {}},
-          {"sample": 0.25, "title": {"en-US": "3"}, "message": {}}
+          {"sample": 0.5, "title": {"en-US": "1"}, "message": {"en-US": ""}},
+          {"sample": 0.25, "title": {"en-US": "2"}, "message": {"en-US": ""}},
+          {"sample": 0.25, "title": {"en-US": "3"}, "message": {"en-US": ""}}
         ]
       }
     ]
@@ -189,15 +209,15 @@ class TestNotification(unittest.TestCase):
       {
         "id": "a",
         "variants": [
-          {"sample": 0.25, "title": {"en-US": "1"}, "message": {}},
-          {"sample": 0.25, "title": {"en-US": "2"}, "message": {}}
+          {"sample": 0.25, "title": {"en-US": "1"}, "message": {"en-US": ""}},
+          {"sample": 0.25, "title": {"en-US": "2"}, "message": {"en-US": ""}}
         ]
       },
       {
         "id": "b",
         "variants": [
-          {"sample": 0.25, "title": {"en-US": "1"}, "message": {}},
-          {"sample": 0.25, "title": {"en-US": "2"}, "message": {}}
+          {"sample": 0.25, "title": {"en-US": "1"}, "message": {"en-US": ""}},
+          {"sample": 0.25, "title": {"en-US": "2"}, "message": {"en-US": ""}}
         ]
       }
     ]
@@ -239,7 +259,7 @@ class TestNotification(unittest.TestCase):
 
   def test_version_header_present(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}}
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}}
     ]
     response_header_map = {}
     def start_response(status, response_headers):
@@ -251,7 +271,7 @@ class TestNotification(unittest.TestCase):
 
   def test_default_group_notification_returned_if_valid(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}},
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}},
       {
         "id": "a",
         "title": {"en-US": "0"},
@@ -273,7 +293,7 @@ class TestNotification(unittest.TestCase):
 
   def test_default_group_notification_not_returned_if_invalid(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}},
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}},
       {
         "id": "a",
         "title": {"en-US": "0"},
@@ -291,9 +311,12 @@ class TestNotification(unittest.TestCase):
 
   def test_invalid_notification_not_returned(self):
     self.load_notifications_mock.return_value = [
-      {"id": "1", "title": {}, "message": {}},
-      {"id": "2", "title": {}},
-      {"id": "3", "message": {}}
+      {"id": "1", "title": {"en-US": ""}, "message": {"en-US": ""}},
+      {"id": "2", "title": {"en-US": ""}, "message": {}},
+      {"id": "3", "title": {}, "message": {"en-US": ""}},
+      {"id": "4", "title": {}},
+      {"id": "5", "message": {}},
+      {"id": "6"}
     ]
     result = json.loads(notification.notification({}, lambda *args: None))
     self.assertEqual(len(result["notifications"]), 1)
@@ -329,9 +352,9 @@ class TestNotification(unittest.TestCase):
 
   def test_inactive_notifications_not_returned(self):
     self.load_notifications_mock.return_value = [
-      {"id": "a", "title": {}, "message": {}, "inactive": True},
-      {"id": "b", "title": {}, "message": {}, "inactive": False},
-      {"id": "c", "title": {}, "message": {}}
+      {"id": "a", "title": {"en-US": ""}, "message": {"en-US": ""}, "inactive": True},
+      {"id": "b", "title": {"en-US": ""}, "message": {"en-US": ""}, "inactive": False},
+      {"id": "c", "title": {"en-US": ""}, "message": {"en-US": ""}}
     ]
     result = json.loads(notification.notification({}, lambda *args: None))
     self.assertEqual(len(result["notifications"]), 2)
