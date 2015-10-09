@@ -134,37 +134,38 @@ def encode_email_address(email):
 
 _template_cache = {}
 
-def get_template(template, autoescape=True):
+def get_template(template, autoescape=True, template_path=siteScriptsPath):
   """Parses and returns a Jinja2 template"""
-  key = (template, autoescape)
+  key = (template_path, template, autoescape)
   if not key in _template_cache:
     if autoescape:
-      env = get_template_environment()
+      env = get_template_environment(template_path)
     else:
-      env = get_unescaped_template_environment()
+      env = get_unescaped_template_environment(template_path)
     _template_cache[key] = env.get_template(template)
   return _template_cache[key]
 
 @cached(float("inf"))
-def get_template_environment():
+def get_template_environment(template_path):
   """
     Returns a Jinja2 template environment with autoescaping enabled.
   """
   from sitescripts.templateFilters import filters
   import jinja2
-  env = jinja2.Environment(loader=jinja2.FileSystemLoader(siteScriptsPath), autoescape=True)
+  env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_path),
+                           autoescape=True)
   env.filters.update(filters)
   return env
 
 @cached(float("inf"))
-def get_unescaped_template_environment():
+def get_unescaped_template_environment(template_path):
   """
     Returns a Jinja2 template environment without autoescaping. Don't use this to
     generate HTML files!
   """
   from sitescripts.templateFilters import filters
   import jinja2
-  env = jinja2.Environment(loader=jinja2.FileSystemLoader(siteScriptsPath))
+  env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_path))
   env.filters.update(filters)
   return env
 

@@ -20,6 +20,7 @@ sitescripts.extensions.web.downloads =
 sitescripts.extensions.web.adblockbrowserUpdates =
 sitescripts.filterhits.web.submit =
 sitescripts.filterhits.web.query =
+sitescripts.testpages.web.sitekey_frame =
 
 [subscriptions]
 repository=%(root)s/hg/subscriptionlist
@@ -187,3 +188,7 @@ database=db
 test_dbuser=test_user
 test_dbpassword=test_password
 test_database=test_db
+
+[testpages]
+sitekeyFrameTemplate=%(root)s/testpages.adblockplus.org/templates/sitekey_frame.tmpl
+sitekeyPath=%(root)s/testpages.adblockplus.org/static/site.key

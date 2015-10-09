@@ -20,6 +20,7 @@ import imp
 import importlib
 import re
 import httplib
+import urllib
 from urlparse import parse_qsl
 
 from sitescripts.utils import get_config
@@ -37,6 +38,15 @@ def registerUrlHandler(url, func):
   if url in handlers:
     raise Exception('A handler for url %s is already registered' % url)
   handlers[url] = func
+
+# https://www.python.org/dev/peps/pep-0333/#url-reconstruction
+def request_path(environ, include_query=True):
+  path = urllib.quote(environ.get("SCRIPT_NAME", "") +
+                      environ.get("PATH_INFO", ""))
+  query_string = environ.get("QUERY_STRING", "")
+  if query_string and include_query:
+    path += "?" + urllib.quote(query_string)
+  return path
 
 def basic_auth(config_section = "DEFAULT"):
   def decorator(function):
