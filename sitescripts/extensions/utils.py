@@ -332,24 +332,15 @@ def _getDownloadLink(repo):
   """
   gets the download link to the most current version of an extension
   """
-  # you can't easily install extensions from third-party sources on Chrome
-  # and Opera. So always get the link for the version on the Web Store.
   if repo.galleryID:
     if repo.type == "chrome":
       return _getGoogleDownloadLink(repo.galleryID)
-    if repo.type == "opera":
+    elif repo.type == "opera":
       return _getOperaDownloadLink(repo.galleryID)
+    elif repo.type == "gecko":
+      return _getMozillaDownloadLink(repo.galleryID)
 
-  (localURL, localVersion) = _getLocalLink(repo)
-
-  # get a link to Firefox Add-Ons, if the latest version has been published there
-  if repo.type == 'gecko' and repo.galleryID:
-    (galleryURL, galleryVersion) = _getMozillaDownloadLink(repo.galleryID)
-    if not localVersion or (galleryVersion and
-                            compareVersions(galleryVersion, localVersion) >= 0):
-      return (galleryURL, galleryVersion)
-
-  return (localURL, localVersion)
+  return _getLocalLink(repo)
 
 def _getQRCode(text):
   try:
