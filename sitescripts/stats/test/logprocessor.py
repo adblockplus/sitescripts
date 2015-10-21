@@ -145,7 +145,7 @@ class Test(unittest.TestCase):
       (
         datetime(2013, 07, 31, 12, 03, 00),
         "easylist.txt",
-        "addonName=adblockplus&addonVersion=2.3.1&platform=gecko&platformVersion=23.0&lastVersion=201307311200",
+        "addonName=adblockplus&addonVersion=2.3.1&platform=gecko&platformVersion=23.0&lastVersion=201307311200-1/0",
         "-",
         "adblockplus/2.3.1",
         "unknown/unknown",
@@ -157,7 +157,7 @@ class Test(unittest.TestCase):
       (
         datetime(2013, 07, 31, 12, 03, 00),
         "easylist.txt",
-        "addonName=adblockplus&addonVersion=2.3.1&platform=gecko&platformVersion=23.0&lastVersion=201307302200",
+        "addonName=adblockplus&addonVersion=2.3.1&platform=gecko&platformVersion=23.0&lastVersion=201307302200-1/3",
         "-",
         "adblockplus/2.3.1",
         "unknown/unknown",

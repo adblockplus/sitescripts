@@ -117,7 +117,11 @@ def cache_lru(func):
         results.entries_left -= 1
       else:
         results.popitem(last=False)
-      result = func(arg)
+      try:
+        result = func(arg)
+      except:
+        results.entries_left += 1
+        raise
     results[arg] = result
     return result
   return wrapped
@@ -267,6 +271,8 @@ def parse_query(query):
 
 @cache_lru
 def parse_lastversion(last_version):
+  if '-' in last_version:
+    last_version = last_version.split('-', 1)[0]
   return datetime.strptime(last_version, "%Y%m%d%H%M")
 
 @cache_lru
