@@ -361,5 +361,14 @@ class TestNotification(unittest.TestCase):
     self.assertEqual(result["notifications"][0]["id"], "b")
     self.assertEqual(result["notifications"][1]["id"], "c")
 
+  def test_inactive_notification_variant_not_returned(self):
+    self.load_notifications_mock.return_value = [
+      {"id": "a", "inactive": True}
+    ]
+    result = json.loads(notification.notification({
+      "QUERY_STRING": "lastVersion=197001010000-a/1"
+    }, lambda *args: None))
+    self.assertEqual(len(result["notifications"]), 0)
+
 if __name__ == '__main__':
   unittest.main()

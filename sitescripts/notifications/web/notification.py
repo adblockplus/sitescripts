@@ -59,7 +59,9 @@ def _get_active_variant(notifications, groups):
     variant = group["variant"]
     if variant == 0:
       continue
-    notification = next(x for x in notifications if x["id"] == group_id)
+    notification = next((x for x in notifications if x["id"] == group_id), None)
+    if not notification:
+      continue
     notification = copy.deepcopy(notification)
     notification.update(notification["variants"][variant - 1])
     for key_to_remove in ("sample", "variants"):
