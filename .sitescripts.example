@@ -112,6 +112,7 @@ nightliesData=%(root)s/data/nightlies
 nightliesDirectory=%(root)s/www/devbuilds
 nightliesURL=https://adblockplus.org/devbuilds/
 downloadsRepo=%(root)s/hg/downloads
+downloadsDirectory=%(root)s/www/downloads
 downloadsURL=https://downloads.adblockplus.org/
 downloadLinksFile=%(root)s/tmp/downloadLinks.ini
 geckoUpdateManifestPath=%(root)s/www/update.rdf
