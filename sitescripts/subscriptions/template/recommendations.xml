@@ -26,7 +26,9 @@
                 specialization="{{subscription.specialization}}"
                 url="{{url}}"
                 homepage="{{homepage}}"
+                {%- if subscription.languages %}
                 prefixes="{{subscription.languages}}"
+                {%- endif %}
                 author="{{subscription.maintainer}}"
                 type="{{subscription.type}}"/>
   {% endif -%}
