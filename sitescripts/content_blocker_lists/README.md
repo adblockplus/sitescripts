@@ -18,7 +18,7 @@ example:
     [content_blocker_lists]
     abp2blocklist_url=https://hg.adblockplus.org/abp2blocklist
     abp2blocklist_path=%(root)s/content_blocker_lists/abp2blocklist
-    easylist_url=https://easylist-downloads.adblockplus.org/easylist_noadult.txt
+    easylist_url=https://easylist-downloads.adblockplus.org/easylist.txt
     exceptionrules_url=https://easylist-downloads.adblockplus.org/exceptionrules.txt
     easylist_content_blocker_path=%(root)s/content_blocker_lists/easylist_content_blocker.json
     easylist_content_blocker_expires=4 days
