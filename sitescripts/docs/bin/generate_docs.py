@@ -39,7 +39,8 @@ def sync_sources(sources_dir, repository_url):
                            "--rev", "master",
                            "--repository", sources_dir])
     subprocess.check_call(["hg", "update", "--quiet",
-                           "--rev", "master"])
+                           "--rev", "master",
+                           "--repository", sources_dir])
   else:
     subprocess.check_call(["hg", "clone", "--quiet",
                            "--updaterev", "master",
