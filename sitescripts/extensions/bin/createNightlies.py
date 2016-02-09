@@ -381,14 +381,6 @@ class NightlyBuild(object):
     template = get_template(get_config().get('extensions', 'nightlyIndexPage'))
     template.stream({'config': self.config, 'links': links}).dump(outputPath)
 
-  def updateDocs(self):
-    if self.config.type not in ('gecko', 'chrome'):
-      return
-
-    import buildtools.build as build
-    outputPath = os.path.join(self.config.docsDirectory, self.basename)
-    build.generateDocs(self.tempdir, None, [('--quiet', '')], [outputPath], self.config.type)
-
   def uploadToMozillaAddons(self):
     import urllib3
 
@@ -587,9 +579,6 @@ class NightlyBuild(object):
         # write update manifest
         if self.config.type != 'gecko':
           self.writeUpdateManifest()
-
-        # update documentation
-        self.updateDocs()
 
       # retire old builds
       versions = self.retireBuilds()

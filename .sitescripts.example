@@ -120,7 +120,6 @@ androidUpdateManifestPath=%(root)s/www/androidupdates.xml
 androidNewUpdateManifestPath=%(root)s/www/androidupdate.json
 safariUpdateManifestPath=%(root)s/www/updates.plist
 ieUpdateManifestPath=%(root)s/www/ieupdate.json
-docsDirectory=%(root)s/www/jsdoc
 padDirectory=%(root)s/www/pad
 padURL=https://adblockplus.org/pad/
 errorTemplate=extensions/template/error.html
@@ -203,3 +202,18 @@ easylist_content_blocker_path=%(root)s/content_blocker_lists/easylist_content_bl
 easylist_content_blocker_expires=4 days
 combined_content_blocker_path=%(root)s/content_blocker_lists/easylist+exceptionrules_content_blocker.json
 combined_content_blocker_expires=4 days
+
+[docs]
+temp_directory=%(root)s/docs-tmp
+adblockplus_repository=%(root)s/hg/adblockplus
+adblockplus_target_directory=%(root)s/www/jsdoc/adblockplus
+adblockplus_command=./build.py -t gecko docs {output_dir} &>/dev/null
+adblockpluschrome_repository=%(root)s/hg/adblockpluschrome
+adblockpluschrome_target_directory=%(root)s/www/jsdoc/adblockpluschrome
+adblockpluschrome_command=./build.py -t chrome docs {output_dir} &>/dev/null
+adblockpluscore_repository=%(root)s/hg/adblockpluscore
+adblockpluscore_target_directory=%(root)s/www/jsdoc/adblockpluscore
+adblockpluscore_command=./generate_docs.py {output_dir} &>/dev/null
+libadblockplus_repository=%(root)s/hg/libadblockplus
+libadblockplus_target_directory=%(root)s/www/docs/libadblockplus
+libadblockplus_command=make docs &>/dev/null && mv docs/html {output_dir}
