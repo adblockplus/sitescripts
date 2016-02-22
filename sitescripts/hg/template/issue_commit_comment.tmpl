@@ -1,0 +1,9 @@
+{% if changes|length > 1 -%}
+Some commits referencing this issue have landed:
+{%- else -%}
+A commit referencing this issue has landed:
+{%- endif %}
+{%- for change in changes %}
+{% if loop.length > 1 %}- {% endif -%}
+https://hg.adblockplus.org/{{repository_name}}/rev/{{change.hex()[:12]}}
+{%- endfor -%}

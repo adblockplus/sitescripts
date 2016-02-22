@@ -163,6 +163,8 @@ cvsdir=adblockplus/www/easylist
 [hg]
 auth_repository=%(root)s/hg/hgaccess
 auth_file=%(root)s/.ssh/.ssh/authorized_keys
+trac_xmlrpc_url=https://abpbot:abpbot@issues.adblockplus.org/login/xmlrpc
+issue_url_template=https://issues.adblockplus.org/ticket/{id}
 
 [formmail]
 template=formmail/template/eyeo.mail
