@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # This file is part of Adblock Plus <https://adblockplus.org/>,
 # Copyright (C) 2006-2016 Eyeo GmbH
 #
