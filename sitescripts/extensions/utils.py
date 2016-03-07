@@ -135,9 +135,6 @@ class Configuration(object):
   certname = _defineProperty('signtool_certname')
   dbdir = _defineProperty('signtool_dbdir')
   dbpass = _defineProperty('signtool_dbpass')
-  padDirectory = _defineProperty('padDirectory')
-  padURL = _defineProperty('padURL')
-  padTemplate = _defineProperty('padTemplate')
 
   keyFile = _defineProperty('key', local=True, default='')
   name = _defineProperty('name', local=True)
@@ -148,7 +145,6 @@ class Configuration(object):
   clientID = _defineProperty('clientID', local=True, default='')
   clientSecret = _defineProperty('clientSecret', local=True, default='')
   refreshToken = _defineProperty('refreshToken', local=True, default='')
-  pad = _defineProperty('pad', local=True, type='boolean', default=False)
 
   latestRevision = _defineNightlyProperty('latestRevision')
 
@@ -188,13 +184,11 @@ class Configuration(object):
     """
     return self.repositoryName
 
-  def listContents(self, version='tip'):
-    return subprocess.check_output(['hg', '-R', self.repository, 'locate', '-r', version]).splitlines()
-
   def readMetadata(self, version='tip'):
     genericFilename = 'metadata'
     filename = '%s.%s' % (genericFilename, self.type)
-    files = self.listContents(version)
+    files = subprocess.check_output(['hg', '-R', self.repository,
+                                     'locate', '-r', version]).splitlines()
 
     if filename not in files:
       # some repositories like those for Android and
@@ -213,17 +207,15 @@ class Configuration(object):
 
     return parser
 
-  @property
-  def basename(self):
+  def getDownloads(self):
     metadata = self.readMetadata()
     if metadata:
-      return metadata.get('general', 'basename')
-    return os.path.basename(os.path.normpath(self.repository))
+      prefix = metadata.get('general', 'basename')
+    else:
+      prefix = os.path.basename(os.path.normpath(self.repository))
+    prefix +=  '-'
 
-  def getDownloads(self):
-    prefix = self.basename + '-'
     command = ['hg', 'locate', '-R', self.downloadsRepo, '-r', 'default']
-
     for filename in subprocess.check_output(command).splitlines():
       if filename.startswith(prefix) and filename.endswith(self.packageSuffix):
         yield (filename, filename[len(prefix):len(filename) - len(self.packageSuffix)])
