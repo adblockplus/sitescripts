@@ -223,31 +223,29 @@ class NightlyBuild(object):
     """
       Writes update.rdf file for the current build
     """
-    baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
-    if not os.path.exists(baseDir):
-      os.makedirs(baseDir)
-    if self.config.type == 'chrome' or self.config.type == 'opera':
-      manifestPath = os.path.join(baseDir, "updates.xml")
-      templateName = 'chromeUpdateManifest'
-    elif self.config.type == 'safari':
+    if self.config.type == 'safari':
       manifestPath = os.path.join(baseDir, "updates.plist")
       templateName = 'safariUpdateManifest'
     elif self.config.type == 'android':
       manifestPath = os.path.join(baseDir, "updates.xml")
       templateName = 'androidUpdateManifest'
+    else:
+      return
 
-      # ABP for Android used to have its own update manifest format. We need to
-      # generate both that and the new one in the libadblockplus format as long
-      # as a significant amount of users is on an old version.
+    baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
+    if not os.path.exists(baseDir):
+      os.makedirs(baseDir)
+
+    # ABP for Android used to have its own update manifest format. We need to
+    # generate both that and the new one in the libadblockplus format as long
+    # as a significant amount of users is on an old version.
+    if self.config.type == 'android':
       newManifestPath = os.path.join(baseDir, "update.json")
       writeAndroidUpdateManifest(newManifestPath, [{
         'basename': self.basename,
         'version': self.version,
         'updateURL': self.updateURL
       }])
-    else:
-      manifestPath = os.path.join(baseDir, "update.rdf")
-      templateName = 'geckoUpdateManifest'
 
     template = get_template(get_config().get('extensions', templateName))
     template.stream({'extensions': [self]}).dump(manifestPath)
@@ -309,7 +307,7 @@ class NightlyBuild(object):
         if os.path.exists(self.path):
           os.remove(self.path)
         raise
-    elif self.config.type == 'chrome' or self.config.type == 'opera':
+    elif self.config.type == 'chrome':
       import buildtools.packagerChrome as packager
       packager.createBuild(self.tempdir, type=self.config.type, outFile=self.path, buildNum=self.revision, keyFile=self.config.keyFile, experimentalAPI=self.config.experimental)
     elif self.config.type == 'safari':
@@ -563,7 +561,7 @@ class NightlyBuild(object):
         # get meta data from the repository
         if self.config.type == 'android':
           self.readAndroidMetadata()
-        elif self.config.type == 'chrome' or self.config.type == 'opera':
+        elif self.config.type == 'chrome':
           self.readChromeMetadata()
         elif self.config.type == 'safari':
           self.readSafariMetadata()

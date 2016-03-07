@@ -32,8 +32,6 @@
     <a href="https://addons.mozilla.org/addon/{{config.galleryID}}/">Mozilla Add-ons</a>
   {%- elif config.type == 'chrome' and config.galleryID -%}
     <a href="https://chrome.google.com/webstore/detail/{{config.galleryID}}">Chrome Web Store</a>
-  {%- elif config.type == 'opera' and config.galleryID -%}
-    <a href="https://addons.opera.com/en/extensions/details/{{config.galleryID}}/">Opera Add-ons</a>
   {%- else %}
     <a href="https://adblockplus.org{{config.downloadPage}}">its installation page</a>
   {%- endif -%}

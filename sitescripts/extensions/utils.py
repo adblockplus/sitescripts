@@ -23,11 +23,18 @@ import subprocess
 import time
 import urlparse
 import urllib
-import urllib2
 import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser, NoOptionError
 from StringIO import StringIO
 from sitescripts.utils import get_config
+
+PACKAGE_SUFFIXES = {
+  'gecko': '.xpi',
+  'chrome': '.crx',
+  'safari': '.safariextz',
+  'ie': '.exe',
+  'android': '.apk'
+}
 
 def compareVersionParts(part1, part2):
   def convertInt(value, default):
@@ -163,17 +170,7 @@ class Configuration(object):
       self.type = self.config.get('extensions', self.repositoryName + '_type')
     else:
       self.type = 'gecko'
-
-    if self.type == 'gecko':
-      self.packageSuffix = '.xpi'
-    elif self.type == 'chrome' or self.type == 'opera':
-      self.packageSuffix = '.crx'
-    elif self.type == 'safari':
-      self.packageSuffix = '.safariextz'
-    elif self.type == 'ie':
-      self.packageSuffix = '.exe'
-    elif self.type == 'android':
-      self.packageSuffix = '.apk'
+    self.packageSuffix = PACKAGE_SUFFIXES[self.type]
 
     if self.nightlyConfig and not self.nightlyConfig.has_section(self.repositoryName):
       self.nightlyConfig.add_section(self.repositoryName)
@@ -267,44 +264,6 @@ def _getMozillaDownloadLink(galleryID):
   else:
     return (None, None)
 
-def _getGoogleDownloadLink(galleryID):
-  """
-  gets download link for a Chrome add-on from the Chrome Gallery site
-  """
-  galleryID = _urlencode(galleryID)
-
-  url = 'https://clients2.google.com/service/update2/crx?x=%s' % _urlencode('id=%s&uc' % galleryID)
-  document = dom.parse(_urlopen(url))
-  updateTags = document.getElementsByTagName('updatecheck')
-  version = updateTags and updateTags[0].getAttribute('version')
-
-  if not version:
-    return (None, None)
-
-  request = urllib2.Request('https://chrome.google.com/webstore/detail/_/' + galleryID)
-  request.get_method = lambda : 'HEAD'
-  url = urllib2.urlopen(request).geturl()
-
-  return (url, version)
-
-def _getOperaDownloadLink(galleryID):
-  """
-  gets download link for an Opera add-on from the Opera Addons site
-  """
-  galleryID = _urlencode(galleryID)
-
-  request = urllib2.Request('https://addons.opera.com/extensions/download/%s/' % galleryID)
-  request.get_method = lambda : 'HEAD'
-  response = urllib2.urlopen(request)
-
-  content_disposition = response.info().getheader('Content-Disposition')
-  if content_disposition:
-    match = re.search(r'filename=\S+-([\d.]+)-\d+\.crx$', content_disposition)
-    if match:
-      return ('https://addons.opera.com/extensions/details/%s/' % galleryID , match.group(1))
-
-  return (None, None)
-
 def _getLocalLink(repo):
   """
   gets the link for the newest download of an add-on in the local downloads
@@ -324,14 +283,8 @@ def _getDownloadLink(repo):
   """
   gets the download link to the most current version of an extension
   """
-  if repo.galleryID:
-    if repo.type == "chrome":
-      return _getGoogleDownloadLink(repo.galleryID)
-    elif repo.type == "opera":
-      return _getOperaDownloadLink(repo.galleryID)
-    elif repo.type == "gecko":
-      return _getMozillaDownloadLink(repo.galleryID)
-
+  if repo.galleryID and repo.type == "gecko":
+    return _getMozillaDownloadLink(repo.galleryID)
   return _getLocalLink(repo)
 
 def _getQRCode(text):
