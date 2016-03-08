@@ -148,7 +148,6 @@ class Configuration(object):
   galleryID = _defineProperty('galleryID', local=True, default='')
   devbuildGalleryID = _defineProperty('devbuildGalleryID', local=True, default='')
   downloadPage = _defineProperty('downloadPage', local=True, default='')
-  experimental = _defineProperty('experimental', local=True, default='')
   clientID = _defineProperty('clientID', local=True, default='')
   clientSecret = _defineProperty('clientSecret', local=True, default='')
   refreshToken = _defineProperty('refreshToken', local=True, default='')

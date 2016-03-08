@@ -201,8 +201,6 @@ class NightlyBuild(object):
     metadata = packager.readMetadata(self.tempdir, self.config.type)
     self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
     self.basename = metadata.get("general", "basename")
-    if self.config.experimental:
-      self.basename += '-experimental'
 
     self.compat = []
     if metadata.has_section('compat') and metadata.has_option('compat', 'chrome'):
@@ -309,7 +307,7 @@ class NightlyBuild(object):
         raise
     elif self.config.type == 'chrome':
       import buildtools.packagerChrome as packager
-      packager.createBuild(self.tempdir, type=self.config.type, outFile=self.path, buildNum=self.revision, keyFile=self.config.keyFile, experimentalAPI=self.config.experimental)
+      packager.createBuild(self.tempdir, type=self.config.type, outFile=self.path, buildNum=self.revision, keyFile=self.config.keyFile)
     elif self.config.type == 'safari':
       import buildtools.packagerSafari as packager
       packager.createBuild(self.tempdir, type=self.config.type, outFile=self.path, buildNum=self.revision, keyFile=self.config.keyFile)
