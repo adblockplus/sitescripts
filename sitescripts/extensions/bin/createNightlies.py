@@ -221,6 +221,7 @@ class NightlyBuild(object):
     """
       Writes update.rdf file for the current build
     """
+    baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
     if self.config.type == 'safari':
       manifestPath = os.path.join(baseDir, "updates.plist")
       templateName = 'safariUpdateManifest'
@@ -230,7 +231,6 @@ class NightlyBuild(object):
     else:
       return
 
-    baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
     if not os.path.exists(baseDir):
       os.makedirs(baseDir)
 
