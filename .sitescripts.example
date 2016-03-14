@@ -141,6 +141,10 @@ filePageTemplate=stats/template/fileStats.html
 easylist_repository=%(root)s/hg/easylist
 easylistgermany_repository=%(root)s/hg/easylistgermany
 malwaredomains_repository=%(root)s/hg/malwaredomains
+malwaredomains_mirrors=
+	http://mirror3.malwaredomains.com
+	http://mirror1.malwaredomains.com
+	http://mirror2.malwaredomains.com
 outdir=%(root)s/data/easylist
 cvsroot=:pserver:guest@mozdev.org:/cvs
 cvsdir=adblockplus/www/easylist
