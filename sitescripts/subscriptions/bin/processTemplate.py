@@ -30,7 +30,7 @@ if __name__ == '__main__':
   setupStderr()
 
   if len(sys.argv) < 2:
-    raise Exception('A template like recommendations, subscriptionList, subscriptionsXML or subscriptionsXML2 needs to be specified on command line')
+    raise Exception('A template like recommendations, subscriptionsXML or subscriptionsXML2 needs to be specified on command line')
 
   templateName = sys.argv[1]
   outputFile = None
