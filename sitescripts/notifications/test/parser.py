@@ -67,11 +67,17 @@ message.en-US = The message
 
   def test_inactive(self):
     self.notification_to_load = ("1", """
-inactive = True
+inactive = Yes
 """)
     notifications = parser.load_notifications()
     self.assertEqual(len(notifications), 1)
     self.assertTrue(notifications[0]["inactive"])
+    self.notification_to_load = ("1", """
+inactive = No
+""")
+    notifications = parser.load_notifications()
+    self.assertEqual(len(notifications), 1)
+    self.assertFalse(notifications[0]["inactive"])
 
   def test_in_range(self):
     current_time = datetime.datetime.now()
