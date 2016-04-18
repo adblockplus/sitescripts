@@ -21,5 +21,5 @@
 # on them and should be aware of all warnings.
 import sys
 if sys.stderr.isatty():
-  import warnings
-  warnings.simplefilter("default")
+    import warnings
+    warnings.simplefilter("default")

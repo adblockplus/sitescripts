@@ -22,28 +22,29 @@ import MySQLdb
 from sitescripts.filterhits.test import test_helpers
 from sitescripts.filterhits import db
 
+
 class DbTestCase(test_helpers.FilterhitsTestCase):
-  longMessage = True
-  maxDiff = None
+    longMessage = True
+    maxDiff = None
 
-  def test_query_and_write(self):
-    insert_sql = """INSERT INTO `filters` (filter, sha1)
+    def test_query_and_write(self):
+        insert_sql = """INSERT INTO `filters` (filter, sha1)
                     VALUES (%s, UNHEX(SHA1(filter)))"""
-    select_sql = "SELECT filter FROM filters ORDER BY filter ASC"
+        select_sql = "SELECT filter FROM filters ORDER BY filter ASC"
 
-    # Table should be empty to start with
-    self.assertEqual(db.query(self.db, select_sql), ())
-    # Write some data and query it back
-    db.write(self.db, ((insert_sql, "something"),))
-    self.assertEqual(db.query(self.db, select_sql), ((u"something",),))
-    # Write an array of SQL strings
-    db.write(self.db, ((insert_sql, "a"), (insert_sql, "b"), (insert_sql, "c")))
-    self.assertEqual(db.query(self.db, select_sql), ((u"a",), (u"b",), (u"c",), (u"something",)))
-    # Write a sequence of SQL but roll back when a problem arrises
-    with self.assertRaises(MySQLdb.ProgrammingError):
-      db.write(self.db, ((insert_sql, "f"), (insert_sql, "g"), (insert_sql, "h"),
-                         ("GFDGks",)))
-    self.assertEqual(db.query(self.db, select_sql), ((u"a",), (u"b",), (u"c",), (u"something",)))
+        # Table should be empty to start with
+        self.assertEqual(db.query(self.db, select_sql), ())
+        # Write some data and query it back
+        db.write(self.db, ((insert_sql, "something"),))
+        self.assertEqual(db.query(self.db, select_sql), ((u"something",),))
+        # Write an array of SQL strings
+        db.write(self.db, ((insert_sql, "a"), (insert_sql, "b"), (insert_sql, "c")))
+        self.assertEqual(db.query(self.db, select_sql), ((u"a",), (u"b",), (u"c",), (u"something",)))
+        # Write a sequence of SQL but roll back when a problem arrises
+        with self.assertRaises(MySQLdb.ProgrammingError):
+            db.write(self.db, ((insert_sql, "f"), (insert_sql, "g"), (insert_sql, "h"),
+                               ("GFDGks",)))
+        self.assertEqual(db.query(self.db, select_sql), ((u"a",), (u"b",), (u"c",), (u"something",)))
 
 if __name__ == "__main__":
-  unittest.main()
+    unittest.main()

@@ -18,13 +18,12 @@
 from sitescripts.utils import setupStderr
 from sitescripts.reports.utils import get_db, executeQuery
 
+
 def removeOldUsers(months=4):
-  cursor = get_db().cursor()
-  executeQuery(cursor,
-         '''DELETE FROM #PFX#users WHERE ADDDATE(mtime, INTERVAL %s MONTH) < NOW()''',
-         (months))
-  get_db().commit()
+    cursor = get_db().cursor()
+    executeQuery(cursor, 'DELETE FROM #PFX#users WHERE ADDDATE(mtime, INTERVAL %s MONTH) < NOW()', months)
+    get_db().commit()
 
 if __name__ == '__main__':
-  setupStderr()
-  removeOldUsers()
+    setupStderr()
+    removeOldUsers()

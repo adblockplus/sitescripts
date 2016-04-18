@@ -21,47 +21,50 @@ import MySQLdb
 
 from sitescripts.utils import get_config
 
+
 def connect():
-  config = get_config()
-  return MySQLdb.connect(
-    user=config.get("filterhitstats", "dbuser"),
-    passwd=config.get("filterhitstats", "dbpassword"),
-    db=config.get("filterhitstats", "database"),
-    use_unicode=True, charset="utf8"
-  )
+    config = get_config()
+    return MySQLdb.connect(
+        user=config.get("filterhitstats", "dbuser"),
+        passwd=config.get("filterhitstats", "dbpassword"),
+        db=config.get("filterhitstats", "database"),
+        use_unicode=True, charset="utf8"
+    )
+
 
 def query(db, sql, *params, **kwargs):
-  """
-  Executes the query given by the provided SQL and returns the results.
-  If dict_result keyword argument is provided + True the results will be
-  returned as a tuple of dictionaries, otherwise a tuple of tuples.
-  """
-  if kwargs.get("dict_result"):
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
-  else:
-    cursor = db.cursor()
-  try:
-    cursor.execute(sql, params)
-    db.commit()
-    return cursor.fetchall()
-  finally:
-    cursor.close()
+    """
+    Executes the query given by the provided SQL and returns the results.
+    If dict_result keyword argument is provided + True the results will be
+    returned as a tuple of dictionaries, otherwise a tuple of tuples.
+    """
+    if kwargs.get("dict_result"):
+        cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    else:
+        cursor = db.cursor()
+    try:
+        cursor.execute(sql, params)
+        db.commit()
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+
 
 def write(db, queries):
-  """
-  This writes a given iteratable object of tuples containing SQL
-  strings and any required parameters to the database. All queries will
-  be run as one transaction and rolled back on error.
-  """
-  try:
-    cursor = db.cursor()
+    """
+    This writes a given iteratable object of tuples containing SQL
+    strings and any required parameters to the database. All queries will
+    be run as one transaction and rolled back on error.
+    """
     try:
-      for query in queries:
-        sql, params = query[0], query[1:]
-        cursor.execute(sql, params)
-      db.commit()
-    finally:
-      cursor.close()
-  except MySQLdb.Error:
-    db.rollback()
-    raise
+        cursor = db.cursor()
+        try:
+            for query in queries:
+                sql, params = query[0], query[1:]
+                cursor.execute(sql, params)
+            db.commit()
+        finally:
+            cursor.close()
+    except MySQLdb.Error:
+        db.rollback()
+        raise

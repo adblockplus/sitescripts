@@ -18,24 +18,25 @@
 from sitescripts.utils import get_config, sendMail, encode_email_address
 from sitescripts.web import url_handler, form_handler, send_simple_response
 
+
 @url_handler("/sendInstallationLink")
 @form_handler
 def send_installation_link(environ, start_response, data):
-  email = data.get("email", "").strip()
-  try:
-    email = encode_email_address(email)
-  except ValueError:
+    email = data.get("email", "").strip()
+    try:
+        email = encode_email_address(email)
+    except ValueError:
+        return send_simple_response(
+            start_response, 400,
+            "Please enter a valid email address."
+        )
+
+    config = get_config()
+    template_path = config.get("send_installation_link", "email_template")
+    sendMail(template_path, {"recipient": email})
+
     return send_simple_response(
-      start_response, 400,
-      "Please enter a valid email address."
+        start_response, 200,
+        "The app is on the way! "
+        "Please check your email on your smartphone or tablet."
     )
-
-  config = get_config()
-  template_path = config.get("send_installation_link", "email_template")
-  sendMail(template_path, {"recipient": email})
-
-  return send_simple_response(
-    start_response, 200,
-    "The app is on the way! "
-    "Please check your email on your smartphone or tablet."
-  )

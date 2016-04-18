@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, MySQLdb
+import sys
+import os
+import MySQLdb
 from sitescripts.utils import get_config, setupStderr
 
 """
@@ -24,30 +26,32 @@ list permanently. This is useful for less popular domains that are commonly
 affected by false positives.
 """
 
+
 def forceDomains(domains):
-  db = _get_db()
-  for domain in domains:
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("""INSERT INTO domains(domain, forceinclusion) VALUES (%s, 1)
+    db = _get_db()
+    for domain in domains:
+        cursor = db.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("""INSERT INTO domains(domain, forceinclusion) VALUES (%s, 1)
                       ON DUPLICATE KEY UPDATE forceinclusion = 1""", domain)
-  db.commit()
+    db.commit()
+
 
 def _get_db():
-  database = get_config().get("urlfixer", "database")
-  dbuser = get_config().get("urlfixer", "dbuser")
-  dbpasswd = get_config().get("urlfixer", "dbpassword")
-  if os.name == "nt":
-    return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
-                           use_unicode=True, charset="utf8", named_pipe=True)
-  else:
-    return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
-                           use_unicode=True, charset="utf8")
+    database = get_config().get("urlfixer", "database")
+    dbuser = get_config().get("urlfixer", "dbuser")
+    dbpasswd = get_config().get("urlfixer", "dbpassword")
+    if os.name == "nt":
+        return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
+                               use_unicode=True, charset="utf8", named_pipe=True)
+    else:
+        return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
+                               use_unicode=True, charset="utf8")
 
 if __name__ == '__main__':
-  setupStderr()
+    setupStderr()
 
-  if len(sys.argv) <= 1:
-    print >>sys.stderr, "Please specify the domain names as command line parameters"
-    sys.exit(1)
+    if len(sys.argv) <= 1:
+        print >>sys.stderr, "Please specify the domain names as command line parameters"
+        sys.exit(1)
 
-  forceDomains(sys.argv[1:])
+    forceDomains(sys.argv[1:])

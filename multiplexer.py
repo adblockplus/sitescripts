@@ -19,14 +19,14 @@
 from sitescripts.web import multiplex
 
 try:
-  from werkzeug.serving import run_simple
+    from werkzeug.serving import run_simple
 except ImportError:
-  from wsgiref.simple_server import make_server
+    from wsgiref.simple_server import make_server
 
-  def run_simple(host, port, app, **kwargs):
-    server = make_server(host, port, app)
-    print " * Running on http://%s:%i/" % server.server_address
-    server.serve_forever()
+    def run_simple(host, port, app, **kwargs):
+        server = make_server(host, port, app)
+        print " * Running on http://%s:%i/" % server.server_address
+        server.serve_forever()
 
 if __name__ == "__main__":
-  run_simple("localhost", 5000, multiplex, use_reloader=True, use_debugger=True)
+    run_simple("localhost", 5000, multiplex, use_reloader=True, use_debugger=True)

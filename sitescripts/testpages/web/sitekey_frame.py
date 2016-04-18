@@ -22,24 +22,25 @@ import os
 from sitescripts.utils import get_config, get_template
 from sitescripts.web import url_handler, request_path
 
+
 @url_handler("/sitekey-frame")
 def sitekey_frame(environ, start_response):
-  template_path, template_file = os.path.split(
-      get_config().get("testpages", "sitekeyFrameTemplate")
-  )
-  template = get_template(template_file, template_path=template_path)
+    template_path, template_file = os.path.split(
+        get_config().get("testpages", "sitekeyFrameTemplate")
+    )
+    template = get_template(template_file, template_path=template_path)
 
-  key = M2Crypto.EVP.load_key(get_config().get("testpages", "sitekeyPath"))
-  key.sign_init()
-  key.sign_update("\0".join((
-    request_path(environ), environ["HTTP_HOST"], environ["HTTP_USER_AGENT"]
-  )))
+    key = M2Crypto.EVP.load_key(get_config().get("testpages", "sitekeyPath"))
+    key.sign_init()
+    key.sign_update("\0".join((
+        request_path(environ), environ["HTTP_HOST"], environ["HTTP_USER_AGENT"]
+    )))
 
-  public_key = base64.b64encode(key.as_der())
-  signature = base64.b64encode(key.final())
+    public_key = base64.b64encode(key.as_der())
+    signature = base64.b64encode(key.final())
 
-  start_response("200 OK",
-                 [("Content-Type", "text/html; charset=utf-8"),
-                  ("X-Adblock-Key", "%s_%s" % (public_key, signature))])
-  return [template.render({"public_key": public_key,
-                           "signature": signature}).encode("utf-8")]
+    start_response("200 OK",
+                   [("Content-Type", "text/html; charset=utf-8"),
+                    ("X-Adblock-Key", "%s_%s" % (public_key, signature))])
+    return [template.render({"public_key": public_key,
+                             "signature": signature}).encode("utf-8")]

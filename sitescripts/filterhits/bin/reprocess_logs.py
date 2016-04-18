@@ -28,56 +28,58 @@ from sitescripts.filterhits import db, geometrical_mean
 
 _last_log_file = None
 
+
 def log_files(dir):
-  """
-  Provides a generator of filter hits log files for the given directory.
-  Works recursively, relative path of log file is returned.
-  """
-  for root, subdirs, files in os.walk(dir):
-    for f in files:
-      if os.path.splitext(f)[1] == ".log" and f[0].isdigit():
-        yield os.path.join(root, f)
+    """
+    Provides a generator of filter hits log files for the given directory.
+    Works recursively, relative path of log file is returned.
+    """
+    for root, subdirs, files in os.walk(dir):
+        for f in files:
+            if os.path.splitext(f)[1] == ".log" and f[0].isdigit():
+                yield os.path.join(root, f)
+
 
 def read_data(log_file):
-  """
-  Read, parse and return the JSON data for the given log file name.
-  (As a side effect sets the global _last_log_file to the log file name.)
-  """
-  global _last_log_file
-  try:
-    with open(log_file, "r") as f:
-      f.readline()
-      data = json.load(f)
-      # Keep track of the current log file in global variable in case we need to
-      # identify it later if there's a problem. (This works because the files are
-      # processed lazily.)
-      _last_log_file = log_file
-  except IOError:
-    sys.exit("Could not read log file %s" % log_file)
-  return data
+    """
+    Read, parse and return the JSON data for the given log file name.
+    (As a side effect sets the global _last_log_file to the log file name.)
+    """
+    global _last_log_file
+    try:
+        with open(log_file, "r") as f:
+            f.readline()
+            data = json.load(f)
+            # Keep track of the current log file in global variable in case we need to
+            # identify it later if there's a problem. (This works because the files are
+            # processed lazily.)
+            _last_log_file = log_file
+    except IOError:
+        sys.exit("Could not read log file %s" % log_file)
+    return data
 
 if __name__ == "__main__":
-  if not len(sys.argv) == 2:
-    print "Usage: python -m sitescripts.filterhits.bin.reprocess_logs /path/to/logs"
-    sys.exit(1)
+    if not len(sys.argv) == 2:
+        print "Usage: python -m sitescripts.filterhits.bin.reprocess_logs /path/to/logs"
+        sys.exit(1)
 
-  interval = get_config().get("filterhitstats", "interval")
+    interval = get_config().get("filterhitstats", "interval")
 
-  def read_update(f):
-    return geometrical_mean.update(interval, read_data(f))
+    def read_update(f):
+        return geometrical_mean.update(interval, read_data(f))
 
-  if sys.argv[1].endswith(".log"):
-    sql = read_update(sys.argv[1])
-  else:
-    sql = itertools.chain.from_iterable(itertools.imap(read_update,
-                                                       log_files(sys.argv[1])))
+    if sys.argv[1].endswith(".log"):
+        sql = read_update(sys.argv[1])
+    else:
+        sql = itertools.chain.from_iterable(itertools.imap(read_update,
+                                                           log_files(sys.argv[1])))
 
-  db_connection = db.connect()
+    db_connection = db.connect()
 
-  try:
-    db.write(db_connection, sql)
-  except:
-    logging.error("Failed to process file %s, all changes rolled back." % _last_log_file)
-    raise
-  finally:
-    db_connection.close()
+    try:
+        db.write(db_connection, sql)
+    except:
+        logging.error("Failed to process file %s, all changes rolled back." % _last_log_file)
+        raise
+    finally:
+        db_connection.close()

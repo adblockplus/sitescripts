@@ -19,19 +19,20 @@ import itertools
 
 from sitescripts.filterhits import db
 
+
 def update(interval, data):
-  """
-  Generator that provides all the SQL and parameters needed to update the
-  aggregations for the given data + interval in the database.
-  """
-  for filter, filter_data in data["filters"].iteritems():
-    yield ("""INSERT IGNORE INTO `filters`
+    """
+    Generator that provides all the SQL and parameters needed to update the
+    aggregations for the given data + interval in the database.
+    """
+    for filter, filter_data in data["filters"].iteritems():
+        yield ("""INSERT IGNORE INTO `filters`
               (filter, sha1) VALUES (%s, UNHEX(SHA1(filter)))""", filter)
 
-    domains = itertools.chain(filter_data.get("thirdParty", {}).iteritems(),
-                              filter_data.get("firstParty", {}).iteritems())
-    for domain, domain_data in domains:
-      yield ("""INSERT INTO `frequencies`
+        domains = itertools.chain(filter_data.get("thirdParty", {}).iteritems(),
+                                  filter_data.get("firstParty", {}).iteritems())
+        for domain, domain_data in domains:
+            yield ("""INSERT INTO `frequencies`
                 (filter_sha1, domain, frequency, timestamp)
                 VALUES (UNHEX(SHA1(%s)), %s, %s, FROM_UNIXTIME(%s))
                 ON DUPLICATE KEY UPDATE
@@ -41,5 +42,5 @@ def update(interval, data):
                   POW(VALUES(frequency), (UNIX_TIMESTAMP(VALUES(timestamp)) -
                                           UNIX_TIMESTAMP(timestamp)) / %s)),
                 timestamp = VALUES(timestamp)""",
-             filter, domain, domain_data["hits"],
-             int(domain_data["latest"] / 1000), interval, interval)
+                   filter, domain, domain_data["hits"],
+                   int(domain_data["latest"] / 1000), interval, interval)

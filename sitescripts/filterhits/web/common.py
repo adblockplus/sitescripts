@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
+
 def show_error(message, start_response, status="400 Processing Error"):
-  start_response(status, [("Content-Type", "text/plain; charset=utf-8")])
-  return [message.encode("utf-8")]
+    start_response(status, [("Content-Type", "text/plain; charset=utf-8")])
+    return [message.encode("utf-8")]

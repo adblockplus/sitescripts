@@ -16,19 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, re
+import os
+import re
 from flup.server.fcgi import WSGIServer
 
 from sitescripts.web import multiplex
 
 bindAddress = os.environ.get('FCGI_BIND_ADDRESS')
 if bindAddress:
-  match = re.search(r'^(.*?):(\d+)$', bindAddress)
-  if match:
-    bindAddress = (match.group(1), int(match.group(2)))
+    match = re.search(r'^(.*?):(\d+)$', bindAddress)
+    if match:
+        bindAddress = (match.group(1), int(match.group(2)))
 
 srv = WSGIServer(multiplex, debug=False, bindAddress=bindAddress)
 
 if __name__ == '__main__':
-  srv.run()
-
+    srv.run()

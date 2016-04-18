@@ -19,14 +19,13 @@ import MySQLdb
 from sitescripts.utils import setupStderr
 from sitescripts.reports.utils import get_db, executeQuery, removeReport
 
+
 def removeOldReports(days=30):
-  cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
-  executeQuery(cursor,
-         '''SELECT guid FROM #PFX#reports WHERE ADDDATE(ctime, INTERVAL %s DAY) < NOW()''',
-         (days))
-  for report in cursor:
-    removeReport(report['guid'])
+    cursor = get_db().cursor(MySQLdb.cursors.DictCursor)
+    executeQuery(cursor, 'SELECT guid FROM #PFX#reports WHERE ADDDATE(ctime, INTERVAL %s DAY) < NOW()', days)
+    for report in cursor:
+        removeReport(report['guid'])
 
 if __name__ == '__main__':
-  setupStderr()
-  removeOldReports()
+    setupStderr()
+    removeOldReports()

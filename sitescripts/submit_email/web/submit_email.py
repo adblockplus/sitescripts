@@ -28,78 +28,81 @@ from sitescripts.web import url_handler, form_handler, send_simple_response
 
 VERIFICATION_PATH = '/verifyEmail'
 
+
 def sign(config, data):
-  secret = config.get('submit_email', 'secret')
-  return hmac.new(secret, data, hashlib.sha1).hexdigest()
+    secret = config.get('submit_email', 'secret')
+    return hmac.new(secret, data, hashlib.sha1).hexdigest()
+
 
 @url_handler('/submitEmail')
 @form_handler
 def submit_email(environ, start_response, data):
-  config = get_config()
+    config = get_config()
 
-  try:
-    product = data['product']
-    template = config.get('submit_email', product + '_verification_email_template')
-  except (KeyError, ConfigParser.NoOptionError):
-    return send_simple_response(start_response, 400, 'Unknown product')
+    try:
+        product = data['product']
+        template = config.get('submit_email', product + '_verification_email_template')
+    except (KeyError, ConfigParser.NoOptionError):
+        return send_simple_response(start_response, 400, 'Unknown product')
 
-  email = data.get('email', '').strip()
-  try:
-    email = encode_email_address(email)
-  except ValueError:
-    return send_simple_response(
-      start_response, 400,
-      'Please enter a valid email address.'
+    email = data.get('email', '').strip()
+    try:
+        email = encode_email_address(email)
+    except ValueError:
+        return send_simple_response(
+            start_response, 400,
+            'Please enter a valid email address.'
+        )
+
+    params = [('email', email), ('signature', sign(config, email)), ('product', product)]
+    lang = data.get('lang')
+    if lang:
+        params.append(('lang', lang))
+
+    sendMail(
+        template,
+        {
+            'recipient': email,
+            'verification_url': '%s?%s' % (
+                urljoin(wsgiref.util.application_uri(environ), VERIFICATION_PATH),
+                urlencode(params)
+            )
+        }
     )
 
-  params = [('email', email), ('signature', sign(config, email)), ('product', product)]
-  lang = data.get('lang')
-  if lang:
-    params.append(('lang', lang))
+    return send_simple_response(
+        start_response, 200,
+        'A confirmation email has been sent. Please check '
+        'your email and click the confirmation link.'
+    )
 
-  sendMail(
-    template,
-    {
-      'recipient': email,
-      'verification_url': '%s?%s' % (
-        urljoin(wsgiref.util.application_uri(environ), VERIFICATION_PATH),
-        urlencode(params)
-      )
-    }
-  )
-
-  return send_simple_response(
-    start_response, 200,
-    'A confirmation email has been sent. Please check '
-    'your email and click the confirmation link.'
-  )
 
 @url_handler(VERIFICATION_PATH)
 def verify_email(environ, start_response):
-  config = get_config()
-  params = dict(parse_qsl(environ.get('QUERY_STRING', '')))
+    config = get_config()
+    params = dict(parse_qsl(environ.get('QUERY_STRING', '')))
 
-  try:
-    filename = config.get('submit_email', params['product'] + '_filename')
-  except (KeyError, ConfigParser.NoOptionError):
-    return send_simple_response(start_response, 400, 'Unknown product')
-
-  email = params.get('email', '')
-  signature = params.get('signature', '')
-  if sign(config, email) != signature:
-    return send_simple_response(
-      start_response, 403,
-      'Invalid signature in verification request.'
-    )
-
-  with open(filename, 'ab', 0) as file:
-    fcntl.lockf(file, fcntl.LOCK_EX)
     try:
-      print >>file, email
-    finally:
-      fcntl.lockf(file, fcntl.LOCK_UN)
+        filename = config.get('submit_email', params['product'] + '_filename')
+    except (KeyError, ConfigParser.NoOptionError):
+        return send_simple_response(start_response, 400, 'Unknown product')
 
-  location = config.get('submit_email', 'successful_verification_redirect_location')
-  location = location.format(lang=quote(params.get('lang') or 'en', ''))
-  start_response('303 See Other', [('Location', location)])
-  return []
+    email = params.get('email', '')
+    signature = params.get('signature', '')
+    if sign(config, email) != signature:
+        return send_simple_response(
+            start_response, 403,
+            'Invalid signature in verification request.'
+        )
+
+    with open(filename, 'ab', 0) as file:
+        fcntl.lockf(file, fcntl.LOCK_EX)
+        try:
+            print >>file, email
+        finally:
+            fcntl.lockf(file, fcntl.LOCK_UN)
+
+    location = config.get('submit_email', 'successful_verification_redirect_location')
+    location = location.format(lang=quote(params.get('lang') or 'en', ''))
+    start_response('303 See Other', [('Location', location)])
+    return []
