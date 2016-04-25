@@ -190,6 +190,10 @@ def parse_ua(ua):
     if match:
         return "CoolNovo", match.group(1)
 
+    match = re.search(r"\bEdge/(\d+)\.\d+", ua)
+    if match:
+        return "Edge", match.group(1)
+
     match = re.search(r"\bChrome/(\d+\.\d+)", ua)
     if match:
         return "Chrome", match.group(1)
