@@ -155,6 +155,10 @@ auth_file=%(root)s/.ssh/.ssh/authorized_keys
 trac_xmlrpc_url=https://abpbot:abpbot@issues.adblockplus.org/login/xmlrpc
 issue_url_template=https://issues.adblockplus.org/ticket/{id}
 
+[hg_module_milestones]
+Platform=adblock-plus(-[\d\.]+)?-for-chrome-opera-safari(-next)?
+Adblock-Plus-for-Firefox=adblock-plus(-[\d\.]+)?-for-firefox(-next)?
+
 [formmail]
 template=formmail/template/eyeo.mail
 
