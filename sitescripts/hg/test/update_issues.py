@@ -63,7 +63,7 @@ class _TestBase(unittest.TestCase):
         trac = mock.Mock()
         trac.ticket.get = lambda i: [i, mock.ANY, mock.ANY, ISSUES[i]['attrs']]
         trac.ticket.getActions = lambda i: ISSUES[i]['actions']
-        trac.ticket.milestone.getAll = lambda: MILESTONES.keys()
+        trac.ticket.milestone.getAll = lambda: sorted(MILESTONES.keys())
         self.trac_proxy_mock = trac
         self._patchWith('xmlrpclib.ServerProxy', trac)
         self._patchWith('xmlrpclib.MultiCall',
