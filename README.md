@@ -81,3 +81,12 @@ testing you may need to add additional configuration as well.)
 3. Type `python multiplexer.py`, it will start a web server at
 http://localhost:5000/ . This web server will use any URL handlers that have
 been defined in the modules you are testing to respond to requests.
+
+
+## Testing
+
+There are tests for some parts of the functionality of sitescripts. They are
+located in `test` directories and can be run via
+[Tox](https://tox.readthedocs.org/): 
+
+    $ tox

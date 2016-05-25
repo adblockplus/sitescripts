@@ -1,2 +1,6 @@
 *.pyc
 *.pyo
+**/.cache
+/.tox
+/.sitescripts.test
+/.coverage
