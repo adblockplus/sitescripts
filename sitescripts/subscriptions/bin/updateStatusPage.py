@@ -63,7 +63,7 @@ def checkSubscriptions():
     pool = eventlet.GreenPool()
     for (url, result) in pool.imap(checkURL, urls.iterkeys()):
         urls[url] = result
-        if result == False:
+        if result is False:
             sites[urlparse(url).netloc] = True
     for (site, result) in pool.imap(checkSite, sites.iterkeys()):
         sites[site] = result

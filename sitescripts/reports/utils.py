@@ -110,7 +110,8 @@ def saveReport(guid, reportData, isNew=False):
             executeQuery(cursor, 'SELECT id FROM #PFX#subscriptions WHERE url = %s', sn['id'])
             id = cursor.fetchone()
             if id != None:
-                filterMatch = lambda f: any(u == sn['id'] for u in f.get('subscriptions', []))
+                def filterMatch(f):
+                    return any(u == sn['id'] for u in f.get('subscriptions', []))
                 hasMatches = any(filterMatch(f) for f in reportData.get('filters', []))
                 executeQuery(cursor, 'INSERT IGNORE INTO #PFX#sublists (report, list, hasmatches) VALUES (%s, %s, %s)', (guid, id[0], hasMatches))
 

@@ -36,7 +36,7 @@ class Test(unittest.TestCase):
         ]
         for name, expect_identical in tests:
             path = common.filename_encode(name)
-            if expect_identical == True:
+            if expect_identical is True:
                 self.assertEqual(path, name, "Encoding '%s' shouldn't change string" % name)
             else:
                 self.assertTrue(re.match(r"^[\w\.\-]*$", path), "Encoding '%s' should replace all special characters" % name)

@@ -42,8 +42,9 @@ def getTopDomains(count=5000):
     mandatory = []
     for result in cursor:
         domain = result["domain"]
-        if ("." not in domain or not re.search(r"[a-zA-Z]", domain) or
-            re.search(r"['\"_,<>:;!$%&/()*+#~]|^\.|\.$|\.\.", domain)):
+        if "." not in domain or not re.search(r"[a-zA-Z]", domain):
+            continue
+        if re.search(r"['\"_,<>:;!$%&/()*+#~]|^\.|\.$|\.\.", domain):
             continue
 
         typed = _get_weighted_count(db, result["id"], STATUS_TYPED)

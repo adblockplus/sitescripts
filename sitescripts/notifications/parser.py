@@ -96,11 +96,13 @@ def _parse_notification(data, name):
             raise Exception("Unknown parameter '%s' in file '%s'" % (key, name))
 
     for text_key in ("title", "message"):
-        def has_default_locale(variant): return "en-US" in variant[text_key]
-        if (not has_default_locale(notification) and
-            not all(map(has_default_locale, notification.get("variants", [])))):
-            raise Exception("No %s for en-US (default language) in file '%s'" %
-                            (text_key, name))
+        def has_default_locale(variant):
+            return "en-US" in variant[text_key]
+        if not has_default_locale(notification):
+            variants = notification.get("variants", [])
+            if not all(map(has_default_locale, variants)):
+                raise Exception("No %s for en-US (default language) "
+                                "in file '%s'" % (text_key, name))
     return notification
 
 
