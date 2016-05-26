@@ -18,8 +18,6 @@ sitescripts.crawler.web.crawler =
 sitescripts.urlfixer.web.submitData =
 sitescripts.extensions.web.downloads =
 sitescripts.extensions.web.adblockbrowserUpdates =
-sitescripts.filterhits.web.submit =
-sitescripts.filterhits.web.query =
 sitescripts.testpages.web.sitekey_frame =
 
 [subscriptions]
@@ -173,16 +171,6 @@ email_template=send_installation_link/template/adblockbrowser_installation_link.
 [notifications]
 repository=%(root)s/hg/notifications
 output=%(root)s/www/notification.json
-
-[filterhitstats]
-interval=3600
-log_dir=/var/log/filterhits
-dbuser=user
-dbpassword=password
-database=db
-test_dbuser=test_user
-test_dbpassword=test_password
-test_database=test_db
 
 [testpages]
 sitekeyFrameTemplate=%(root)s/testpages.adblockplus.org/templates/sitekey_frame.tmpl
