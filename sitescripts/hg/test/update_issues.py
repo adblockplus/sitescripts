@@ -139,6 +139,32 @@ class TestChangegroupHook(_TestBase):
         updates = self._run_hook(['Issue 1337 - Foo'], update_count=1)
         self.assertEqual(updates[0][0][0], 1337)
 
+    def test_multiline_commit_message(self):
+        updates = self._run_hook(['Issue 1337 - Foo\nBar',
+                                  'Issue 1337 - Bar.\nBaz',
+                                  'Fixes 2448 - Foo\n\nBar',
+                                  'Fixes 2448 - Bar\n \nBaz'],
+                                 update_count=2)
+        comment_1337 = updates[0][0][1]
+        self.assertIn('Issue 1337 - Foo...]', comment_1337)
+        self.assertIn('Issue 1337 - Bar...]', comment_1337)
+        comment_2448 = updates[1][0][1]
+        self.assertIn('Fixes 2448 - Foo]', comment_2448)
+        self.assertIn('Fixes 2448 - Bar]', comment_2448)
+
+    def test_multiline_commit_message_crlf(self):
+        updates = self._run_hook(['Issue 1337 - Foo\r\nBar',
+                                  'Issue 1337 - Bar.\r\nBaz',
+                                  'Fixes 2448 - Foo\r\n\r\nBar',
+                                  'Fixes 2448 - Bar\r\n \r\nBaz'],
+                                 update_count=2)
+        comment_1337 = updates[0][0][1]
+        self.assertIn('Issue 1337 - Foo...]', comment_1337)
+        self.assertIn('Issue 1337 - Bar...]', comment_1337)
+        comment_2448 = updates[1][0][1]
+        self.assertIn('Fixes 2448 - Foo]', comment_2448)
+        self.assertIn('Fixes 2448 - Bar]', comment_2448)
+
     def test_missing_issue_referenced(self):
         self._run_hook(['Issue 42 - Bar'], warning_count=1)
 

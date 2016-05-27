@@ -68,13 +68,24 @@ def _update_issue(ui, config, issue_id, changes, comment=''):
         ui.status('updated {}:\n{}\n'.format(issue_url, '\n'.join(updates)))
 
 
+def _format_description(change):
+    lines = change.description().splitlines()
+    message = lines[0].rstrip()
+    if len(lines) == 1 or lines[1].strip() == '':
+        return message
+    return message.rstrip('.') + '...'
+
+
 def _post_comments(ui, repo, config, refs):
     repo_name = posixpath.split(repo.url())[1]
     template = get_template('hg/template/issue_commit_comment.tmpl',
                             autoescape=False)
     for ref in refs:
-        comment_text = template.render({'repository_name': repo_name,
-                                        'changes': ref.commits})
+        comment_text = template.render({
+            'repository_name': repo_name,
+            'changes': ref.commits,
+            'format_description': _format_description
+        })
         with _trac_proxy(ui, config, 'getting issue {}'.format(ref.id)) as tp:
             attrs = tp.ticket.get(ref.id)[3]
             changes = {'_ts': attrs['_ts'], 'action': 'leave'}
