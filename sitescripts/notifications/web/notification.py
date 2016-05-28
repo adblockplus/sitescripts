@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # This file is part of the Adblock Plus web scripts,
 # Copyright (C) 2006-2016 Eyeo GmbH
 #

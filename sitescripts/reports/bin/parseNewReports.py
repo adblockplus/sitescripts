@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # This file is part of the Adblock Plus web scripts,
 # Copyright (C) 2006-2016 Eyeo GmbH
 #
@@ -277,12 +275,12 @@ def validateData(data, path=None):
                     itemPath = keyPath + '.item'
                     limit = lengthRestrictions.get(itemPath, lengthRestrictions['default_string'])
                     if len(data[key][i]) > limit:
-                        data[key][i] = data[key][i][0:limit] + u'…'
+                        data[key][i] = data[key][i][0:limit] + u'\u2026'
                         reportData['warnings'][itemPath] = 'Field %s exceeded length limit and was truncated' % itemPath
         elif isinstance(data[key], basestring):
             limit = lengthRestrictions.get(keyPath, lengthRestrictions['default_string'])
             if len(data[key]) > limit:
-                data[key] = data[key][0:limit] + u'…'
+                data[key] = data[key][0:limit] + u'\u2026'
                 reportData['warnings'][keyPath] = 'Field %s exceeded length limit and was truncated' % keyPath
 
 if __name__ == '__main__':

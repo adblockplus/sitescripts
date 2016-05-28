@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # This file is part of the Adblock Plus web scripts,
 # Copyright (C) 2006-2016 Eyeo GmbH
 #
@@ -68,7 +66,7 @@ def formaturl(url, title=None):
     if parsed.scheme == 'http' or parsed.scheme == 'https':
         url = Markup.escape(url)
         title = Markup.escape(title)
-        title = unicode(title).replace('*', '<span class="censored">*</span>').replace(u'…', u'<span class="censored">…</span>')
+        title = unicode(title).replace('*', '<span class="censored">*</span>').replace(u'\u2026', u'<span class="censored">\u2026</span>')
         return Markup('<a href="%(url)s">%(title)s</a>' % {'url': url, 'title': title})
     else:
         return url
