@@ -97,15 +97,15 @@ class NightlyBuild(object):
                    '--config', 'defaults.log=']
         result = subprocess.check_output(command).decode('utf-8')
 
-        for change in result.split('\0\0'):
+        for change in result.split('\x00\x00'):
             if change:
-                date, author, revision, description = change.split('\0')
+                date, author, revision, description = change.split('\x00')
                 yield {'date': date, 'author': author, 'revision': revision, 'description': description}
 
     def copyRepository(self):
-        '''
+        """
           Create a repository copy in a temporary directory
-        '''
+        """
         # We cannot use hg archive here due to
         # http://bz.selenic.com/show_bug.cgi?id=3747, have to clone properly :-(
         self.tempdir = tempfile.mkdtemp(prefix=self.config.repositoryName)
@@ -118,10 +118,10 @@ class NightlyBuild(object):
         try:
             from buildtools.ensure_dependencies import resolve_deps
             resolve_deps(self.tempdir, self_update=False,
-                         overrideroots={"hg": os.path.abspath(
+                         overrideroots={'hg': os.path.abspath(
                              os.path.join(self.config.repository, os.pardir)
                          )},
-                         skipdependencies={"buildtools"})
+                         skipdependencies={'buildtools'})
         finally:
             logging.disable(logging.NOTSET)
 
@@ -132,7 +132,7 @@ class NightlyBuild(object):
         baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
         if not os.path.exists(baseDir):
             os.makedirs(baseDir)
-        changelogFile = "%s-%s.changelog.xhtml" % (self.basename, self.version)
+        changelogFile = '%s-%s.changelog.xhtml' % (self.basename, self.version)
         changelogPath = os.path.join(baseDir, changelogFile)
         self.changelogURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + changelogFile)
 
@@ -155,9 +155,9 @@ class NightlyBuild(object):
         """
         import buildtools.packagerGecko as packager
         metadata = packager.readMetadata(self.tempdir, self.config.type)
-        self.extensionID = metadata.get("general", "id")
+        self.extensionID = metadata.get('general', 'id')
         self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
-        self.basename = metadata.get("general", "basename")
+        self.basename = metadata.get('general', 'basename')
         self.compat = []
         for key, value in packager.KNOWN_APPS.iteritems():
             if metadata.has_option('compat', key):
@@ -173,13 +173,13 @@ class NightlyBuild(object):
         manifestFile.close()
 
         root = manifest.documentElement
-        self.version = root.attributes["android:versionName"].value
+        self.version = root.attributes['android:versionName'].value
         while self.version.count('.') < 2:
             self.version += '.0'
         self.version = '%s.%s' % (self.version, self.revision)
 
         usesSdk = manifest.getElementsByTagName('uses-sdk')[0]
-        self.minSdkVersion = usesSdk.attributes["android:minSdkVersion"].value
+        self.minSdkVersion = usesSdk.attributes['android:minSdkVersion'].value
         self.basename = os.path.basename(self.config.repository)
 
     def readChromeMetadata(self):
@@ -200,7 +200,7 @@ class NightlyBuild(object):
         # Now read metadata file
         metadata = packager.readMetadata(self.tempdir, self.config.type)
         self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
-        self.basename = metadata.get("general", "basename")
+        self.basename = metadata.get('general', 'basename')
 
         self.compat = []
         if metadata.has_section('compat') and metadata.has_option('compat', 'chrome'):
@@ -213,8 +213,8 @@ class NightlyBuild(object):
 
         self.certificateID = packager.get_developer_identifier(certs)
         self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
-        self.shortVersion = metadata.get("general", "version")
-        self.basename = metadata.get("general", "basename")
+        self.shortVersion = metadata.get('general', 'version')
+        self.basename = metadata.get('general', 'basename')
         self.updatedFromGallery = False
 
     def writeUpdateManifest(self):
@@ -223,10 +223,10 @@ class NightlyBuild(object):
         """
         baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
         if self.config.type == 'safari':
-            manifestPath = os.path.join(baseDir, "updates.plist")
+            manifestPath = os.path.join(baseDir, 'updates.plist')
             templateName = 'safariUpdateManifest'
         elif self.config.type == 'android':
-            manifestPath = os.path.join(baseDir, "updates.xml")
+            manifestPath = os.path.join(baseDir, 'updates.xml')
             templateName = 'androidUpdateManifest'
         else:
             return
@@ -238,7 +238,7 @@ class NightlyBuild(object):
         # generate both that and the new one in the libadblockplus format as long
         # as a significant amount of users is on an old version.
         if self.config.type == 'android':
-            newManifestPath = os.path.join(baseDir, "update.json")
+            newManifestPath = os.path.join(baseDir, 'update.json')
             writeAndroidUpdateManifest(newManifestPath, [{
                 'basename': self.basename,
                 'version': self.version,
@@ -268,7 +268,7 @@ class NightlyBuild(object):
             'updateURL': updateURL
         }])
 
-        for suffix in ["-x86.msi", "-x64.msi", "-gpo-x86.msi", "-gpo-x64.msi"]:
+        for suffix in ['-x86.msi', '-x64.msi', '-gpo-x86.msi', '-gpo-x64.msi']:
             linkPath = os.path.join(baseDir, '00latest%s' % suffix)
             outputPath = os.path.join(baseDir, self.basename + '-' + version + suffix)
             if hasattr(os, 'symlink'):
@@ -285,7 +285,7 @@ class NightlyBuild(object):
         baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
         if not os.path.exists(baseDir):
             os.makedirs(baseDir)
-        outputFile = "%s-%s%s" % (self.basename, self.version, self.config.packageSuffix)
+        outputFile = '%s-%s%s' % (self.basename, self.version, self.config.packageSuffix)
         self.path = os.path.join(baseDir, outputFile)
         self.updateURL = urlparse.urljoin(self.config.nightliesURL, self.basename + '/' + outputFile + '?update')
 
@@ -354,7 +354,7 @@ class NightlyBuild(object):
         baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
         if not os.path.exists(baseDir):
             os.makedirs(baseDir)
-        outputFile = "index.html"
+        outputFile = 'index.html'
         outputPath = os.path.join(baseDir, outputFile)
 
         links = []
@@ -617,7 +617,7 @@ def main():
             if build.hasChanges():
                 build.run()
         except Exception, ex:
-            logging.error("The build for %s failed:", repo)
+            logging.error('The build for %s failed:', repo)
             logging.exception(ex)
 
     file = open(nightlyConfigFile, 'wb')

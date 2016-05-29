@@ -18,38 +18,38 @@ import os
 import MySQLdb
 from sitescripts.utils import get_config, setupStderr
 
-"""
+'''
 This script adds domains supplied on the command line to the "correct domains"
 list permanently. This is useful for less popular domains that are commonly
 affected by false positives.
-"""
+'''
 
 
 def forceDomains(domains):
     db = _get_db()
     for domain in domains:
         cursor = db.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("""INSERT INTO domains(domain, forceinclusion) VALUES (%s, 1)
-                      ON DUPLICATE KEY UPDATE forceinclusion = 1""", domain)
+        cursor.execute('''INSERT INTO domains(domain, forceinclusion) VALUES (%s, 1)
+                      ON DUPLICATE KEY UPDATE forceinclusion = 1''', domain)
     db.commit()
 
 
 def _get_db():
-    database = get_config().get("urlfixer", "database")
-    dbuser = get_config().get("urlfixer", "dbuser")
-    dbpasswd = get_config().get("urlfixer", "dbpassword")
-    if os.name == "nt":
+    database = get_config().get('urlfixer', 'database')
+    dbuser = get_config().get('urlfixer', 'dbuser')
+    dbpasswd = get_config().get('urlfixer', 'dbpassword')
+    if os.name == 'nt':
         return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
-                               use_unicode=True, charset="utf8", named_pipe=True)
+                               use_unicode=True, charset='utf8', named_pipe=True)
     else:
         return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
-                               use_unicode=True, charset="utf8")
+                               use_unicode=True, charset='utf8')
 
 if __name__ == '__main__':
     setupStderr()
 
     if len(sys.argv) <= 1:
-        print >>sys.stderr, "Please specify the domain names as command line parameters"
+        print >>sys.stderr, 'Please specify the domain names as command line parameters'
         sys.exit(1)
 
     forceDomains(sys.argv[1:])

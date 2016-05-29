@@ -20,10 +20,10 @@ import math
 import MySQLdb
 from sitescripts.utils import get_config, setupStderr
 
-"""
+'''
 This script produces the list of top correct domain names currently in the
 database.
-"""
+'''
 
 STATUS_TYPED = 1
 STATUS_TYPO = 2
@@ -34,40 +34,40 @@ STATUS_FALSE_POSITIVE = 4
 def getTopDomains(count=5000):
     db = _get_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT id, domain, forceinclusion FROM domains")
+    cursor.execute('SELECT id, domain, forceinclusion FROM domains')
 
     domains = {}
     mandatory = []
     for result in cursor:
-        domain = result["domain"]
-        if "." not in domain or not re.search(r"[a-zA-Z]", domain):
+        domain = result['domain']
+        if '.' not in domain or not re.search(r'[a-zA-Z]', domain):
             continue
         if re.search(r"['\"_,<>:;!$%&/()*+#~]|^\.|\.$|\.\.", domain):
             continue
 
-        typed = _get_weighted_count(db, result["id"], STATUS_TYPED)
-        correction = _get_weighted_count(db, result["id"], STATUS_CORRECTION)
-        typo = _get_weighted_count(db, result["id"], STATUS_TYPO)
-        fp = _get_weighted_count(db, result["id"], STATUS_FALSE_POSITIVE)
+        typed = _get_weighted_count(db, result['id'], STATUS_TYPED)
+        correction = _get_weighted_count(db, result['id'], STATUS_CORRECTION)
+        typo = _get_weighted_count(db, result['id'], STATUS_TYPO)
+        fp = _get_weighted_count(db, result['id'], STATUS_FALSE_POSITIVE)
         correctness = _calculate_correctness(typed + correction, typo + fp)
 
         domains[domain] = correctness
-        if result["forceinclusion"]:
+        if result['forceinclusion']:
             mandatory.append(domain)
     return sorted(domains.iterkeys(), key=lambda d: domains[d], reverse=True)[:count] + mandatory
 
 
 def _get_weighted_count(db, domain, status):
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("""SELECT curr_month * 0.4 + prev_month * 0.3 +
+    cursor.execute('''SELECT curr_month * 0.4 + prev_month * 0.3 +
                       curr_year * 0.2 + prev_year * 0.1 AS weighted_count
-                    FROM corrections WHERE domain = %s AND status = %s""",
+                    FROM corrections WHERE domain = %s AND status = %s''',
                    (domain, status))
     result = cursor.fetchone()
     if result == None:
         return 0
     else:
-        return result["weighted_count"]
+        return result['weighted_count']
 
 
 def _calculate_correctness(positive, negative):
@@ -84,19 +84,19 @@ def _calculate_correctness(positive, negative):
 
 
 def _get_db():
-    database = get_config().get("urlfixer", "database")
-    dbuser = get_config().get("urlfixer", "dbuser")
-    dbpasswd = get_config().get("urlfixer", "dbpassword")
-    if os.name == "nt":
+    database = get_config().get('urlfixer', 'database')
+    dbuser = get_config().get('urlfixer', 'dbuser')
+    dbpasswd = get_config().get('urlfixer', 'dbpassword')
+    if os.name == 'nt':
         return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
-                               use_unicode=True, charset="utf8", named_pipe=True)
+                               use_unicode=True, charset='utf8', named_pipe=True)
     else:
         return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
-                               use_unicode=True, charset="utf8")
+                               use_unicode=True, charset='utf8')
 
 if __name__ == '__main__':
     setupStderr()
 
     domains = getTopDomains()
     for domain in domains:
-        print domain.encode("utf-8")
+        print domain.encode('utf-8')

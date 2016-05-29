@@ -124,14 +124,14 @@ def sendMail(template, data):
 
 
 def encode_email_address(email):
-    '''
+    """
     Validates and encodes an email address.
 
     The validation implemented here is very rudamentery and not meant
     to be complete, as full email validation can get extremly complicated
     and is rarely needed. This function is primarily making sure that the
     email address contains no whitespaces and only valid ASCII characters.
-    '''
+    """
     match = re.search(r'^([^@\s]+)@([^@\s]+)$', email)
     if not match:
         raise ValueError
@@ -157,7 +157,7 @@ def get_template(template, autoescape=True, template_path=siteScriptsPath):
     return _template_cache[key]
 
 
-@cached(float("inf"))
+@cached(float('inf'))
 def get_template_environment(template_path):
     """
       Returns a Jinja2 template environment with autoescaping enabled.
@@ -170,7 +170,7 @@ def get_template_environment(template_path):
     return env
 
 
-@cached(float("inf"))
+@cached(float('inf'))
 def get_unescaped_template_environment(template_path):
     """
       Returns a Jinja2 template environment without autoescaping. Don't use this to

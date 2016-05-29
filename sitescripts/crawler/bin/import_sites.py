@@ -22,15 +22,15 @@ from sitescripts.utils import cached, get_config
 
 @cached(600)
 def _get_db():
-    database = get_config().get("crawler", "database")
-    dbuser = get_config().get("crawler", "dbuser")
-    dbpasswd = get_config().get("crawler", "dbpassword")
-    if os.name == "nt":
+    database = get_config().get('crawler', 'database')
+    dbuser = get_config().get('crawler', 'dbuser')
+    dbpasswd = get_config().get('crawler', 'dbpassword')
+    if os.name == 'nt':
         return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
-                               use_unicode=True, charset="utf8", named_pipe=True)
+                               use_unicode=True, charset='utf8', named_pipe=True)
     else:
         return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
-                               use_unicode=True, charset="utf8")
+                               use_unicode=True, charset='utf8')
 
 
 def _get_cursor():
@@ -38,16 +38,16 @@ def _get_cursor():
 
 
 def _hg(args):
-    return subprocess.check_output(["hg"] + args)
+    return subprocess.check_output(['hg'] + args)
 
 
 def _extract_sites(easylist_dir):
     os.chdir(easylist_dir)
-    process = _hg(["log", "--template", "{desc}\n"])
+    process = _hg(['log', '--template', '{desc}\n'])
     urls = set([])
 
     for line in process.stdout:
-        match = re.search(r"\b(https?://\S*)", line)
+        match = re.search(r'\b(https?://\S*)', line)
         if not match:
             continue
 
@@ -60,10 +60,10 @@ def _extract_sites(easylist_dir):
 def _insert_sites(site_urls):
     cursor = _get_cursor()
     for url in site_urls:
-        cursor.execute("INSERT IGNORE INTO crawler_sites (url) VALUES (%s)", url)
+        cursor.execute('INSERT IGNORE INTO crawler_sites (url) VALUES (%s)', url)
     _get_db().commit()
 
-if __name__ == "__main__":
-    easylist_dir = get_config().get("crawler", "easylist_repository")
+if __name__ == '__main__':
+    easylist_dir = get_config().get('crawler', 'easylist_repository')
     site_urls = _extract_sites(easylist_dir)
     _insert_sites(site_urls)

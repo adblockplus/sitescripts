@@ -97,7 +97,7 @@ def writeUpdateManifest(links):
         data = readMetadata(repo, links.get(repo.repositoryName, 'version'))
         data['updateURL'] = links.get(repo.repositoryName, 'downloadURL')
         if data['updateURL'].startswith(repo.downloadsURL):
-            data['updateURL'] += "?update"
+            data['updateURL'] += '?update'
         extensions[repo.type].append(data)
 
     if len(extensions['android']) > 1:
@@ -112,8 +112,8 @@ def writeUpdateManifest(links):
             # generate both that and the new one in the libadblockplus format as long
             # as a significant amount of users is on an old version.
             if repoType == 'android':
-                newManifestPath = get_config().get("extensions",
-                                                   "androidNewUpdateManifestPath")
+                newManifestPath = get_config().get('extensions',
+                                                   'androidNewUpdateManifestPath')
                 writeAndroidUpdateManifest(newManifestPath, extensions[repoType])
             template = get_template(get_config().get('extensions', '%sUpdateManifest' % repoType))
             template.stream({'extensions': extensions[repoType]}).dump(manifestPath)
@@ -128,5 +128,5 @@ def updateUpdateManifests():
     getDownloadLinks(parser)
     writeUpdateManifest(parser)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     updateUpdateManifests()

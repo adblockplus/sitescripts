@@ -43,15 +43,15 @@ def registerUrlHandler(url, func):
 
 
 def request_path(environ, include_query=True):
-    path = urllib.quote(environ.get("SCRIPT_NAME", "") +
-                        environ.get("PATH_INFO", ""))
-    query_string = environ.get("QUERY_STRING", "")
+    path = urllib.quote(environ.get('SCRIPT_NAME', '') +
+                        environ.get('PATH_INFO', ''))
+    query_string = environ.get('QUERY_STRING', '')
     if query_string and include_query:
-        path += "?" + urllib.quote(query_string)
+        path += '?' + urllib.quote(query_string)
     return path
 
 
-def basic_auth(config_section="DEFAULT"):
+def basic_auth(config_section='DEFAULT'):
     def decorator(function):
         def authenticating_wrapper(environ, start_response):
             return authenticate(function, environ, start_response, config_section)
@@ -60,21 +60,21 @@ def basic_auth(config_section="DEFAULT"):
 
 
 def authenticate(f, environ, start_response, config_section):
-    if "HTTP_AUTHORIZATION" in environ:
-        auth = environ["HTTP_AUTHORIZATION"].split()
+    if 'HTTP_AUTHORIZATION' in environ:
+        auth = environ['HTTP_AUTHORIZATION'].split()
         if len(auth) == 2:
-            if auth[0].lower() == "basic":
-                username, password = base64.b64decode(auth[1]).split(":")
+            if auth[0].lower() == 'basic':
+                username, password = base64.b64decode(auth[1]).split(':')
                 config = get_config()
-                expected_username = config.get(config_section, "basic_auth_username")
-                expected_password = config.get(config_section, "basic_auth_password")
+                expected_username = config.get(config_section, 'basic_auth_username')
+                expected_password = config.get(config_section, 'basic_auth_password')
                 if username == expected_username and password == expected_password:
                     return f(environ, start_response)
 
-    realm = get_config().get("DEFAULT", "basic_auth_realm")
-    start_response("401 UNAUTHORIZED",
-                   [("WWW-Authenticate", 'Basic realm="%s"' % realm)])
-    return ""
+    realm = get_config().get('DEFAULT', 'basic_auth_realm')
+    start_response('401 UNAUTHORIZED',
+                   [('WWW-Authenticate', 'Basic realm="%s"' % realm)])
+    return ''
 
 
 def send_simple_response(start_response, status_code, text=None):
@@ -116,19 +116,19 @@ def form_handler(func):
 
 def multiplex(environ, start_response):
     try:
-        path = environ["PATH_INFO"]
+        path = environ['PATH_INFO']
         try:
             handler = handlers[path]
         except KeyError:
-            handler = handlers[re.sub(r"[^/]+$", "", path)]
+            handler = handlers[re.sub(r'[^/]+$', '', path)]
     except KeyError:
-        start_response("404 Not Found", [("Content-Type", "text/plain")])
-        return ["Not Found"]
+        start_response('404 Not Found', [('Content-Type', 'text/plain')])
+        return ['Not Found']
 
     return handler(environ, start_response)
 
-for module in set(get_config().options("multiplexer")) - set(get_config().defaults()):
-    module_path = get_config().get("multiplexer", module)
+for module in set(get_config().options('multiplexer')) - set(get_config().defaults()):
+    module_path = get_config().get('multiplexer', module)
     if module_path:
         imp.load_source(module, module_path)
     else:

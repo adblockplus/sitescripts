@@ -9,15 +9,15 @@ from sitescripts.web import url_handler, basic_auth
 
 @cached(600)
 def _get_db():
-    database = get_config().get("crawler", "database")
-    dbuser = get_config().get("crawler", "dbuser")
-    dbpasswd = get_config().get("crawler", "dbpassword")
-    if os.name == "nt":
+    database = get_config().get('crawler', 'database')
+    dbuser = get_config().get('crawler', 'dbuser')
+    dbpasswd = get_config().get('crawler', 'dbpassword')
+    if os.name == 'nt':
         return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
-                               use_unicode=True, charset="utf8", named_pipe=True)
+                               use_unicode=True, charset='utf8', named_pipe=True)
     else:
         return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
-                               use_unicode=True, charset="utf8")
+                               use_unicode=True, charset='utf8')
 
 
 def _get_cursor():
@@ -26,36 +26,36 @@ def _get_cursor():
 
 def _fetch_crawlable_sites():
     cursor = _get_cursor()
-    cursor.execute("SELECT url from crawler_sites")
+    cursor.execute('SELECT url from crawler_sites')
     results = cursor.fetchall()
-    sites = [result["url"] for result in results]
+    sites = [result['url'] for result in results]
     return sites
 
 
-@url_handler("/crawlableSites")
-@basic_auth("crawler")
+@url_handler('/crawlableSites')
+@basic_auth('crawler')
 def crawlable_sites(environ, start_response):
     urls = _fetch_crawlable_sites()
-    start_response("200 OK", [("Content-Type", "text/plain")])
-    return "\n".join(urls)
+    start_response('200 OK', [('Content-Type', 'text/plain')])
+    return '\n'.join(urls)
 
 
 def _find_site_id(site_url):
     cursor = _get_cursor()
-    cursor.execute("SELECT id FROM crawler_sites WHERE url = %s", site_url)
+    cursor.execute('SELECT id FROM crawler_sites WHERE url = %s', site_url)
     result = cursor.fetchone()
-    return result["id"] if result else None
+    return result['id'] if result else None
 
 
 def _read_multipart_lines(environ, line_callback):
-    data_file = environ["wsgi.input"]
-    content_type = environ.get("CONTENT_TYPE")
+    data_file = environ['wsgi.input']
+    content_type = environ.get('CONTENT_TYPE')
     if not content_type:
-        raise ValueError("Content-Type missing from header")
+        raise ValueError('Content-Type missing from header')
 
-    match = re.search(r"boundary=(.*)", content_type)
+    match = re.search(r'boundary=(.*)', content_type)
     if not match:
-        raise ValueError("Multipart form data or boundary declaration missing")
+        raise ValueError('Multipart form data or boundary declaration missing')
 
     boundary = match.group(1)
     boundary_passed = False
@@ -65,7 +65,7 @@ def _read_multipart_lines(environ, line_callback):
         line = line.strip()
 
         if not boundary_passed:
-            if line == "--" + boundary:
+            if line == '--' + boundary:
                 boundary_passed = True
             continue
 
@@ -74,7 +74,7 @@ def _read_multipart_lines(environ, line_callback):
                 header_passed = True
             continue
 
-        if line == "--" + boundary + "--":
+        if line == '--' + boundary + '--':
             break
 
         if line:
@@ -83,7 +83,7 @@ def _read_multipart_lines(environ, line_callback):
 
 def _create_run():
     cursor = _get_cursor()
-    cursor.execute("INSERT INTO crawler_runs () VALUES ()")
+    cursor.execute('INSERT INTO crawler_runs () VALUES ()')
     return cursor.lastrowid
 
 
@@ -94,14 +94,14 @@ def _insert_data(run_id, site, url, filtered):
         return
 
     cursor = _get_cursor()
-    cursor.execute("""
+    cursor.execute('''
 INSERT INTO crawler_requests (run, site, url, filtered)
-VALUES (%s, %s, %s, %s)""",
+VALUES (%s, %s, %s, %s)''',
                    (run_id, site_id, url, filtered))
 
 
-@url_handler("/crawlerRequests")
-@basic_auth("crawler")
+@url_handler('/crawlerRequests')
+@basic_auth('crawler')
 def crawler_requests(environ, start_response):
     def line_callback(line):
         try:
@@ -119,9 +119,9 @@ def crawler_requests(environ, start_response):
     run_id = _create_run()
     try:
         _read_multipart_lines(environ, line_callback)
-        start_response("200 OK", [("Content-Type", "text/plain")])
-        return ""
+        start_response('200 OK', [('Content-Type', 'text/plain')])
+        return ''
     except ValueError as e:
-        start_response("401 Bad Request", [("Content-Type", "text/plain")])
-        print >>sys.stderr, "Unable to read multipart data: %s" % e
+        start_response('401 Bad Request', [('Content-Type', 'text/plain')])
+        print >>sys.stderr, 'Unable to read multipart data: %s' % e
         return e

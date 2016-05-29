@@ -24,8 +24,8 @@ except ImportError:
 
     def run_simple(host, port, app, **kwargs):
         server = make_server(host, port, app)
-        print " * Running on http://%s:%i/" % server.server_address
+        print ' * Running on http://%s:%i/' % server.server_address
         server.serve_forever()
 
-if __name__ == "__main__":
-    run_simple("localhost", 5000, multiplex, use_reloader=True, use_debugger=True)
+if __name__ == '__main__':
+    run_simple('localhost', 5000, multiplex, use_reloader=True, use_debugger=True)

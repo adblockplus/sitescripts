@@ -228,8 +228,8 @@ class Configuration(object):
           objects representing the settings for each repository.
         """
         config = get_config()
-        for key, value in config.items("extensions"):
-            if key.endswith("_repository"):
+        for key, value in config.items('extensions'):
+            if key.endswith('_repository'):
                 repositoryName = re.sub(r'_repository$', '', key)
                 if repositoryName:
                     yield Configuration(config, nightlyConfig, repositoryName, value)
@@ -288,7 +288,7 @@ def _getDownloadLink(repo):
     """
     gets the download link to the most current version of an extension
     """
-    if repo.galleryID and repo.type == "gecko":
+    if repo.galleryID and repo.type == 'gecko':
         return _getMozillaDownloadLink(repo.galleryID)
     return _getLocalLink(repo)
 
@@ -317,12 +317,12 @@ def getDownloadLinks(result):
             continue
         if not result.has_section(repo.repositoryName):
             result.add_section(repo.repositoryName)
-        result.set(repo.repositoryName, "downloadURL", downloadURL)
-        result.set(repo.repositoryName, "version", version)
+        result.set(repo.repositoryName, 'downloadURL', downloadURL)
+        result.set(repo.repositoryName, 'version', version)
 
         qrcode = _getQRCode(downloadURL)
         if qrcode != None:
-            result.set(repo.repositoryName, "qrcode", qrcode)
+            result.set(repo.repositoryName, 'qrcode', qrcode)
 
 
 def writeLibabpUpdateManifest(path, updates):
@@ -334,8 +334,8 @@ def writeLibabpUpdateManifest(path, updates):
     if not os.path.exists(baseDir):
         os.makedirs(baseDir)
 
-    handle = codecs.open(path, "wb", encoding="UTF-8")
-    json.dump(updates, handle, ensure_ascii=False, indent=2, separators=(",", ": "))
+    handle = codecs.open(path, 'wb', encoding='UTF-8')
+    json.dump(updates, handle, ensure_ascii=False, indent=2, separators=(',', ': '))
     handle.close()
 
 
@@ -352,13 +352,13 @@ def writeIEUpdateManifest(path, extensions):
         basename = extension['basename']
         updateURL = extension['updateURL']
         version = extension['version']
-        updates["%s/%s" % (basename, "msie64")] = {
-            "url": updateURL.replace(".exe", "-x64.msi"),
-            "version": version
+        updates['%s/%s' % (basename, 'msie64')] = {
+            'url': updateURL.replace('.exe', '-x64.msi'),
+            'version': version
         }
-        updates["%s/%s" % (basename, "msie32")] = {
-            "url": updateURL.replace(".exe", "-x86.msi"),
-            "version": version
+        updates['%s/%s' % (basename, 'msie32')] = {
+            'url': updateURL.replace('.exe', '-x86.msi'),
+            'version': version
         }
     writeLibabpUpdateManifest(path, updates)
 
@@ -374,7 +374,7 @@ def writeAndroidUpdateManifest(path, extensions):
     updates = {}
     for extension in extensions:
         updates[extension['basename']] = {
-            "url": extension['updateURL'],
-            "version": extension['version']
+            'url': extension['updateURL'],
+            'version': extension['version']
         }
     writeLibabpUpdateManifest(path, updates)

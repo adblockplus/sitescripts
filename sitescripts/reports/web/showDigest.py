@@ -56,7 +56,7 @@ def handleRequest(environ, start_response):
 
     path = os.path.join(get_config().get('reports', 'digestPath'), id + '.html')
     if not os.path.exists(path):
-        return showError('Digest doesn\'t exist', start_response)
+        return showError("Digest doesn't exist", start_response)
 
     cookies = Cookie.SimpleCookie()
     cookies[id] = secret

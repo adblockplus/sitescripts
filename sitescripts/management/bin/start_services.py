@@ -21,7 +21,7 @@ from sitescripts.utils import get_config
 
 def _get_services():
     config = get_config()
-    section_name = "keep_alive_services"
+    section_name = 'keep_alive_services'
     section_keys = config.options(section_name)
     default_keys = config.defaults().keys()
     keys = set(section_keys) - set(default_keys)
@@ -39,10 +39,10 @@ def _process_running(pid):
     except OSError:
         return False
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     services = _get_services()
     for service in services.keys():
-        pid_path = os.path.join("/var/run", services[service])
+        pid_path = os.path.join('/var/run', services[service])
         if os.path.exists(pid_path):
             with open(pid_path) as file:
                 pid_string = file.read()
@@ -54,10 +54,10 @@ if __name__ == "__main__":
             except exceptions.ValueError:
                 print "'%s' is not a PID." % pid_string
 
-        init_path = os.path.join("/etc/init.d", service)
+        init_path = os.path.join('/etc/init.d', service)
         if not os.path.exists(init_path):
-            print "%s does not exist, service is not running and cannot be started." % init_path
+            print '%s does not exist, service is not running and cannot be started.' % init_path
             continue
 
-        print "%s is not running, starting ..." % service
-        subprocess.check_call([init_path, "start"])
+        print '%s is not running, starting ...' % service
+        subprocess.check_call([init_path, 'start'])

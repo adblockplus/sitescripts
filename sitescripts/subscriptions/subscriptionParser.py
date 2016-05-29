@@ -39,29 +39,29 @@ class Subscription(object):
 
             return property(lambda self: self._data[propName], set_property)
 
-    name = define_property("name")
-    type = define_property("type")
-    maintainer = define_property("maintainer")
-    email = define_property("email")
-    specialization = define_property("specialization")
-    languages = define_property("languages")
-    recommendation = define_property("recommendation", readonly=True)
-    deprecated = define_property("deprecated", readonly=True)
-    unavailable = define_property("unavailable", readonly=True)
-    catchall = define_property("catchall", readonly=True)
-    supplements = define_property("supplements", readonly=True)
-    supplementsType = define_property("supplementsType", readonly=True)
-    supplemented = define_property("supplemented", readonly=True)
-    variants = define_property("variants", readonly=True)
-    homepage = define_property("homepage")
-    contact = define_property("contact")
-    forum = define_property("forum")
-    faq = define_property("faq")
-    blog = define_property("blog")
-    changelog = define_property("changelog")
-    policy = define_property("policy")
-    digest = define_property("digest")
-    digestDay = define_property("digestDay")
+    name = define_property('name')
+    type = define_property('type')
+    maintainer = define_property('maintainer')
+    email = define_property('email')
+    specialization = define_property('specialization')
+    languages = define_property('languages')
+    recommendation = define_property('recommendation', readonly=True)
+    deprecated = define_property('deprecated', readonly=True)
+    unavailable = define_property('unavailable', readonly=True)
+    catchall = define_property('catchall', readonly=True)
+    supplements = define_property('supplements', readonly=True)
+    supplementsType = define_property('supplementsType', readonly=True)
+    supplemented = define_property('supplemented', readonly=True)
+    variants = define_property('variants', readonly=True)
+    homepage = define_property('homepage')
+    contact = define_property('contact')
+    forum = define_property('forum')
+    faq = define_property('faq')
+    blog = define_property('blog')
+    changelog = define_property('changelog')
+    policy = define_property('policy')
+    digest = define_property('digest')
+    digestDay = define_property('digestDay')
 
     def __init__(self, path, data):
         self._data = {
@@ -184,7 +184,7 @@ class Subscription(object):
 
         if 'languageSpecialization' in self._data:
             if self.specialization != None:
-                self.specialization += ", " + self._data['languageSpecialization']
+                self.specialization += ', ' + self._data['languageSpecialization']
             else:
                 self.specialization = self._data['languageSpecialization']
             del self._data['languageSpecialization']
@@ -195,7 +195,7 @@ class Subscription(object):
                 if self._data[key] != None:
                     found = True
             if not found:
-                str = ", ".join(group)
+                str = ', '.join(group)
                 warn('None of the attributes %s present in %s' % (str, path))
 
         if len(self.variants) == 0:

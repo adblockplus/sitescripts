@@ -20,4 +20,4 @@
 import sys
 if sys.stderr.isatty():
     import warnings
-    warnings.simplefilter("default")
+    warnings.simplefilter('default')

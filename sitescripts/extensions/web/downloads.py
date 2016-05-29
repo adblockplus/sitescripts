@@ -32,7 +32,7 @@ def handle_request(environ, start_response):
     request = urlparse.urlparse(environ.get('REQUEST_URI', ''))
     basename = posixpath.splitext(posixpath.basename(request.path))[0]
     if basename in links:
-        start_response('302 Found', [('Location', links[basename].encode("utf-8"))])
+        start_response('302 Found', [('Location', links[basename].encode('utf-8'))])
     else:
         start_response('404 Not Found', [])
     return []
@@ -43,7 +43,7 @@ def _get_links():
     getDownloadLinks(parser)
     result = {}
     for section in parser.sections():
-        result[section] = parser.get(section, "downloadURL")
+        result[section] = parser.get(section, 'downloadURL')
     return result
 
 
