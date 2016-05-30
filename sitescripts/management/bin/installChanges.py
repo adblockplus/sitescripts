@@ -33,7 +33,7 @@ def splitRepositoryPath(path):
 def chown((uid, gid), dirname, names):
     for name in names:
         os.chown(os.path.join(dirname, name), uid, gid)
-        if (name.endswith('.fcgi') or name.endswith('.sh') or name.endswith('.pl')):
+        if name.endswith('.fcgi') or name.endswith('.sh') or name.endswith('.pl'):
             os.chmod(os.path.join(dirname, name), 0755)
 
 

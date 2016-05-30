@@ -59,7 +59,7 @@ def handleRequest(environ, start_response):
 
     oldusefulness = reportData.get('usefulness', '0')
     reportData['usefulness'] = params.get('usefulness', '0')
-    if ('email' in reportData):
+    if 'email' in reportData:
         updateUserUsefulness(getUserId(reportData['email']), reportData['usefulness'], oldusefulness)
 
     saveReport(guid, reportData)
