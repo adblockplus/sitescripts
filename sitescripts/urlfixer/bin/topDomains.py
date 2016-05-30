@@ -13,17 +13,17 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+This script produces the list of top correct domain names currently in the
+database.
+"""
+
 import sys
 import os
 import re
 import math
 import MySQLdb
 from sitescripts.utils import get_config, setupStderr
-
-'''
-This script produces the list of top correct domain names currently in the
-database.
-'''
 
 STATUS_TYPED = 1
 STATUS_TYPO = 2

@@ -13,16 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+This script adds domains supplied on the command line to the "correct domains"
+list permanently. This is useful for less popular domains that are commonly
+affected by false positives.
+"""
+
 import sys
 import os
 import MySQLdb
 from sitescripts.utils import get_config, setupStderr
-
-'''
-This script adds domains supplied on the command line to the "correct domains"
-list permanently. This is useful for less popular domains that are commonly
-affected by false positives.
-'''
 
 
 def forceDomains(domains):
