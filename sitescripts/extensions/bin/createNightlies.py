@@ -65,12 +65,11 @@ class NightlyBuild(object):
         """
         self.config = config
         self.revision = self.getCurrentRevision()
-        if self.config.type == 'gecko':
-            self.revision += '-beta'
         try:
             self.previousRevision = config.latestRevision
         except:
             self.previousRevision = '0'
+        self.buildNum = None
         self.tempdir = None
         self.outputFilename = None
         self.changelogFilename = None
@@ -80,18 +79,30 @@ class NightlyBuild(object):
 
     def getCurrentRevision(self):
         """
-          retrieves the current revision number from the repository
+            retrieves the current revision ID from the repository
         """
-        command = ['hg', 'log', '-R', self.config.repository, '-r', 'default',
-                   '--template', '{rev}', '--config', 'defaults.log=']
-        return subprocess.check_output(command)
+        command = [
+            'hg', 'id', '-i', '-r', 'default', '--config', 'defaults.id=',
+            self.config.repository
+        ]
+        return subprocess.check_output(command).strip()
+
+    def getCurrentBuild(self):
+        """
+            calculates the (typically numerical) build ID for the current build
+        """
+        command = ['hg', 'id', '-n', '--config', 'defaults.id=', self.tempdir]
+        build = subprocess.check_output(command).strip()
+        if self.config.type == 'gecko':
+            build += '-beta'
+        return build
 
     def getChanges(self):
         """
           retrieve changes between the current and previous ("first") revision
         """
 
-        command = ['hg', 'log', '-R', self.config.repository, '-r', 'tip:0',
+        command = ['hg', 'log', '-R', self.tempdir, '-r', 'tip:0',
                    '-b', 'default', '-l', '50', '--encoding', 'utf-8',
                    '--template', '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0',
                    '--config', 'defaults.log=']
@@ -106,24 +117,14 @@ class NightlyBuild(object):
         """
           Create a repository copy in a temporary directory
         """
-        # We cannot use hg archive here due to
-        # http://bz.selenic.com/show_bug.cgi?id=3747, have to clone properly :-(
         self.tempdir = tempfile.mkdtemp(prefix=self.config.repositoryName)
         command = ['hg', 'clone', '-q', self.config.repository, '-u', 'default', self.tempdir]
         subprocess.check_call(command)
 
-        # Make sure to process the dependencies file if it is present
-        import logging
-        logging.disable(logging.WARNING)
-        try:
-            from buildtools.ensure_dependencies import resolve_deps
-            resolve_deps(self.tempdir, self_update=False,
-                         overrideroots={'hg': os.path.abspath(
-                             os.path.join(self.config.repository, os.pardir)
-                         )},
-                         skipdependencies={'buildtools'})
-        finally:
-            logging.disable(logging.NOTSET)
+        # Make sure to run ensure_dependencies.py if present
+        depscript = os.path.join(self.tempdir, 'ensure_dependencies.py')
+        if os.path.isfile(depscript):
+            subprocess.check_call([sys.executable, depscript, '-q'])
 
     def writeChangelog(self, changes):
         """
@@ -156,7 +157,8 @@ class NightlyBuild(object):
         import buildtools.packagerGecko as packager
         metadata = packager.readMetadata(self.tempdir, self.config.type)
         self.extensionID = metadata.get('general', 'id')
-        self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
+        self.version = packager.getBuildVersion(self.tempdir, metadata, False,
+                                                self.buildNum)
         self.basename = metadata.get('general', 'basename')
         self.compat = []
         for key, value in packager.KNOWN_APPS.iteritems():
@@ -176,7 +178,7 @@ class NightlyBuild(object):
         self.version = root.attributes['android:versionName'].value
         while self.version.count('.') < 2:
             self.version += '.0'
-        self.version = '%s.%s' % (self.version, self.revision)
+        self.version = '%s.%s' % (self.version, self.buildNum)
 
         usesSdk = manifest.getElementsByTagName('uses-sdk')[0]
         self.minSdkVersion = usesSdk.attributes['android:minSdkVersion'].value
@@ -199,7 +201,8 @@ class NightlyBuild(object):
 
         # Now read metadata file
         metadata = packager.readMetadata(self.tempdir, self.config.type)
-        self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
+        self.version = packager.getBuildVersion(self.tempdir, metadata, False,
+                                                self.buildNum)
         self.basename = metadata.get('general', 'basename')
 
         self.compat = []
@@ -212,7 +215,8 @@ class NightlyBuild(object):
         certs = packager.get_certificates_and_key(self.config.keyFile)[0]
 
         self.certificateID = packager.get_developer_identifier(certs)
-        self.version = packager.getBuildVersion(self.tempdir, metadata, False, self.revision)
+        self.version = packager.getBuildVersion(self.tempdir, metadata, False,
+                                                self.buildNum)
         self.shortVersion = metadata.get('general', 'version')
         self.basename = metadata.get('general', 'basename')
         self.updatedFromGallery = False
@@ -298,22 +302,28 @@ class NightlyBuild(object):
                 except ConfigParser.NoOptionError:
                     port = '22'
                 buildCommand = ['ssh', '-p', port, get_config().get('extensions', 'androidBuildHost')]
-                buildCommand.extend(map(pipes.quote, ['/home/android/bin/makedebugbuild.py', '--revision', self.revision, '--version', self.version, '--stdout']))
+                buildCommand.extend(map(pipes.quote, [
+                    '/home/android/bin/makedebugbuild.py', '--revision',
+                    self.buildNum, '--version', self.version, '--stdout'
+                ]))
                 subprocess.check_call(buildCommand, stdout=apkFile, close_fds=True)
             except:
                 # clear broken output if any
                 if os.path.exists(self.path):
                     os.remove(self.path)
                 raise
-        elif self.config.type == 'chrome':
-            import buildtools.packagerChrome as packager
-            packager.createBuild(self.tempdir, type=self.config.type, outFile=self.path, buildNum=self.revision, keyFile=self.config.keyFile)
-        elif self.config.type == 'safari':
-            import buildtools.packagerSafari as packager
-            packager.createBuild(self.tempdir, type=self.config.type, outFile=self.path, buildNum=self.revision, keyFile=self.config.keyFile)
         else:
-            import buildtools.packagerGecko as packager
-            packager.createBuild(self.tempdir, outFile=self.path, buildNum=self.revision, keyFile=self.config.keyFile)
+            env = os.environ
+            spiderMonkeyBinary = self.config.spiderMonkeyBinary
+            if spiderMonkeyBinary:
+                env = dict(env, SPIDERMONKEY_BINARY=spiderMonkeyBinary)
+
+            buildCommand = [
+                os.path.join(self.tempdir, 'build.py'), '-t', self.config.type,
+                'build', '-b', self.buildNum, '-k', self.config.keyFile,
+                self.path
+            ]
+            subprocess.check_call(buildCommand, env=env)
 
         if not os.path.exists(self.path):
             raise Exception("Build failed, output file hasn't been created")
@@ -555,6 +565,7 @@ class NightlyBuild(object):
             else:
                 # copy the repository into a temporary directory
                 self.copyRepository()
+                self.buildNum = self.getCurrentBuild()
 
                 # get meta data from the repository
                 if self.config.type == 'android':

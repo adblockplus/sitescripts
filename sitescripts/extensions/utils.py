@@ -133,7 +133,7 @@ class Configuration(object):
     repositoryName = None
     repository = None
 
-    buildRepository = _defineProperty('buildRepository')
+    spiderMonkeyBinary = _defineProperty('spiderMonkeyBinary', default='')
     nightliesDirectory = _defineProperty('nightliesDirectory')
     nightliesURL = _defineProperty('nightliesURL')
     downloadsRepo = _defineProperty('downloadsRepo')
