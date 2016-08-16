@@ -301,12 +301,12 @@ class NightlyBuild(object):
                     port = get_config().get('extensions', 'androidBuildPort')
                 except ConfigParser.NoOptionError:
                     port = '22'
-                buildCommand = ['ssh', '-p', port, get_config().get('extensions', 'androidBuildHost')]
-                buildCommand.extend(map(pipes.quote, [
+                command = ['ssh', '-p', port, get_config().get('extensions', 'androidBuildHost')]
+                command.extend(map(pipes.quote, [
                     '/home/android/bin/makedebugbuild.py', '--revision',
                     self.buildNum, '--version', self.version, '--stdout'
                 ]))
-                subprocess.check_call(buildCommand, stdout=apkFile, close_fds=True)
+                subprocess.check_call(command, stdout=apkFile, close_fds=True)
             except:
                 # clear broken output if any
                 if os.path.exists(self.path):
@@ -318,12 +318,12 @@ class NightlyBuild(object):
             if spiderMonkeyBinary:
                 env = dict(env, SPIDERMONKEY_BINARY=spiderMonkeyBinary)
 
-            buildCommand = [
-                os.path.join(self.tempdir, 'build.py'), '-t', self.config.type,
-                'build', '-b', self.buildNum, '-k', self.config.keyFile,
-                self.path
-            ]
-            subprocess.check_call(buildCommand, env=env)
+            command = [os.path.join(self.tempdir, 'build.py'),
+                       '-t', self.config.type, 'build', '-b', self.buildNum]
+            if self.config.type != 'gecko':
+                command.extend(['-k', self.config.keyFile])
+            command.append(self.path)
+            subprocess.check_call(command, env=env)
 
         if not os.path.exists(self.path):
             raise Exception("Build failed, output file hasn't been created")
