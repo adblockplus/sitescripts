@@ -211,8 +211,9 @@ class NightlyBuild(object):
 
     def readSafariMetadata(self):
         import buildtools.packagerSafari as packager
+        from buildtools import xarfile
         metadata = packager.readMetadata(self.tempdir, self.config.type)
-        certs = packager.get_certificates_and_key(self.config.keyFile)[0]
+        certs = xarfile.read_certificates_and_key(self.config.keyFile)[0]
 
         self.certificateID = packager.get_developer_identifier(certs)
         self.version = packager.getBuildVersion(self.tempdir, metadata, False,
