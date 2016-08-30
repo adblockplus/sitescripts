@@ -426,7 +426,7 @@ class NightlyBuild(object):
                 try:
                     self.feed(data)
                     self.close()
-                except Exception, e:
+                except Exception as e:
                     if e != self.dummy_exception:
                         raise
 
@@ -628,7 +628,7 @@ def main():
             build = NightlyBuild(repo)
             if build.hasChanges():
                 build.run()
-        except Exception, ex:
+        except Exception as ex:
             logging.error('The build for %s failed:', repo)
             logging.exception(ex)
 

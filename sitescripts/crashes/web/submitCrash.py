@@ -54,7 +54,7 @@ def handleRequest(environ, start_response):
         file.write(environ['wsgi.input'].read(request_body_size))
         file.close()
         os.rename(filename, os.path.splitext(filename)[0])
-    except Exception, e:
+    except Exception as e:
         if filename != None and os.path.isfile(filename):
             os.remove(filename)
         raise e

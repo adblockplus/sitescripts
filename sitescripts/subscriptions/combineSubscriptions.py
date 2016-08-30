@@ -142,7 +142,7 @@ def resolve_includes(source_name, sources, lines, timeout, level=0):
                         data = request.read()
                         error = None
                         break
-                    except urllib2.URLError, e:
+                    except urllib2.URLError as e:
                         error = e
                         time.sleep(5)
                 if error:
@@ -316,7 +316,7 @@ Options:
 if __name__ == '__main__':
     try:
         opts, args = getopt(sys.argv[1:], 'ht:', ['help', 'timeout='])
-    except GetoptError, e:
+    except GetoptError as e:
         print str(e)
         usage()
         sys.exit(2)

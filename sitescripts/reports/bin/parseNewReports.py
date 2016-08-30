@@ -88,7 +88,7 @@ def processReport(xmlFile):
     parser.CharacterDataHandler = processText
     try:
         parser.ParseFile(source)
-    except ExpatError, error:
+    except ExpatError as error:
         reportData['warnings']['!parsing'] = 'Parsing error in the report: %s at line %i column %i' % (ErrorString(error.code), error.lineno, error.offset)
 
     source.seek(0)

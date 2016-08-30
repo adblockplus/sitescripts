@@ -539,7 +539,7 @@ def save_stats(server_type, data, factor=1):
             dir = os.path.dirname(path)
             try:
                 os.makedirs(dir)
-            except OSError, e:
+            except OSError as e:
                 if e.errno != errno.EEXIST:
                     raise
 

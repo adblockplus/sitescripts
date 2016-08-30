@@ -27,7 +27,7 @@ from urlparse import urlparse
 def formattime(value):
     try:
         return time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(int(value)))
-    except Exception, e:
+    except Exception as e:
         return 'unknown'
 
 

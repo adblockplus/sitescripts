@@ -27,7 +27,7 @@ def checkURL(url):
     try:
         result = urllib2.urlopen(url, timeout=60).read(1)
         return (url, True)
-    except urllib2.HTTPError, e:
+    except urllib2.HTTPError as e:
         return (url, e.code)
     except:
         return (url, False)

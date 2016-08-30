@@ -62,7 +62,7 @@ def handleRequest(environ, start_response):
         knownIssues = knownIssuesParser.findMatches(data.splitlines(), params.get('lang', ['en-US'])[0])
 
         os.rename(path + '.tmp', path)
-    except Exception, e:
+    except Exception as e:
         if os.path.isfile(path + '.tmp'):
             os.remove(path + '.tmp')
         raise e
