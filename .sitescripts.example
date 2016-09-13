@@ -13,6 +13,7 @@ sitescripts.reports.web.updateReport =
 sitescripts.reports.web.showDigest =
 sitescripts.reports.web.showUser =
 sitescripts.formmail.web.formmail =
+sitescripts.formmail.web.formmail2 =
 sitescripts.submit_email.web.submit_email =
 sitescripts.send_installation_link.web.send_installation_link =
 sitescripts.crawler.web.crawler =
@@ -154,6 +155,16 @@ Adblock-Plus-for-Firefox=adblock-plus(-[\d\.]+)?-for-firefox(-next)?
 
 [formmail]
 template=formmail/template/eyeo.mail
+
+[formmail2]
+test.url=test/apply/submit
+test.template=formmail/test/template/test.mail
+test.fields.email=mandatory, email
+test.fields.email.mandatory=You failed the email test
+test.fields.email.email=You failed the email validation
+test.fields.non_mandatory_email=email
+test.fields.non_mandatory_message=
+test.fields.mandatory=mandatory
 
 [submit_email]
 edge_filename=%(root)s/logs/edge_email_addresses.txt
