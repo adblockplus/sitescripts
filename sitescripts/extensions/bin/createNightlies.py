@@ -24,14 +24,15 @@ Nightly builds generation script
 """
 
 import ConfigParser
-import cookielib
+import base64
 from datetime import datetime
 import hashlib
-import HTMLParser
+import hmac
 import json
 import logging
 import os
 import pipes
+import random
 import shutil
 import struct
 import subprocess
@@ -391,105 +392,54 @@ class NightlyBuild(object):
     def uploadToMozillaAddons(self):
         import urllib3
 
-        username = get_config().get('extensions', 'amo_username')
-        password = get_config().get('extensions', 'amo_password')
+        header = {
+            'alg': 'HS256',     # HMAC-SHA256
+            'typ': 'JWT',
+        }
 
-        slug = self.config.galleryID
-        login_url = 'https://addons.mozilla.org/en-US/firefox/users/login'
-        upload_url = 'https://addons.mozilla.org/en-US/developers/addon/%s/upload' % slug
-        add_url = 'https://addons.mozilla.org/en-US/developers/addon/%s/versions/add' % slug
+        issued = int(time.time())
+        payload = {
+            'iss': get_config().get('extensions', 'amo_key'),
+            'jti': random.random(),
+            'iat': issued,
+            'exp': issued + 60,
+        }
 
-        cookie_jar = cookielib.CookieJar()
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
-
-        def load_url(url, data=None):
-            content_type = 'application/x-www-form-urlencoded'
-            if isinstance(data, dict):
-                if any(isinstance(v, tuple) for v in data.itervalues()):
-                    data, content_type = urllib3.filepost.encode_multipart_formdata(data)
-                else:
-                    data = urlencode(data.items())
-
-            request = urllib2.Request(url, data, headers={'Content-Type': content_type})
-            response = opener.open(request)
-            try:
-                return response.read()
-            finally:
-                response.close()
-
-        class CSRFParser(HTMLParser.HTMLParser):
-            result = None
-            dummy_exception = Exception()
-
-            def __init__(self, data):
-                HTMLParser.HTMLParser.__init__(self)
-                try:
-                    self.feed(data)
-                    self.close()
-                except Exception as e:
-                    if e != self.dummy_exception:
-                        raise
-
-                if not self.result:
-                    raise Exception('Failed to extract CSRF token')
-
-            def set_result(self, value):
-                self.result = value
-                raise self.dummy_exception
-
-            def handle_starttag(self, tag, attrs):
-                attrs = dict(attrs)
-                if tag == 'meta' and attrs.get('name') == 'csrf':
-                    self.set_result(attrs.get('content'))
-                if tag == 'input' and attrs.get('name') == 'csrfmiddlewaretoken':
-                    self.set_result(attrs.get('value'))
-
-        # Extract anonymous CSRF token
-        login_page = load_url(login_url)
-        csrf_token = CSRFParser(login_page).result
-
-        # Log in and get session's CSRF token
-        main_page = load_url(
-            login_url,
-            {
-                'csrfmiddlewaretoken': csrf_token,
-                'username': username,
-                'password': password,
-            }
+        input = '{}.{}'.format(
+            base64.b64encode(json.dumps(header)),
+            base64.b64encode(json.dumps(payload))
         )
-        csrf_token = CSRFParser(main_page).result
 
-        # Upload build
+        signature = hmac.new(get_config().get('extensions', 'amo_secret'),
+                             msg=input,
+                             digestmod=hashlib.sha256).digest()
+        token = '{}.{}'.format(input, base64.b64encode(signature))
+
+        upload_url = ('https://addons.mozilla.org/api/v3/addons/{}/'
+                      'versions/{}/').format(self.extensionID, self.version)
+
         with open(self.path, 'rb') as file:
-            upload_response = json.loads(load_url(
-                upload_url,
-                {
-                    'csrfmiddlewaretoken': csrf_token,
-                    'upload': (os.path.basename(self.path), file.read(), 'application/x-xpinstall'),
-                }
-            ))
+            data, content_type = urllib3.filepost.encode_multipart_formdata({
+                'upload': (
+                    os.path.basename(self.path),
+                    file.read(),
+                    'application/x-xpinstall'
+                )
+            })
 
-        # Wait for validation to finish
-        while not upload_response.get('validation'):
-            time.sleep(2)
-            upload_response = json.loads(load_url(
-                upload_url + '/' + upload_response.get('upload')
-            ))
+        request = urllib2.Request(upload_url, data=data)
+        request.add_header('Content-Type', content_type)
+        request.add_header('Authorization', 'JWT ' + token)
+        request.get_method = lambda: 'PUT'
 
-        if upload_response['validation'].get('errors', 0):
-            raise Exception('Build failed AMO validation, see https://addons.mozilla.org%s' % upload_response.get('full_report_url'))
-
-        # Add version
-        add_response = json.loads(load_url(
-            add_url,
-            {
-                'csrfmiddlewaretoken': csrf_token,
-                'upload': upload_response.get('upload'),
-                'source': ('', '', 'application/octet-stream'),
-                'beta': 'on',
-                'supported_platforms': 1,       # PLATFORM_ANY.id
-            }
-        ))
+        try:
+            urllib2.urlopen(request).close()
+        except urllib2.HTTPError as e:
+            try:
+                logging.error(e.read())
+            finally:
+                e.close()
+            raise
 
     def uploadToChromeWebStore(self):
         # Google APIs use HTTP error codes with error message in body. So we add
@@ -600,7 +550,7 @@ class NightlyBuild(object):
             # update nightlies config
             self.config.latestRevision = self.revision
 
-            if self.config.type == 'gecko' and self.config.galleryID and get_config().get('extensions', 'amo_username'):
+            if self.config.type == 'gecko' and self.config.galleryID and get_config().has_option('extensions', 'amo_key'):
                 self.uploadToMozillaAddons()
             elif self.config.type == 'chrome' and self.config.clientID and self.config.clientSecret and self.config.refreshToken:
                 self.uploadToChromeWebStore()

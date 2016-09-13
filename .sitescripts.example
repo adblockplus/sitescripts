@@ -111,8 +111,8 @@ geckoUpdateManifest=extensions/template/update.rdf
 safariUpdateManifest=extensions/template/updates.plist
 androidUpdateManifest=extensions/template/androidupdates.xml
 nightlyIndexPage=extensions/template/nightlies.html
-amo_username=me@example.com
-amo_password=password1
+amo_key=user:543210:23
+amo_secret=your-api-secret
 
 [stats]
 geoip_db=%(root)s/data/GeoIP.dat
