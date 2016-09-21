@@ -27,8 +27,8 @@ import subprocess
 from ConfigParser import SafeConfigParser
 
 from buildtools.packagerGecko import KNOWN_APPS
-from buildtools.packagerSafari import (get_developer_identifier,
-                                       get_certificates_and_key)
+from buildtools.packagerSafari import get_developer_identifier
+from buildtools.xarfile import read_certificates_and_key
 
 from sitescripts.utils import get_config, get_template
 from sitescripts.extensions.utils import (
@@ -55,7 +55,7 @@ def readMetadata(repo, version):
         }
     elif repo.type == 'safari':
         metadata = repo.readMetadata(version)
-        certs = get_certificates_and_key(repo.keyFile)[0]
+        certs = read_certificates_and_key(repo.keyFile)[0]
 
         return {
             'certificateID': get_developer_identifier(certs),
