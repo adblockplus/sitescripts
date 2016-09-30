@@ -18,6 +18,7 @@ import os
 import json
 import re
 import subprocess
+import traceback
 import time
 import urlparse
 import urllib
@@ -312,8 +313,10 @@ def getDownloadLinks(result):
     object
     """
     for repo in Configuration.getRepositoryConfigurations():
-        (downloadURL, version) = _getDownloadLink(repo)
-        if downloadURL == None:
+        try:
+            (downloadURL, version) = _getDownloadLink(repo)
+        except:
+            traceback.print_exc()
             continue
         if not result.has_section(repo.repositoryName):
             result.add_section(repo.repositoryName)
@@ -321,7 +324,7 @@ def getDownloadLinks(result):
         result.set(repo.repositoryName, 'version', version)
 
         qrcode = _getQRCode(downloadURL)
-        if qrcode != None:
+        if qrcode is not None:
             result.set(repo.repositoryName, 'qrcode', qrcode)
 
 
