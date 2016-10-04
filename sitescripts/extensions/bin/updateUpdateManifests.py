@@ -24,6 +24,7 @@ import os
 import re
 import sys
 import subprocess
+import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser
 
 from buildtools.packagerGecko import KNOWN_APPS
@@ -34,7 +35,13 @@ from sitescripts.utils import get_config, get_template
 from sitescripts.extensions.utils import (
     Configuration, getDownloadLinks,
     writeIEUpdateManifest, writeAndroidUpdateManifest)
-from sitescripts.extensions.android import get_min_sdk_version
+
+
+def get_min_sdk_version(repo, version):
+    command = ['hg', 'cat', '-r', version, 'AndroidManifest.xml']
+    result = subprocess.check_output(command, cwd=repo.repository)
+    uses_sdk = dom.parseString(result).getElementsByTagName('uses-sdk')[0]
+    return uses_sdk.attributes['android:minSdkVersion'].value
 
 
 def readMetadata(repo, version):

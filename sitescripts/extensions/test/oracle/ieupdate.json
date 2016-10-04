@@ -1,0 +1,10 @@
+{
+  "adblockplusie/msie32": {
+    "url": "https://downloads.adblockplus.org/adblockplusie-1.5-x86.msi?update",
+    "version": "1.5"
+  },
+  "adblockplusie/msie64": {
+    "url": "https://downloads.adblockplus.org/adblockplusie-1.5-x64.msi?update",
+    "version": "1.5"
+  }
+}
