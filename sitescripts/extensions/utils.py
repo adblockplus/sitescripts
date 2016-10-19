@@ -133,6 +133,7 @@ class Configuration(object):
     nightlyConfig = None
     repositoryName = None
     repository = None
+    revision = _defineProperty('revision', default='master')
 
     spiderMonkeyBinary = _defineProperty('spiderMonkeyBinary', default='')
     nightliesDirectory = _defineProperty('nightliesDirectory')

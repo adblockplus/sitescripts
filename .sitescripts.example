@@ -74,6 +74,7 @@ abpchrome_clientID=...apps.googleusercontent.com
 abpchrome_clientSecret=secret
 abpchrome_refreshToken=1/rwn...
 abpsafari_repository=%(hgroot)s/adblockpluschrome/
+abpsafari_revision = safari 
 abpsafari_type=safari
 abpsafari_name=Adblock Plus for Safari
 abpsafari_key=%(root)s/files/adblockplussafari.pem

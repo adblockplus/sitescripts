@@ -83,8 +83,8 @@ class NightlyBuild(object):
             retrieves the current revision ID from the repository
         """
         command = [
-            'hg', 'id', '-i', '-r', 'default', '--config', 'defaults.id=',
-            self.config.repository
+            'hg', 'id', '-i', '-r', self.config.revision, '--config',
+            'defaults.id=', self.config.repository
         ]
         return subprocess.check_output(command).strip()
 
@@ -103,10 +103,13 @@ class NightlyBuild(object):
           retrieve changes between the current and previous ("first") revision
         """
 
-        command = ['hg', 'log', '-R', self.tempdir, '-r', 'tip:0',
-                   '-b', 'default', '-l', '50', '--encoding', 'utf-8',
-                   '--template', '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0',
-                   '--config', 'defaults.log=']
+        command = [
+            'hg', 'log', '-R', self.tempdir, '-r',
+            'ancestors({})'.format(self.config.revision), '-l', '50',
+            '--encoding', 'utf-8', '--template',
+            '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0',
+            '--config', 'defaults.log='
+        ]
         result = subprocess.check_output(command).decode('utf-8')
 
         for change in result.split('\x00\x00'):
@@ -119,7 +122,8 @@ class NightlyBuild(object):
           Create a repository copy in a temporary directory
         """
         self.tempdir = tempfile.mkdtemp(prefix=self.config.repositoryName)
-        command = ['hg', 'clone', '-q', self.config.repository, '-u', 'default', self.tempdir]
+        command = ['hg', 'clone', '-q', self.config.repository,  '-u',
+                   self.config.revision, self.tempdir]
         subprocess.check_call(command)
 
         # Make sure to run ensure_dependencies.py if present
