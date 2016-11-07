@@ -102,10 +102,9 @@ class NightlyBuild(object):
         """
           retrieve changes between the current and previous ("first") revision
         """
-
         command = [
             'hg', 'log', '-R', self.tempdir, '-r',
-            'ancestors({})'.format(self.config.revision), '-l', '50',
+            'reverse(ancestors({}))'.format(self.config.revision), '-l', '50',
             '--encoding', 'utf-8', '--template',
             '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0',
             '--config', 'defaults.log='
