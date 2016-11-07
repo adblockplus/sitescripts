@@ -133,7 +133,6 @@ class Configuration(object):
     nightlyConfig = None
     repositoryName = None
     repository = None
-    revision = _defineProperty('revision', default='master')
 
     spiderMonkeyBinary = _defineProperty('spiderMonkeyBinary', default='')
     nightliesDirectory = _defineProperty('nightliesDirectory')
@@ -154,6 +153,7 @@ class Configuration(object):
     clientID = _defineProperty('clientID', local=True, default='')
     clientSecret = _defineProperty('clientSecret', local=True, default='')
     refreshToken = _defineProperty('refreshToken', local=True, default='')
+    revision = _defineProperty('revision', local=True, default='master')
 
     latestRevision = _defineNightlyProperty('latestRevision')
 
