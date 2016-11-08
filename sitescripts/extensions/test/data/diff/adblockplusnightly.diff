@@ -1,0 +1,523 @@
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1478615350 -3600
+#      Tue Nov 08 15:29:10 2016 +0100
+# Node ID e4e887f2fa89160135c59535f41e5e56b2a28446
+# Parent  0000000000000000000000000000000000000000
+test commit
+
+diff --git a/README.txt b/README.txt
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1478621046 -3600
+#      Tue Nov 08 17:04:06 2016 +0100
+# Node ID 1291590ddd0f6645a699e7dfbec522de402ca9f5
+# Parent  e4e887f2fa89160135c59535f41e5e56b2a28446
+second
+
+diff --git a/README.txt b/README.txt
+--- a/README.txt
++++ b/README.txt
+@@ -0,0 +1,1 @@
++test
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219502 -3600
+#      Tue Nov 15 15:18:22 2016 +0100
+# Node ID 8749c65a118986de1d87b2d1e74197c0d07de579
+# Parent  1291590ddd0f6645a699e7dfbec522de402ca9f5
+test0
+
+diff --git a/auto0 b/auto0
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219503 -3600
+#      Tue Nov 15 15:18:23 2016 +0100
+# Node ID a2dc98674defef0757ca5ef57279664b241e0afb
+# Parent  8749c65a118986de1d87b2d1e74197c0d07de579
+test1
+
+diff --git a/auto1 b/auto1
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219503 -3600
+#      Tue Nov 15 15:18:23 2016 +0100
+# Node ID 255ead5f62bc7fb0b332e55ffe8dc25631b61ee1
+# Parent  a2dc98674defef0757ca5ef57279664b241e0afb
+test2
+
+diff --git a/auto2 b/auto2
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219503 -3600
+#      Tue Nov 15 15:18:23 2016 +0100
+# Node ID a3f0e6b48ba9e9ee586aea5670f1e662fb0ea4d8
+# Parent  255ead5f62bc7fb0b332e55ffe8dc25631b61ee1
+test3
+
+diff --git a/auto3 b/auto3
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219503 -3600
+#      Tue Nov 15 15:18:23 2016 +0100
+# Node ID 4509607e5a2119aab90ff5d62de29d5ffdec91ef
+# Parent  a3f0e6b48ba9e9ee586aea5670f1e662fb0ea4d8
+test4
+
+diff --git a/auto4 b/auto4
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219503 -3600
+#      Tue Nov 15 15:18:23 2016 +0100
+# Node ID 208843e0a89a6db307fdca09e2ed1035cdbe3693
+# Parent  4509607e5a2119aab90ff5d62de29d5ffdec91ef
+test5
+
+diff --git a/auto5 b/auto5
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219503 -3600
+#      Tue Nov 15 15:18:23 2016 +0100
+# Node ID 83a182e352675e2da3c45d7df65e8d96205d79dc
+# Parent  208843e0a89a6db307fdca09e2ed1035cdbe3693
+test6
+
+diff --git a/auto6 b/auto6
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219503 -3600
+#      Tue Nov 15 15:18:23 2016 +0100
+# Node ID cf1f4931e84768e95c7cc939aedb543e6cad5ea1
+# Parent  83a182e352675e2da3c45d7df65e8d96205d79dc
+test7
+
+diff --git a/auto7 b/auto7
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219503 -3600
+#      Tue Nov 15 15:18:23 2016 +0100
+# Node ID 4f2fde237e54dd7dd9a8cf4841e798e01c0de697
+# Parent  cf1f4931e84768e95c7cc939aedb543e6cad5ea1
+test8
+
+diff --git a/auto8 b/auto8
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219504 -3600
+#      Tue Nov 15 15:18:24 2016 +0100
+# Node ID eb68a2c074eed78dc92145342552ba46769e5f17
+# Parent  4f2fde237e54dd7dd9a8cf4841e798e01c0de697
+test9
+
+diff --git a/auto9 b/auto9
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219504 -3600
+#      Tue Nov 15 15:18:24 2016 +0100
+# Node ID 262b71d99cb18a3a95df56dc1e537a8a158aa19f
+# Parent  eb68a2c074eed78dc92145342552ba46769e5f17
+test10
+
+diff --git a/auto10 b/auto10
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219504 -3600
+#      Tue Nov 15 15:18:24 2016 +0100
+# Node ID c0dad0de6938688d1fd44cbb7746fb5c38635d61
+# Parent  262b71d99cb18a3a95df56dc1e537a8a158aa19f
+test11
+
+diff --git a/auto11 b/auto11
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219504 -3600
+#      Tue Nov 15 15:18:24 2016 +0100
+# Node ID e3a5ee313ae5399e1e43dbf983da2dec8bf91d1d
+# Parent  c0dad0de6938688d1fd44cbb7746fb5c38635d61
+test12
+
+diff --git a/auto12 b/auto12
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219504 -3600
+#      Tue Nov 15 15:18:24 2016 +0100
+# Node ID 1e921efb870502bbca7fd5f5dfb2e67927eec999
+# Parent  e3a5ee313ae5399e1e43dbf983da2dec8bf91d1d
+test13
+
+diff --git a/auto13 b/auto13
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219504 -3600
+#      Tue Nov 15 15:18:24 2016 +0100
+# Node ID f0109ab8ad334a9febb81109ddfa5efef03e7983
+# Parent  1e921efb870502bbca7fd5f5dfb2e67927eec999
+test14
+
+diff --git a/auto14 b/auto14
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219504 -3600
+#      Tue Nov 15 15:18:24 2016 +0100
+# Node ID fbce9b64098cf1203f3ce45407bccff46d5d0415
+# Parent  f0109ab8ad334a9febb81109ddfa5efef03e7983
+test15
+
+diff --git a/auto15 b/auto15
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219504 -3600
+#      Tue Nov 15 15:18:24 2016 +0100
+# Node ID f73646c833e710dc1d4c79639d36de3f5b08d5ae
+# Parent  fbce9b64098cf1203f3ce45407bccff46d5d0415
+test16
+
+diff --git a/auto16 b/auto16
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219505 -3600
+#      Tue Nov 15 15:18:25 2016 +0100
+# Node ID a427f80b6a8f5415225c12bbc4875689c196f01f
+# Parent  f73646c833e710dc1d4c79639d36de3f5b08d5ae
+test17
+
+diff --git a/auto17 b/auto17
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219505 -3600
+#      Tue Nov 15 15:18:25 2016 +0100
+# Node ID 958d74ef01125cdd2d7bb54c82a46d0806ee3aff
+# Parent  a427f80b6a8f5415225c12bbc4875689c196f01f
+test18
+
+diff --git a/auto18 b/auto18
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219505 -3600
+#      Tue Nov 15 15:18:25 2016 +0100
+# Node ID 00a0a8a6afa6de63615d1cfc8da441cb287ea785
+# Parent  958d74ef01125cdd2d7bb54c82a46d0806ee3aff
+test19
+
+diff --git a/auto19 b/auto19
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219505 -3600
+#      Tue Nov 15 15:18:25 2016 +0100
+# Node ID dde3d3c6039b2126fdadee68096d35baacc2c06f
+# Parent  00a0a8a6afa6de63615d1cfc8da441cb287ea785
+test20
+
+diff --git a/auto20 b/auto20
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219505 -3600
+#      Tue Nov 15 15:18:25 2016 +0100
+# Node ID a5db4065260587c9e87b941b4507268c2f738073
+# Parent  dde3d3c6039b2126fdadee68096d35baacc2c06f
+test21
+
+diff --git a/auto21 b/auto21
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219505 -3600
+#      Tue Nov 15 15:18:25 2016 +0100
+# Node ID 352a924fb4dcafffbc4743ad43cbbc0c219ada7b
+# Parent  a5db4065260587c9e87b941b4507268c2f738073
+test22
+
+diff --git a/auto22 b/auto22
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219505 -3600
+#      Tue Nov 15 15:18:25 2016 +0100
+# Node ID 5e61f0309a3e26a75758744e00a8f7532b22257d
+# Parent  352a924fb4dcafffbc4743ad43cbbc0c219ada7b
+test23
+
+diff --git a/auto23 b/auto23
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219506 -3600
+#      Tue Nov 15 15:18:26 2016 +0100
+# Node ID 49ad947532c949d6fbcda4fec6efad885abbcd74
+# Parent  5e61f0309a3e26a75758744e00a8f7532b22257d
+test24
+
+diff --git a/auto24 b/auto24
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219506 -3600
+#      Tue Nov 15 15:18:26 2016 +0100
+# Node ID 43c96a9b430e9712da06cc39efe2316a745b9fd3
+# Parent  49ad947532c949d6fbcda4fec6efad885abbcd74
+test25
+
+diff --git a/auto25 b/auto25
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219506 -3600
+#      Tue Nov 15 15:18:26 2016 +0100
+# Node ID 1e0e8233e0676ff2cf98842760f9e7cbe19a8b73
+# Parent  43c96a9b430e9712da06cc39efe2316a745b9fd3
+test26
+
+diff --git a/auto26 b/auto26
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219506 -3600
+#      Tue Nov 15 15:18:26 2016 +0100
+# Node ID cd2288e7647bb260ca95556fd2decdba7bf93dce
+# Parent  1e0e8233e0676ff2cf98842760f9e7cbe19a8b73
+test27
+
+diff --git a/auto27 b/auto27
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219506 -3600
+#      Tue Nov 15 15:18:26 2016 +0100
+# Node ID 68477684a6f9ef417fe49e5c6fae485afd5845ec
+# Parent  cd2288e7647bb260ca95556fd2decdba7bf93dce
+test28
+
+diff --git a/auto28 b/auto28
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219506 -3600
+#      Tue Nov 15 15:18:26 2016 +0100
+# Node ID 3f43ce4d99da02b70eb465240f1edef3a707c3c7
+# Parent  68477684a6f9ef417fe49e5c6fae485afd5845ec
+test29
+
+diff --git a/auto29 b/auto29
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219506 -3600
+#      Tue Nov 15 15:18:26 2016 +0100
+# Node ID 67476c38a5bbde357e1608f721438cdda22dde30
+# Parent  3f43ce4d99da02b70eb465240f1edef3a707c3c7
+test30
+
+diff --git a/auto30 b/auto30
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219506 -3600
+#      Tue Nov 15 15:18:26 2016 +0100
+# Node ID 9b4aa664503d1d9cff008a0c467df09c4973cff2
+# Parent  67476c38a5bbde357e1608f721438cdda22dde30
+test31
+
+diff --git a/auto31 b/auto31
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219507 -3600
+#      Tue Nov 15 15:18:27 2016 +0100
+# Node ID 5959321c3c4de70c684597e972ce3e83feb92e4f
+# Parent  9b4aa664503d1d9cff008a0c467df09c4973cff2
+test32
+
+diff --git a/auto32 b/auto32
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219507 -3600
+#      Tue Nov 15 15:18:27 2016 +0100
+# Node ID 6b36ab279422a8b4276085b2f8ca849b0619c0d2
+# Parent  5959321c3c4de70c684597e972ce3e83feb92e4f
+test33
+
+diff --git a/auto33 b/auto33
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219507 -3600
+#      Tue Nov 15 15:18:27 2016 +0100
+# Node ID 538829e145919fa8c474c459b16f06e6f9bf6843
+# Parent  6b36ab279422a8b4276085b2f8ca849b0619c0d2
+test34
+
+diff --git a/auto34 b/auto34
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219507 -3600
+#      Tue Nov 15 15:18:27 2016 +0100
+# Node ID 27810f97d18f55065ae3ea488c19b1dfa2b35e22
+# Parent  538829e145919fa8c474c459b16f06e6f9bf6843
+test35
+
+diff --git a/auto35 b/auto35
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219507 -3600
+#      Tue Nov 15 15:18:27 2016 +0100
+# Node ID f1e9ac1c3f188d003419fda652580f14ea9ff1a0
+# Parent  27810f97d18f55065ae3ea488c19b1dfa2b35e22
+test36
+
+diff --git a/auto36 b/auto36
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219507 -3600
+#      Tue Nov 15 15:18:27 2016 +0100
+# Node ID fc32ec6eb4b4f70fc6a22d4a4610425652ab9f31
+# Parent  f1e9ac1c3f188d003419fda652580f14ea9ff1a0
+test37
+
+diff --git a/auto37 b/auto37
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219507 -3600
+#      Tue Nov 15 15:18:27 2016 +0100
+# Node ID 4d01d33a7370267c4a9b7043860831579edd82f4
+# Parent  fc32ec6eb4b4f70fc6a22d4a4610425652ab9f31
+test38
+
+diff --git a/auto38 b/auto38
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219508 -3600
+#      Tue Nov 15 15:18:28 2016 +0100
+# Node ID 8e3e3734524641b8881e6ed04239253b3039011e
+# Parent  4d01d33a7370267c4a9b7043860831579edd82f4
+test39
+
+diff --git a/auto39 b/auto39
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219508 -3600
+#      Tue Nov 15 15:18:28 2016 +0100
+# Node ID ac65468c4d0affb763d20ad7d41658b3a52ec0a0
+# Parent  8e3e3734524641b8881e6ed04239253b3039011e
+test40
+
+diff --git a/auto40 b/auto40
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219508 -3600
+#      Tue Nov 15 15:18:28 2016 +0100
+# Node ID 8da3d1a50eaae95d09925cec06737fbbd25acabf
+# Parent  ac65468c4d0affb763d20ad7d41658b3a52ec0a0
+test41
+
+diff --git a/auto41 b/auto41
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219508 -3600
+#      Tue Nov 15 15:18:28 2016 +0100
+# Node ID bf016d82524b002fd3ed840a20cc78348c2b68ea
+# Parent  8da3d1a50eaae95d09925cec06737fbbd25acabf
+test42
+
+diff --git a/auto42 b/auto42
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219508 -3600
+#      Tue Nov 15 15:18:28 2016 +0100
+# Node ID a8a87f4a347e71baa06b2fe7a34d2f36a5ee0d61
+# Parent  bf016d82524b002fd3ed840a20cc78348c2b68ea
+test43
+
+diff --git a/auto43 b/auto43
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219508 -3600
+#      Tue Nov 15 15:18:28 2016 +0100
+# Node ID 499c1dd89009a66ce71532ac8e1ee8d2ba5fe39a
+# Parent  a8a87f4a347e71baa06b2fe7a34d2f36a5ee0d61
+test44
+
+diff --git a/auto44 b/auto44
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219508 -3600
+#      Tue Nov 15 15:18:28 2016 +0100
+# Node ID 00cf54001548f8c3cfcb847fd70533058c200c19
+# Parent  499c1dd89009a66ce71532ac8e1ee8d2ba5fe39a
+test45
+
+diff --git a/auto45 b/auto45
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219508 -3600
+#      Tue Nov 15 15:18:28 2016 +0100
+# Node ID 9682c3f2e1e81dcebd69be4ae267493aba04ffdf
+# Parent  00cf54001548f8c3cfcb847fd70533058c200c19
+test46
+
+diff --git a/auto46 b/auto46
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219509 -3600
+#      Tue Nov 15 15:18:29 2016 +0100
+# Node ID ecb548ee60331ec4a8d06993081a9e8ef46b02bd
+# Parent  9682c3f2e1e81dcebd69be4ae267493aba04ffdf
+test47
+
+diff --git a/auto47 b/auto47
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219509 -3600
+#      Tue Nov 15 15:18:29 2016 +0100
+# Node ID ec38ba5be415dde0f8a3cd24f3c528f48a126773
+# Parent  ecb548ee60331ec4a8d06993081a9e8ef46b02bd
+test48
+
+diff --git a/auto48 b/auto48
+new file mode 100644
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1479219509 -3600
+#      Tue Nov 15 15:18:29 2016 +0100
+# Node ID 6d4bd6d07b2bdc2571c851b476e01b476005a305
+# Parent  ec38ba5be415dde0f8a3cd24f3c528f48a126773
+test49
+
+diff --git a/auto49 b/auto49
+new file mode 100644

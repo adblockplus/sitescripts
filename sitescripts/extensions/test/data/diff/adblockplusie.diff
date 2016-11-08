@@ -1,0 +1,28 @@
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1478778802 -3600
+#      Thu Nov 10 12:53:22 2016 +0100
+# Node ID e4de6a12f684b7a31a9f90929ea17692c0f913f8
+# Parent  0000000000000000000000000000000000000000
+1
+
+diff --git a/README.txt b/README.txt
+new file mode 100644
+--- /dev/null
++++ b/README.txt
+@@ -0,0 +1,1 @@
++Test
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1478778802 -3600
+#      Thu Nov 10 12:53:22 2016 +0100
+# Node ID 37298a429b30dc3bc4ccc664d290167a2ddc17dd
+# Parent  e4de6a12f684b7a31a9f90929ea17692c0f913f8
+Added tag 1.33.7 for changeset e4de6a12f684
+
+diff --git a/.hgtags b/.hgtags
+new file mode 100644
+--- /dev/null
++++ b/.hgtags
+@@ -0,0 +1,1 @@
++e4de6a12f684b7a31a9f90929ea17692c0f913f8 1.33.7

@@ -1,0 +1,62 @@
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1478778800 -3600
+#      Thu Nov 10 12:53:20 2016 +0100
+# Node ID d90db27d6cfb0ccaaff65ab9ed375d20e37a9d2d
+# Parent  0000000000000000000000000000000000000000
+1
+
+diff --git a/metadata.safari b/metadata.safari
+new file mode 100644
+--- /dev/null
++++ b/metadata.safari
+@@ -0,0 +1,35 @@
++[default]
++inherit = metadata.common
++
++[general]
++basename = adblockplussafari
++homepage = https://adblockplus.org/
++updateURL = https://update.adblockplus.org/adblockplussafari/updates.plist
++
++[contentScripts]
++document_start = ext/common.js ext/content.js cssProperties.js include.preload.js include.youtube.js
++
++[mapping]
++ext/content.js = safari/ext/content.js
++ext/popup.js = safari/ext/popup.js
++include.youtube.js = safari/include.youtube.js
++Icon.png = adblockplusui/skin/abp-128.png
++icons/abp-16.png = safari/icons/abp-16.png
++icons/abp-16@2x.png = safari/icons/abp-32.png
++icons/abp-16-notification-critical.png = safari/icons/abp-16-notification-critical.png
++icons/abp-16-notification-critical@2x.png = safari/icons/abp-32-notification-critical.png
++icons/abp-16-notification-information.png = safari/icons/abp-16-notification-information.png
++icons/abp-16-notification-information@2x.png = safari/icons/abp-32-notification-information.png
++
++
++[convert_js]
++ext/common.js = ext/common.js safari/ext/common.js
++ext/background.js = ext/background.js safari/ext/background.js --arg brace_style=expand
++lib/adblockplus.js -= lib/devtools.js lib/popupBlocker.js lib/uninstall.js
++
++[popovers]
++popup_filename = popup.html
++
++[toolbar_items]
++item_image = icons/abp-16.png
++item_popover = popup
+# HG changeset patch
+# User Jon Sonesen <jon@adblockplus.org>
+# Date 1478778800 -3600
+#      Thu Nov 10 12:53:20 2016 +0100
+# Node ID caf6040692e4540173cead291f4aaf2df535dafd
+# Parent  d90db27d6cfb0ccaaff65ab9ed375d20e37a9d2d
+Added tag 1.12.3 for changeset d90db27d6cfb
+
+diff --git a/.hgtags b/.hgtags
+new file mode 100644
+--- /dev/null
++++ b/.hgtags
+@@ -0,0 +1,1 @@
++d90db27d6cfb0ccaaff65ab9ed375d20e37a9d2d 1.12.3

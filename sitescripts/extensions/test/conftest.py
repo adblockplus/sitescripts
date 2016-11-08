@@ -22,14 +22,6 @@ import subprocess
 import pytest
 import py
 
-REPOS = {
-    'adblockplus': ('metadata.gecko', '2.7.3'),
-    'adblockplusie': ('README.txt', '1.33.7'),
-    'adblockpluschrome': ('metadata.safari', '1.12.3'),
-    'adblockplusandroid': ('AndroidManifest.xml', '1.3'),
-    'adblockplusnightly': ('README.txt', '0.0')
-}
-
 
 @pytest.fixture(scope='session')
 def tests_dir():
@@ -42,12 +34,14 @@ def data_dir(tests_dir):
     return tests_dir.join('data')
 
 
-# Fixtures using the built in tmpdir fixture must be function scoped which
-# causes about a 30% slow down. It would be faster to use tmpdir_factory
-# which is session scoped but for no it is not important.
-@pytest.fixture()
-def keys_dir(tmpdir, tests_dir):
-    keys_dir = tmpdir.mkdir('keys')
+@pytest.fixture(scope='session')
+def diff_dir(data_dir):
+    return data_dir.join('diff')
+
+
+@pytest.fixture(scope='session')
+def keys_dir(tmpdir_factory, tests_dir):
+    keys_dir = tmpdir_factory.mktemp('keys')
     key_filename = 'adblockplussafari.pem'
     tests_dir.join(key_filename).copy(keys_dir.join(key_filename))
     return keys_dir
@@ -57,31 +51,25 @@ def call_hg(cwd, *params):
     return subprocess.check_call(['hg'] + list(params), cwd=str(cwd))
 
 
-@pytest.fixture()
-def hg_dir(tmpdir, data_dir):
+def hg_import(repo_dir, diff_dir):
+    call_hg(repo_dir, 'import', diff_dir.strpath, '--exact')
+
+
+@pytest.fixture(scope='session')
+def hg_dir(tmpdir_factory, data_dir, diff_dir):
     """Directory that contains the repository mocks."""
-    hg_dir = tmpdir.mkdir('hg')
+    hg_dir = tmpdir_factory.mktemp('hg')
 
-    # Mock plugin repositories.
-    for repo, config in REPOS.items():
-        filename, tag = config
-        repo_dir = hg_dir.mkdir(repo)
+    # Mock repositories from diff and bookmarks.
+    for diff in diff_dir.visit():
+        repo_name = diff.purebasename.split('.')[0]
+        repo_dir = hg_dir.mkdir(repo_name)
         call_hg(repo_dir, 'init')
-        data_dir.join(filename).copy(repo_dir.join(filename))
-        call_hg(repo_dir, 'add', filename)
-        call_hg(repo_dir, 'commit', '-m', '1')
-        call_hg(repo_dir, 'tag', tag)
-
-    call_hg(hg_dir.join('adblockplusnightly'), 'bookmark', 'safari')
-
-    # Mock the downloads repository.
-    downloads_list = data_dir.join('downloads.list').read().splitlines()
-    downloads_dir = hg_dir.mkdir('downloads')
-    call_hg(downloads_dir, 'init')
-    for item in downloads_list:
-        downloads_dir.join(item).write('')
-    call_hg(downloads_dir, 'add', *downloads_list)
-    call_hg(downloads_dir, 'commit', '-m', 'ok')
+        bookmark_file = data_dir.join('bookmarks', repo_name + '.bookmarks')
+        if bookmark_file.exists():
+            destination = repo_dir.join('.hg').join('bookmarks')
+            bookmark_file.copy(destination)
+        hg_import(repo_dir, diff)
 
     return hg_dir
 
