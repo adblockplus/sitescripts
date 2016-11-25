@@ -183,7 +183,7 @@ class Configuration(object):
         """
         return self.repositoryName
 
-    def readMetadata(self, version='tip'):
+    def readMetadata(self, version):
         genericFilename = 'metadata'
         filename = '%s.%s' % (genericFilename, self.type)
         files = subprocess.check_output(['hg', '-R', self.repository,
@@ -207,7 +207,7 @@ class Configuration(object):
         return parser
 
     def getDownloads(self):
-        metadata = self.readMetadata()
+        metadata = self.readMetadata(self.revision)
         if metadata:
             prefix = metadata.get('general', 'basename')
         else:
@@ -316,6 +316,8 @@ def getDownloadLinks(result):
     for repo in Configuration.getRepositoryConfigurations():
         try:
             (downloadURL, version) = _getDownloadLink(repo)
+            if downloadURL is None:
+                raise Exception('No download link found for repo: ' + repo)
         except:
             traceback.print_exc()
             continue
