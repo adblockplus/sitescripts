@@ -29,6 +29,7 @@ from sitescripts.utils import get_config
 
 PACKAGE_SUFFIXES = {
     'gecko': '.xpi',
+    'gecko-webext': '.xpi',
     'chrome': '.crx',
     'safari': '.safariextz',
     'ie': '.exe',

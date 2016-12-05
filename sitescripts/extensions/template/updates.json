@@ -1,0 +1,31 @@
+{
+  "addons":
+  {
+    {%- for extension in extensions %}
+    {{extension.extensionID|json}}:
+    {
+      "updates":
+      [
+        {
+          "version": {{extension.version|json}},
+          "update_link": {{extension.updateURL|json}}
+          {%- if extension.compat -%}
+          ,
+          "applications":
+          {
+            {%- for app in extension.compat %}
+            {{app.id|json}}:
+            {
+              "strict_min_version": {{app.minVersion|json}}
+            }
+            {{- "," if not loop.last else "" }}
+            {%- endfor %}
+          }
+          {%- endif %}
+        }
+      ]
+    }
+    {{- "," if not loop.last else "" }}
+    {%- endfor %}
+  }
+}

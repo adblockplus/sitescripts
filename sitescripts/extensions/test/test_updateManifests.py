@@ -19,20 +19,6 @@ import os
 import json
 import pytest
 import subprocess
-import xml.etree.ElementTree as ET
-
-
-def rdf2data(rdf):
-    """Convert RDF to a more comparable data strcuture."""
-    # We need this to address the RDF item ordering discrepancies.
-    def et2data(node):
-        return {
-            'tag': node.tag,
-            'text': node.text,
-            'attrib': node.attrib,
-            'subs': sorted(et2data(sub) for sub in node)
-        }
-    return et2data(ET.fromstring(rdf))
 
 
 @pytest.fixture(scope='session')
@@ -49,13 +35,10 @@ def test_update_manifests(config_ini, hg_dir, tmpdir, oracle):
     cmd = ['python', '-m', 'sitescripts.extensions.bin.updateUpdateManifests']
     subprocess.check_call(cmd, env=env)
     for filename in ['androidupdates.json', 'androidupdates.xml',
-                     'ieupdate.json', 'update.rdf', 'updates.plist']:
+                     'ieupdate.json', 'updates.json', 'updates.plist']:
         got = tmpdir.join(filename).read().strip()
         expect = oracle(filename)
         if filename.endswith('.json'):
             got = json.loads(got)
             expect = json.loads(expect)
-        elif filename.endswith('.rdf'):
-            got = rdf2data(got)
-            expect = rdf2data(expect)
         assert got == expect

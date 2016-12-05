@@ -122,7 +122,8 @@ def writeUpdateManifest(links):
                 newManifestPath = get_config().get('extensions',
                                                    'androidNewUpdateManifestPath')
                 writeAndroidUpdateManifest(newManifestPath, extensions[repoType])
-            template = get_template(get_config().get('extensions', '%sUpdateManifest' % repoType))
+            path = get_config().get('extensions', '%sUpdateManifest' % repoType)
+            template = get_template(path, autoescape=not path.endswith('.json'))
             template.stream({'extensions': extensions[repoType]}).dump(manifestPath)
 
 

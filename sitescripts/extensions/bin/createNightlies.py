@@ -170,6 +170,12 @@ class NightlyBuild(object):
                 minVersion, maxVersion = metadata.get('compat', key).split('/')
                 self.compat.append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
 
+        if metadata.has_option('compat', 'gecko'):
+            self.compat.append({
+                'id': 'gecko',
+                'minVersion': metadata.get('compat', 'gecko')
+            })
+
     def readAndroidMetadata(self):
         """
           Read Android-specific metadata from AndroidManifest.xml file.
@@ -228,15 +234,21 @@ class NightlyBuild(object):
 
     def writeUpdateManifest(self):
         """
-          Writes update.rdf file for the current build
+          Writes update manifest for the current build
         """
         baseDir = os.path.join(self.config.nightliesDirectory, self.basename)
         if self.config.type == 'safari':
             manifestPath = os.path.join(baseDir, 'updates.plist')
             templateName = 'safariUpdateManifest'
+            autoescape = True
         elif self.config.type == 'android':
             manifestPath = os.path.join(baseDir, 'updates.xml')
             templateName = 'androidUpdateManifest'
+            autoescape = True
+        elif self.config.type == 'gecko-webext':
+            manifestPath = os.path.join(baseDir, 'updates.json')
+            templateName = 'geckoUpdateManifest'
+            autoescape = False
         else:
             return
 
@@ -254,7 +266,8 @@ class NightlyBuild(object):
                 'updateURL': self.updateURL
             }])
 
-        template = get_template(get_config().get('extensions', templateName))
+        template = get_template(get_config().get('extensions', templateName),
+                                autoescape=autoescape)
         template.stream({'extensions': [self]}).dump(manifestPath)
 
     def writeIEUpdateManifest(self, versions):
@@ -325,7 +338,7 @@ class NightlyBuild(object):
 
             command = [os.path.join(self.tempdir, 'build.py'),
                        '-t', self.config.type, 'build', '-b', self.buildNum]
-            if self.config.type != 'gecko':
+            if self.config.type not in {'gecko', 'gecko-webext'}:
                 command.extend(['-k', self.config.keyFile])
             command.append(self.path)
             subprocess.check_call(command, env=env)
@@ -528,8 +541,10 @@ class NightlyBuild(object):
                     self.readChromeMetadata()
                 elif self.config.type == 'safari':
                     self.readSafariMetadata()
-                else:
+                elif self.config.type in {'gecko', 'gecko-webext'}:
                     self.readGeckoMetadata()
+                else:
+                    raise Exception('Unknown build type {}' % self.config.type)
 
                 # create development build
                 self.build()
@@ -553,7 +568,9 @@ class NightlyBuild(object):
             # update nightlies config
             self.config.latestRevision = self.revision
 
-            if self.config.type == 'gecko' and self.config.galleryID and get_config().has_option('extensions', 'amo_key'):
+            if (self.config.type in {'gecko', 'gecko-webext'} and
+                    self.config.galleryID and
+                    get_config().has_option('extensions', 'amo_key')):
                 self.uploadToMozillaAddons()
             elif self.config.type == 'chrome' and self.config.clientID and self.config.clientSecret and self.config.refreshToken:
                 self.uploadToChromeWebStore()
