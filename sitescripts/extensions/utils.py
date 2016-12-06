@@ -318,7 +318,8 @@ def getDownloadLinks(result):
         try:
             (downloadURL, version) = _getDownloadLink(repo)
             if downloadURL is None:
-                raise Exception('No download link found for repo: ' + repo)
+                raise Exception('No download link found for repo: ' +
+                                repo.repositoryName)
         except:
             traceback.print_exc()
             continue
