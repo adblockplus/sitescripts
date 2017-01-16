@@ -26,6 +26,7 @@ import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser, NoOptionError
 from StringIO import StringIO
 from sitescripts.utils import get_config
+from xml.parsers.expat import ExpatError
 
 PACKAGE_SUFFIXES = {
     'gecko': '.xpi',
@@ -250,9 +251,23 @@ def _urlopen(url, attempts=3):
         try:
             return urllib.urlopen(url)
         except IOError as e:
-            error = e
+            error = Exception('Error {0} while opening {1} url'
+                              .format(e, url))
             time.sleep(5)
     raise error
+
+
+def _parseXMLDocument(url, attempts=2):
+    for i in range(attempts):
+        page = _urlopen(url)
+        content = page.read()
+        page.close()
+        try:
+            return dom.parseString(content)
+        except ExpatError as err:
+            exception = Exception('Error {0} while parsing xml:\n{1}\nfrom {2}'
+                                  .format(err, content, url))
+    raise exception
 
 
 def _getMozillaDownloadLink(galleryID):
@@ -260,7 +275,7 @@ def _getMozillaDownloadLink(galleryID):
     gets download link for a Gecko add-on from the Mozilla Addons site
     """
     url = 'https://services.addons.mozilla.org/en-US/firefox/api/1/addon/%s' % _urlencode(galleryID)
-    document = dom.parse(_urlopen(url))
+    document = _parseXMLDocument(url)
     linkTags = document.getElementsByTagName('install')
     linkTag = linkTags[0] if len(linkTags) > 0 else None
     versionTags = document.getElementsByTagName('version')
