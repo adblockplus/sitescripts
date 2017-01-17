@@ -14,6 +14,7 @@
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
 import codecs
+import contextlib
 import os
 import json
 import re
@@ -249,7 +250,7 @@ def _urlopen(url, attempts=3):
     """
     for i in range(attempts):
         try:
-            return urllib.urlopen(url)
+            return contextlib.closing(urllib.urlopen(url))
         except IOError as e:
             error = Exception('Error {0} while opening {1} url'
                               .format(e, url))
@@ -259,9 +260,8 @@ def _urlopen(url, attempts=3):
 
 def _parseXMLDocument(url, attempts=2):
     for i in range(attempts):
-        page = _urlopen(url)
-        content = page.read()
-        page.close()
+        with _urlopen(url) as page:
+            content = page.read()
         try:
             return dom.parseString(content)
         except ExpatError as err:
