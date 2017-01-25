@@ -23,13 +23,14 @@ import mock
 import sitescripts.notifications.parser as parser
 
 
-def _create_notification_archive(name, text):
+def _create_notification_archive(files):
     archive_stream = StringIO.StringIO()
-    file_stream = StringIO.StringIO(text)
-    tar_info = tarfile.TarInfo(name)
-    tar_info.size = len(file_stream.buf)
     with tarfile.open(mode='w', fileobj=archive_stream) as archive:
-        archive.addfile(tar_info, file_stream)
+        for name, text in files:
+            file_stream = StringIO.StringIO(text)
+            tar_info = tarfile.TarInfo(name)
+            tar_info.size = len(file_stream.buf)
+            archive.addfile(tar_info, file_stream)
     return archive_stream.getvalue()
 
 
@@ -46,7 +47,7 @@ class TestParser(unittest.TestCase):
 
         def check_output_side_effect(command):
             if 'hg' in command and 'archive' in command:
-                return _create_notification_archive(*self.notification_to_load)
+                return _create_notification_archive(self.notification_to_load)
         check_output_mock.side_effect = check_output_side_effect
 
     def tearDown(self):
@@ -54,11 +55,11 @@ class TestParser(unittest.TestCase):
         self.check_output_patcher.stop()
 
     def test_typical(self):
-        self.notification_to_load = ('1', '''
+        self.notification_to_load = [('1', '''
 severity = information
 title.en-US = The title
 message.en-US = The message
-''')
+''')]
         notifications = parser.load_notifications()
         self.assertEqual(len(notifications), 1)
         self.assertEqual(notifications[0]['id'], '1')
@@ -68,28 +69,24 @@ message.en-US = The message
         self.assertNotIn('inactive', notifications[0])
 
     def test_inactive(self):
-        self.notification_to_load = ('1', '''
-inactive = Yes
-''')
+        self.notification_to_load = [
+            ('1', '\ninactive = Yes\n'),
+            ('2', '\ninactive = No\n'),
+        ]
         notifications = parser.load_notifications()
-        self.assertEqual(len(notifications), 1)
+        self.assertEqual(len(notifications), 2)
         self.assertTrue(notifications[0]['inactive'])
-        self.notification_to_load = ('1', '''
-inactive = No
-''')
-        notifications = parser.load_notifications()
-        self.assertEqual(len(notifications), 1)
-        self.assertFalse(notifications[0]['inactive'])
+        self.assertFalse(notifications[1]['inactive'])
 
     def test_in_range(self):
         current_time = datetime.datetime.now()
         hour_delta = datetime.timedelta(hours=1)
         start_time = current_time - hour_delta
         end_time = current_time + hour_delta
-        self.notification_to_load = ('1', '''
+        self.notification_to_load = [('1', '''
 start = %s
 end = %s
-''' % (_format_time(start_time), _format_time(end_time)))
+''' % (_format_time(start_time), _format_time(end_time)))]
         notifications = parser.load_notifications()
         self.assertEqual(len(notifications), 1)
         self.assertEqual(notifications[0]['id'], '1')
@@ -99,10 +96,10 @@ end = %s
         current_time = datetime.datetime.now()
         start_time = current_time - datetime.timedelta(hours=2)
         end_time = current_time - datetime.timedelta(hours=1)
-        self.notification_to_load = ('1', '''
+        self.notification_to_load = [('1', '''
 start = %s
 end = %s
-''' % (_format_time(start_time), _format_time(end_time)))
+''' % (_format_time(start_time), _format_time(end_time)))]
         notifications = parser.load_notifications()
         self.assertEqual(len(notifications), 1)
         self.assertTrue(notifications[0]['inactive'])
@@ -111,10 +108,10 @@ end = %s
         current_time = datetime.datetime.now()
         start_time = current_time + datetime.timedelta(hours=1)
         end_time = current_time + datetime.timedelta(hours=2)
-        self.notification_to_load = ('1', '''
+        self.notification_to_load = [('1', '''
 start = %s
 end = %s
-''' % (_format_time(start_time), _format_time(end_time)))
+''' % (_format_time(start_time), _format_time(end_time)))]
         notifications = parser.load_notifications()
         self.assertEqual(len(notifications), 1)
         self.assertTrue(notifications[0]['inactive'])
@@ -124,15 +121,39 @@ end = %s
         hour_delta = datetime.timedelta(hours=1)
         start_time = current_time - hour_delta
         end_time = current_time + hour_delta
-        self.notification_to_load = ('1', '''
+        self.notification_to_load = [('1', '''
 start = %s
 end = %s
-''' % (_format_time(start_time), _format_time(end_time)))
+''' % (_format_time(start_time), _format_time(end_time)))]
         notifications = parser.load_notifications()
         self.assertEqual(len(notifications), 1)
         self.assertNotIn('inactive', notifications[0])
         self.assertNotIn('start', notifications[0])
         self.assertNotIn('end', notifications[0])
+
+    def test_interval(self):
+        self.notification_to_load = [
+            ('1', '\ninterval = 100\n'),
+            ('2', '\ninterval = onehundred\n'),
+        ]
+        notifications = parser.load_notifications()
+        self.assertEqual(len(notifications), 1)
+        self.assertEqual(notifications[0]['interval'], 100)
+
+    def test_severity(self):
+        self.notification_to_load = [
+            ('1', '\nseverity = information\n'),
+            ('2', '\nseverity = critical\n'),
+            ('3', '\nseverity = normal\n'),
+            ('4', '\nseverity = relentless\n'),
+        ]
+        notifications = parser.load_notifications()
+        self.assertEqual(len(notifications), 4)
+        self.assertEqual(notifications[0]['severity'], 'information')
+        self.assertEqual(notifications[1]['severity'], 'critical')
+        self.assertEqual(notifications[2]['severity'], 'normal')
+        self.assertEqual(notifications[3]['severity'], 'relentless')
+
 
 if __name__ == '__main__':
     unittest.main()

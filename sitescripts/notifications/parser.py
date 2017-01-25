@@ -69,7 +69,7 @@ def _parse_notification(data, name):
         if key == 'inactive' and not is_variant:
             current['inactive'] = value.lower() not in ('', '0', 'no', 'false', 'off')
         elif key == 'severity':
-            if value not in ('information', 'critical', 'normal'):
+            if value not in ('information', 'critical', 'normal', 'relentless'):
                 raise Exception("Unknown severity value '%s' in file '%s'" % (value, name))
             current['severity'] = value
         elif key == 'links':
@@ -90,6 +90,8 @@ def _parse_notification(data, name):
             current['sample'] = float(value)
         elif key in ['start', 'end']:
             current[key] = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M')
+        elif key == 'interval':
+            current[key] = int(value)
         else:
             raise Exception("Unknown parameter '%s' in file '%s'" % (key, name))
 
