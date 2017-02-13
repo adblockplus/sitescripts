@@ -55,7 +55,8 @@ def test_current_revision(nightlybuild):
 
 def test_copy_repository(nightlybuild, nightlydir):
     nightlybuild.copyRepository()
-    assert os.listdir(nightlybuild.tempdir) == ['.hg', 'README.txt']
+    files = os.listdir(nightlybuild.tempdir)
+    assert set(files) == {'.hg', 'README.txt'}
 
 
 def test_get_changes(nightlybuild, nightlydir):
