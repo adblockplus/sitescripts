@@ -14,6 +14,9 @@ adblockplussafari_repository=%(hgroot)s/adblockpluschrome/
 adblockplussafari_type=safari
 adblockplussafari_key=%(keysdir)s/adblockplussafari.pem
 
+adblockplusedge_repository=%(hgroot)s/adblockpluschrome/
+adblockplusedge_type=edge
+
 adblockplusandroid_repository=%(hgroot)s/adblockplusandroid
 adblockplusandroid_type=android
 

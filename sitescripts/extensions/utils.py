@@ -35,7 +35,8 @@ PACKAGE_SUFFIXES = {
     'chrome': '.crx',
     'safari': '.safariextz',
     'ie': '.exe',
-    'android': '.apk'
+    'android': '.apk',
+    'edge': '.appx'
 }
 
 
@@ -156,6 +157,7 @@ class Configuration(object):
     clientID = _defineProperty('clientID', local=True, default='')
     clientSecret = _defineProperty('clientSecret', local=True, default='')
     refreshToken = _defineProperty('refreshToken', local=True, default='')
+    tenantID = _defineProperty('tenantID', local=True, default='')
     revision = _defineProperty('revision', local=True, default='master')
 
     latestRevision = _defineNightlyProperty('latestRevision')

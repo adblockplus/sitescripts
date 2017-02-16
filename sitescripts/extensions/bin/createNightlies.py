@@ -25,7 +25,6 @@ Nightly builds generation script
 
 import ConfigParser
 import base64
-from datetime import datetime
 import hashlib
 import hmac
 import json
@@ -42,6 +41,9 @@ import time
 from urllib import urlencode
 import urllib2
 import urlparse
+import zipfile
+import contextlib
+
 from xml.dom.minidom import parse as parseXml
 
 from sitescripts.extensions.utils import (
@@ -51,6 +53,15 @@ from sitescripts.extensions.utils import (
 from sitescripts.utils import get_config, get_template
 
 MAX_BUILDS = 50
+
+
+# Google and Microsoft APIs use HTTP error codes with error message in
+# body. So we add the response body to the HTTPError to get more
+# meaningful error messages.
+class HTTPErrorBodyHandler(urllib2.HTTPDefaultErrorHandler):
+    def http_error_default(self, req, fp, code, msg, hdrs):
+        raise urllib2.HTTPError(req.get_full_url(), code,
+                                '{}\n{}'.format(msg, fp.read()), hdrs, fp)
 
 
 class NightlyBuild(object):
@@ -232,6 +243,19 @@ class NightlyBuild(object):
         self.basename = metadata.get('general', 'basename')
         self.updatedFromGallery = False
 
+    def read_edge_metadata(self):
+        """
+          Read Edge-specific metadata from metadata file.
+        """
+        from buildtools import packager
+        # Now read metadata file
+        metadata = packager.readMetadata(self.tempdir, self.config.type)
+        self.version = packager.getBuildVersion(self.tempdir, metadata, False,
+                                                self.buildNum)
+        self.basename = metadata.get('general', 'basename')
+
+        self.compat = []
+
     def writeUpdateManifest(self):
         """
           Writes update manifest for the current build
@@ -338,7 +362,7 @@ class NightlyBuild(object):
 
             command = [os.path.join(self.tempdir, 'build.py'),
                        '-t', self.config.type, 'build', '-b', self.buildNum]
-            if self.config.type not in {'gecko', 'gecko-webext'}:
+            if self.config.type not in {'gecko', 'gecko-webext', 'edge'}:
                 command.extend(['-k', self.config.keyFile])
             command.append(self.path)
             subprocess.check_call(command, env=env)
@@ -458,12 +482,6 @@ class NightlyBuild(object):
             raise
 
     def uploadToChromeWebStore(self):
-        # Google APIs use HTTP error codes with error message in body. So we add
-        # the response body to the HTTPError to get more meaningful error messages.
-
-        class HTTPErrorBodyHandler(urllib2.HTTPDefaultErrorHandler):
-            def http_error_default(self, req, fp, code, msg, hdrs):
-                raise urllib2.HTTPError(req.get_full_url(), code, '%s\n%s' % (msg, fp.read()), hdrs, fp)
 
         opener = urllib2.build_opener(HTTPErrorBodyHandler)
 
@@ -520,6 +538,106 @@ class NightlyBuild(object):
         if any(status not in ('OK', 'ITEM_PENDING_REVIEW') for status in response['status']):
             raise Exception({'status': response['status'], 'statusDetail': response['statusDetail']})
 
+    def get_windows_store_access_token(self):
+        # use refresh token to obtain a valid access token
+        # https://docs.microsoft.com/en-us/azure/active-directory/active-directory-protocols-oauth-code#refreshing-the-access-tokens
+        server = 'https://login.microsoftonline.com'
+        token_path = '{}/{}/oauth2/token'.format(server, self.config.tenantID)
+
+        opener = urllib2.build_opener(HTTPErrorBodyHandler)
+        post_data = urlencode([
+            ('refresh_token', self.config.refreshToken),
+            ('client_id', self.config.clientID),
+            ('client_secret', self.config.clientSecret),
+            ('grant_type', 'refresh_token'),
+            ('resource', 'https://graph.windows.net')
+        ])
+        request = urllib2.Request(token_path, post_data)
+        with contextlib.closing(opener.open(request)) as response:
+            data = json.load(response)
+            auth_token = '{0[token_type]} {0[access_token]}'.format(data)
+
+        return auth_token
+
+    def upload_appx_file_to_windows_store(self, file_upload_url):
+        # Add .appx file to a .zip file
+        zip_path = os.path.splitext(self.path)[0] + '.zip'
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            zf.write(self.path, os.path.basename(self.path))
+
+        # Upload that .zip file
+        file_upload_url = file_upload_url.replace('+', '%2B')
+        request = urllib2.Request(file_upload_url)
+        request.get_method = lambda: 'PUT'
+        request.add_header('x-ms-blob-type', 'BlockBlob')
+
+        opener = urllib2.build_opener(HTTPErrorBodyHandler)
+
+        with open(zip_path, 'rb') as file:
+            request.add_header('Content-Length',
+                               os.fstat(file.fileno()).st_size - file.tell())
+            request.add_data(file)
+            opener.open(request).close()
+
+    # Clone the previous submission for the new one. Largely based on code
+    # from https://msdn.microsoft.com/en-us/windows/uwp/monetize/python-code-examples-for-the-windows-store-submission-api#create-an-app-submission
+    def upload_to_windows_store(self):
+        opener = urllib2.build_opener(HTTPErrorBodyHandler)
+
+        headers = {'Authorization': self.get_windows_store_access_token(),
+                   'Content-type': 'application/json'}
+
+        # Get application
+        # https://docs.microsoft.com/en-us/windows/uwp/monetize/get-an-app
+        api_path = '{}/v1.0/my/applications/{}'.format(
+            'https://manage.devcenter.microsoft.com',
+            self.config.devbuildGalleryID
+        )
+
+        request = urllib2.Request(api_path, None, headers)
+        with contextlib.closing(opener.open(request)) as response:
+            app_obj = json.load(response)
+
+        # Delete existing in-progress submission
+        # https://docs.microsoft.com/en-us/windows/uwp/monetize/delete-an-app-submission
+        submissions_path = api_path + '/submissions'
+        if 'pendingApplicationSubmission' in app_obj:
+            remove_id = app_obj['pendingApplicationSubmission']['id']
+            remove_path = '{}/{}'.format(submissions_path, remove_id)
+            request = urllib2.Request(remove_path, '', headers)
+            request.get_method = lambda: 'DELETE'
+            opener.open(request).close()
+
+        # Create submission
+        # https://msdn.microsoft.com/en-us/windows/uwp/monetize/create-an-app-submission
+        request = urllib2.Request(submissions_path, '', headers)
+        request.get_method = lambda: 'POST'
+        with contextlib.closing(opener.open(request)) as response:
+            submission = json.load(response)
+
+        submission_id = submission['id']
+        file_upload_url = submission['fileUploadUrl']
+
+        new_submission_path = '{}/{}'.format(submissions_path,
+                                             submission_id)
+
+        request = urllib2.Request(new_submission_path, None, headers)
+        opener.open(request).close()
+
+        self.upload_appx_file_to_windows_store(file_upload_url)
+
+        # Commit submission
+        # https://msdn.microsoft.com/en-us/windows/uwp/monetize/commit-an-app-submission
+        commit_path = '{}/commit'.format(new_submission_path)
+        request = urllib2.Request(commit_path, '', headers)
+        request.get_method = lambda: 'POST'
+        with contextlib.closing(opener.open(request)) as response:
+            submission = json.load(response)
+
+        if submission['status'] != 'CommitStarted':
+            raise Exception({'status': submission['status'],
+                             'statusDetails': submission['statusDetails']})
+
     def run(self):
         """
           Run the nightly build process for one extension
@@ -543,6 +661,8 @@ class NightlyBuild(object):
                     self.readSafariMetadata()
                 elif self.config.type in {'gecko', 'gecko-webext'}:
                     self.readGeckoMetadata()
+                elif self.config.type == 'edge':
+                    self.read_edge_metadata()
                 else:
                     raise Exception('Unknown build type {}' % self.config.type)
 
@@ -574,6 +694,9 @@ class NightlyBuild(object):
                 self.uploadToMozillaAddons()
             elif self.config.type == 'chrome' and self.config.clientID and self.config.clientSecret and self.config.refreshToken:
                 self.uploadToChromeWebStore()
+            elif self.config.type == 'edge' and self.config.clientID and self.config.clientSecret and self.config.refreshToken and self.config.tenantID:
+                self.upload_to_windows_store()
+
         finally:
             # clean up
             if self.tempdir:
