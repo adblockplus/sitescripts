@@ -16,7 +16,8 @@
 import datetime
 import collections
 
-from sitescripts.utils import get_config, sendMail, encode_email_address
+from sitescripts.utils import (get_config, sendMail, encode_email_address,
+                               get_template)
 from sitescripts.web import registerUrlHandler, form_handler
 
 
@@ -56,19 +57,20 @@ def make_handler(name, config):
     try:
         url = config['url'].value
     except (KeyError, AttributeError):
-        raise Exception('No URL configured for form handler:' + name)
+        raise Exception('No URL configured for form handler: ' + name)
     try:
         template = config['template'].value
+        get_template(template, autoescape=False)
     except (KeyError, AttributeError):
-        raise Exception('No template configured for form handler:' + name)
+        raise Exception('No template configured for form handler: ' + name)
     try:
         fields = config['fields']
         for field, spec in fields.items():
             spec.value = {s.strip() for s in spec.value.split(',')}
     except KeyError:
-        raise Exception('No fields configured for form handler:' + name)
+        raise Exception('No fields configured for form handler: ' + name)
     if len(fields) == 0:
-        raise Exception('No fields configured for form handler:' + name)
+        raise Exception('No fields configured for form handler: ' + name)
 
     @form_handler
     def handler(environ, start_response, params):

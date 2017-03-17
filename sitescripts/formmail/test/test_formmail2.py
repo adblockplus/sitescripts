@@ -62,6 +62,46 @@ def response_for(form_handler):
     remove_wsgi_intercept()
 
 
+def test_form_handler_email_errors(form_config):
+    tmp_config = form_config
+    del tmp_config['url'].value
+    with pytest.raises(Exception) as error:
+        formmail2.make_handler('test', tmp_config)[1]
+    assert error.value.message == 'No URL configured for form handler: test'
+
+
+def test_form_handler_field_errors(form_config):
+    tmp_config = form_config
+    tmp_config['fields'] = {}
+    with pytest.raises(Exception) as error:
+        formmail2.make_handler('test', tmp_config)[1]
+    assert error.value.message == 'No fields configured for form handler: test'
+
+    del tmp_config['fields']
+    with pytest.raises(Exception) as error:
+        formmail2.make_handler('test', tmp_config)[1]
+    assert error.value.message == 'No fields configured for form handler: test'
+
+
+def test_form_handler_template_errors(form_config):
+    tmp_config = form_config
+    tmp_config['template'].value = 'no'
+    with pytest.raises(Exception) as error:
+        formmail2.make_handler('test', tmp_config)[1]
+    assert error.typename == 'TemplateNotFound'
+
+    del tmp_config['template'].value
+    with pytest.raises(Exception) as error:
+        formmail2.make_handler('test', tmp_config)[1]
+    assert error.value.message == ('No template configured for form handler'
+                                   ': test')
+    del tmp_config['template']
+    with pytest.raises(Exception) as error:
+        formmail2.make_handler('test', tmp_config)[1]
+    assert error.value.message == ('No template configured for form handler'
+                                   ': test')
+
+
 def test_config_parse(form_config):
     assert form_config['url'].value == 'test/apply/submit'
     assert form_config['fields']['email'].value == 'mandatory, email'
