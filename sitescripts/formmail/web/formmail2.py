@@ -12,9 +12,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
-
+import os
 import datetime
 import collections
+from csv import DictWriter, DictReader
 
 from sitescripts.utils import (get_config, sendMail, encode_email_address,
                                get_template)
@@ -53,6 +54,56 @@ def make_error(spec, check_type, default_message):
     return default_message
 
 
+def log_formfield_error(parameters, log_path):
+    err_file = os.path.basename(log_path) + '_error'
+    err_path = os.path.join(os.path.dirname(log_path), err_file)
+    if os.path.isfile(err_path):
+        with open(err_path, 'a') as error_log:
+            writer = DictWriter(error_log, fieldnames=parameters.keys())
+            writer.writerow(parameters)
+        raise Exception('Field names have changed, error log '
+                        'appended to ' + err_path)
+    with open(err_path, 'w') as error_log:
+        writer = DictWriter(error_log, fieldnames=parameters.keys())
+        writer.writeheader()
+        writer.writerow(parameters)
+    raise Exception('Field names have changed, error log '
+                    'written to ' + err_path)
+
+
+def log_formdata(params, path):
+    if os.path.isfile(path):
+        with open(path, 'ab+') as formlog:
+            formlog.seek(0)
+            reader = DictReader(formlog)
+            if reader.fieldnames != params.keys():
+                log_formfield_error(params, path)
+            formlog.seek(os.SEEK_END)
+            writer = DictWriter(formlog, fieldnames=params.keys())
+            writer.writerow(params)
+        return
+    with open(path, 'w') as new_formlog:
+        writer = DictWriter(new_formlog, fieldnames=params.keys())
+        writer.writeheader()
+        writer.writerow(params)
+    return
+
+
+def validate_fields(fields, params):
+    errors = []
+    for field, spec in fields.items():
+        if 'mandatory' in spec.value:
+            if field not in params.keys():
+                errors.append(make_error(spec, 'mandatory',
+                                         'No {} entered'.format(field)))
+        if 'email' in spec.value and field in params.keys():
+            try:
+                params[field] = encode_email_address(params[field])
+            except ValueError:
+                errors.append(make_error(spec, 'email', 'Invalid email'))
+    return errors
+
+
 def make_handler(name, config):
     try:
         url = config['url'].value
@@ -75,26 +126,26 @@ def make_handler(name, config):
     @form_handler
     def handler(environ, start_response, params):
         response_headers = [('Content-Type', 'text/plain; charset=utf-8')]
-        errors = []
-        for field, spec in fields.items():
-            if 'mandatory' in spec.value:
-                if field not in params.keys():
-                    errors.append(make_error(spec, 'mandatory',
-                                             'No {} entered'.format(field)))
-            if 'email' in spec.value and field in params.keys():
-                try:
-                    params[field] = encode_email_address(params[field])
-                except ValueError:
-                    errors.append(make_error(spec, 'email', 'Invalid email'))
+        errors = validate_fields(fields, params)
         if errors:
             start_response('400 Bad Request', response_headers)
             return '\n'.join(errors)
-
+        time = datetime.datetime.now()
         template_args = {
-            'time': datetime.datetime.now(),
+            'time': time,
             'fields': {field: params.get(field, '') for field in fields}
         }
-        sendMail(template, template_args)
+        try:
+            sendMail(template, template_args)
+        except:
+            start_response('500 Server Error', response_headers)
+            return ''
+        finally:
+            if 'csv_log' in config:
+                params = {field: params.get(field, '').encode('utf8')
+                          for field in fields}
+                params['time'] = time
+                log_formdata(params, config['csv_log'].value)
         start_response('200 OK', response_headers)
         return ''
 
