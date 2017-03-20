@@ -12,10 +12,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
-
 from urllib import urlencode
 from urllib2 import urlopen, HTTPError
-from csv import DictReader
 
 import pytest
 from wsgi_intercept import (urllib_intercept, add_wsgi_intercept,
@@ -23,34 +21,15 @@ from wsgi_intercept import (urllib_intercept, add_wsgi_intercept,
 
 from sitescripts.formmail.web import formmail2
 
-HOST = 'test.local'
-LOG_PORT = 80
-NO_LOG_PORT = 81
 
-
-@pytest.fixture
-def log_path(tmpdir):
-    return str(tmpdir.join('test.csv_log'))
-
-
-@pytest.fixture
-def log_form_config():
+@pytest.fixture()
+def form_config():
     return formmail2.conf_parse(formmail2.get_config_items())['test']
 
 
-@pytest.fixture
-def form_config():
-    config = formmail2.conf_parse(formmail2.get_config_items())['test']
-    del config['csv_log']
-    return config
-
-
-@pytest.fixture
-def form_handler(log_path, form_config, log_form_config):
-    """ Create two handlers, one that logs and another that doesn't """
-    log_form_config['csv_log'].value = log_path
-    return (formmail2.make_handler('test', log_form_config)[1],
-            formmail2.make_handler('test', form_config)[1])
+@pytest.fixture()
+def form_handler(form_config):
+    return formmail2.make_handler('test', form_config)[1]
 
 
 # We make this a fixture instead of a constant so we can modify it in each
@@ -65,17 +44,14 @@ def form_data():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def response_for(form_handler):
-    """ Registers two intercepts, returns responses for them based on bool """
+    host, port = 'test.local', 80
     urllib_intercept.install_opener()
-    add_wsgi_intercept(HOST, LOG_PORT, lambda: form_handler[0])
-    add_wsgi_intercept(HOST, NO_LOG_PORT, lambda: form_handler[1])
+    add_wsgi_intercept(host, port, lambda: form_handler)
+    url = 'http://{}:{}'.format(host, port)
 
-    def response_for(data, log=False):
-        url = 'http://{}:{}'.format(HOST, NO_LOG_PORT)
-        if log:
-            url = 'http://{}:{}'.format(HOST, LOG_PORT)
+    def response_for(data):
         if data is None:
             response = urlopen(url)
         else:
@@ -131,32 +107,6 @@ def test_config_parse(form_config):
     assert form_config['fields']['email'].value == 'mandatory, email'
 
 
-def test_sendmail_fail(log_path, response_for, form_data, mocker):
-    sm_mock = mocker.patch('sitescripts.formmail.web.formmail2.sendMail')
-    sm_mock.side_effect = Exception('Sendmail Fail')
-    with pytest.raises(HTTPError) as error:
-        response_for(form_data, log=True)
-    assert error.typename == 'HTTPError'
-
-    with open(log_path) as log_file:
-        row = DictReader(log_file).next()
-        assert 'time' in row
-
-
-@pytest.mark.parametrize('log, res',
-                         [(True, (200, '')), (False, (200, ''))])
-def test_utf8_success(log, res, log_path, response_for, form_data, mocker):
-    """ DictWriter does not accpet utf-8, call log handler """
-    form_data['non_mandatory_message'] = '\xc3\xb6'
-    sm_mock = mocker.patch('sitescripts.formmail.web.formmail2.sendMail')
-    assert response_for(form_data, log) == res
-    assert sm_mock.call_count == 1
-    params = sm_mock.call_args[0][1]['fields']
-    assert set(params.keys()) == set(form_data.keys())
-    for key, value in form_data.items():
-        assert params[key] == value.decode('utf8')
-
-
 def test_success(response_for, form_data, mocker):
     sm_mock = mocker.patch('sitescripts.formmail.web.formmail2.sendMail')
     assert response_for(form_data) == (200, '')
@@ -167,38 +117,9 @@ def test_success(response_for, form_data, mocker):
         assert params[key] == value
 
 
-def test_log_success(log_path, response_for, form_data, mocker):
-    sm_mock = mocker.patch('sitescripts.formmail.web.formmail2.sendMail')
-    assert response_for(form_data, log=True) == (200, '')
-    assert sm_mock.call_count == 1
-    params = sm_mock.call_args[0][1]['fields']
-    assert set(params.keys()) == set(form_data.keys())
-    for key, value in form_data.items():
-        assert params[key] == value
-    with open(log_path) as log_file:
-        row = DictReader(log_file).next()
-        assert 'time' in row
-
-
-def test_log_append_success(log_path, response_for, form_data, mocker):
-    sm_mock = mocker.patch('sitescripts.formmail.web.formmail2.sendMail')
-    assert response_for(form_data, log=True) == (200, '')
-    form_data['non_mandatory_message'] = ''
-    assert response_for(form_data, log=True) == (200, '')
-    assert sm_mock.call_count == 2
-    params = sm_mock.call_args[0][1]['fields']
-    assert set(params.keys()) == set(form_data.keys())
-    for key, value in form_data.items():
-        assert params[key] == value
-    with open(log_path) as log_file:
-        reader = DictReader(log_file)
-        row = reader.next()
-        assert row != reader.next()
-
-
 def test_non_mandatory_no_msg(response_for, form_data, mocker):
     mocker.patch('sitescripts.formmail.web.formmail2.sendMail')
-    form_data['non_mandatory_message'] = ''
+    form_data['non_mandatory'] = ''
     assert response_for(form_data) == (200, '')
 
 
@@ -227,49 +148,3 @@ def test_mandatory_fail_dflt_msg(response_for, form_data, mocker):
     with pytest.raises(HTTPError) as error:
         response_for(form_data)
     assert error.value.read() == 'No mandatory entered'
-
-
-def test_field_err(form_config, form_data, log_path):
-    """ Submits a form that does not have the dame fields as previous submissions
-
-    that have the same form name, asserts that proper message is returned and
-    the row was properly written
-    """
-    formmail2.log_formdata(form_data, log_path)
-    del(form_config['fields']['email'])
-    del(form_data['email'])
-    try:
-        formmail2.log_formdata(form_data, log_path)
-    except Exception as e:
-        assert e.message == ('Field names have changed, error log '
-                             'written to {}_error').format(log_path)
-
-    with open(log_path+'_error') as error_log:
-        assert DictReader(error_log).next() == form_data
-
-
-def test_append_field_err(form_config, form_data, log_path):
-    """ Submits two identical forms that do not match the previous fields
-
-    found in the log file, triggering two rows to be added to the error
-    log and asserting the proper message is returned and that the rows
-    were written as expected
-    """
-    formmail2.log_formdata(form_data, log_path)
-    del(form_config['fields']['email'])
-    del(form_data['email'])
-    try:
-        formmail2.log_formdata(form_data, log_path)
-    except Exception:
-        pass
-    try:
-        formmail2.log_formdata(form_data, log_path)
-    except Exception as e:
-        assert e.message == ('Field names have changed, error log'
-                             ' appended to {}_error').format(log_path)
-
-    with open(log_path+'_error') as error_log:
-        reader = DictReader(error_log)
-        # two identical rows should be in the error log
-        assert reader.next() == form_data
-        assert reader.next() == form_data

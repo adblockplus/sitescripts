@@ -6,4 +6,3 @@ syntax: glob
 .cache
 .sitescripts.test
 .coverage
-htmlcov/
