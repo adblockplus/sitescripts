@@ -172,6 +172,7 @@ Adblock-Plus-for-Firefox=adblock-plus(-[\d\.]+)?-for-firefox(-next)?
 template=formmail/template/eyeo.mail
 
 [formmail2]
+test.csv_log = /var/log/something.csv_log
 test.url=test/apply/submit
 test.template=formmail/test/template/test.mail
 test.fields.email=mandatory, email

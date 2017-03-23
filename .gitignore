@@ -4,3 +4,4 @@
 /.tox
 /.sitescripts.test
 /.coverage
+htmlcov/
