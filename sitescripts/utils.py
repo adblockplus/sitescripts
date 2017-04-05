@@ -146,9 +146,20 @@ _template_cache = {}
 
 
 def get_template(template, autoescape=True, template_path=siteScriptsPath):
-    """Parses and returns a Jinja2 template"""
+    """Load Jinja2 template.
+
+    If `template` is a relative path, it's looked up inside `template_path`.
+    If it's an absolute path, `template_path` is not used.
+
+    Note: Each template will only be loaded once (when first requested). After
+    that it will be cached and reused -- any changes on the filesystem will be
+    ignored.
+    """
+    if os.path.isabs(template):
+        template_path, template = os.path.split(template)
+    template_path = os.path.abspath(template_path)
     key = (template_path, template, autoescape)
-    if not key in _template_cache:
+    if key not in _template_cache:
         if autoescape:
             env = get_template_environment(template_path)
         else:
