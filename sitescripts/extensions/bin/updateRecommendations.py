@@ -15,25 +15,34 @@
 
 import os
 import subprocess
-from sitescripts.utils import get_config, setupStderr
+from sitescripts.utils import get_config
 from sitescripts.subscriptions.bin.processTemplate import writeSubscriptions
 from tempfile import mkdtemp
 from shutil import rmtree
 
 
-def updateRecommendations():
-    repository = get_config().get('extensions', 'abp_repository')
+def update_recommendations():
+    repository = get_config().get('extensions', 'subscriptions_repository')
+    path = get_config().get('extensions', 'subscriptions_path').split('/')
     tempdir = mkdtemp(prefix='adblockplus')
     try:
-        subprocess.check_call(['hg', 'clone', '-q', '-U', repository, tempdir])
-        subprocess.check_call(['hg', 'up', '-q', '-R', tempdir, '-r', 'default'])
-        writeSubscriptions('recommendations', os.path.join(tempdir, 'chrome', 'content', 'ui', 'subscriptions.xml'))
+        subprocess.check_call([
+            'hg', 'clone', '-q', '-U', repository, tempdir
+        ])
+        subprocess.check_call([
+            'hg', 'up', '-q', '-R', tempdir, '-r', 'master'
+        ])
+        writeSubscriptions('recommendations', os.path.join(tempdir, *path))
         if subprocess.check_output(['hg', 'stat', '-R', tempdir]) != '':
-            subprocess.check_call(['hg', 'commit', '-q', '-R', tempdir, '-u', 'hgbot', '-m', 'Updated list of recommended subscriptions'])
-            subprocess.check_call(['hg', 'push', '-q', '-R', tempdir])
+            subprocess.check_call([
+                'hg', 'commit', '-q', '-R', tempdir, '-u', 'hgbot',
+                '-m', 'Noissue - Updated list of recommended subscriptions'
+            ])
+            subprocess.check_call([
+                'hg', 'push', '-q', '-R', tempdir, '-r', 'master'
+            ])
     finally:
         rmtree(tempdir)
 
 if __name__ == '__main__':
-    setupStderr()
-    updateRecommendations()
+    update_recommendations()
