@@ -106,7 +106,7 @@ class NightlyBuild(object):
         command = ['hg', 'id', '-n', '--config', 'defaults.id=', self.tempdir]
         build = subprocess.check_output(command).strip()
         if self.config.type in {'gecko', 'gecko-webext'}:
-            build += '-beta'
+            build += 'beta'
         return build
 
     def getChanges(self):
