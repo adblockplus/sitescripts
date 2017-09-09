@@ -618,10 +618,19 @@ class NightlyBuild(object):
         submission_id = submission['id']
         file_upload_url = submission['fileUploadUrl']
 
+        # Update submission
+        submission['applicationPackages'][0]['fileStatus'] = 'PendingDelete'
+        submission['applicationPackages'].append({
+            'fileStatus': 'PendingUpload',
+            'fileName': os.path.basename(self.path),
+        })
+
         new_submission_path = '{}/{}'.format(submissions_path,
                                              submission_id)
+        new_submission = json.dumps(submission)
 
-        request = urllib2.Request(new_submission_path, None, headers)
+        request = urllib2.Request(new_submission_path, new_submission, headers)
+        request.get_method = lambda: 'PUT'
         opener.open(request).close()
 
         self.upload_appx_file_to_windows_store(file_upload_url)
