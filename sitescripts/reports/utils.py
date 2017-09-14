@@ -97,9 +97,9 @@ def saveReport(guid, reportData, isNew=False):
     executeQuery(cursor,
                  '''INSERT INTO #PFX#reports (guid, type, ctime, site, comment, status, contact, hasscreenshot, knownissues, dump)
                  VALUES (%(guid)s, %(type)s, FROM_UNIXTIME(%(ctime)s), %(site)s, %(comment)s, %(status)s, %(contact)s,
-                 %(hasscreenshot)s, %(knownissues)s, %(dump)s) ON DUPLICATE KEY
+                 %(hasscreenshot)s, %(knownissues)s, _binary %(dump)s) ON DUPLICATE KEY
                  UPDATE type = %(type)s, site = %(site)s, comment = %(comment)s, status = %(status)s,
-                 hasscreenshot = %(hasscreenshot)s, knownissues = %(knownissues)s, dump = %(dump)s''',
+                 hasscreenshot = %(hasscreenshot)s, knownissues = %(knownissues)s, dump = _binary %(dump)s''',
                  {'guid': guid, 'type': reportData.get('type', None), 'ctime': reportData['time'], 'site': reportData.get('siteName', None),
                   'comment': reportData.get('comment', None), 'status': reportData.get('status', None), 'contact': contact,
                   'hasscreenshot': reportData.get('hasscreenshot', 0), 'knownissues': knownIssues, 'dump': dumpstr})
