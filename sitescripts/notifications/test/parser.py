@@ -167,6 +167,63 @@ end = %s
             'ADBLOCKPLUS.ORG^$document',
             'EYEO.COM^$document']
 
+    def test_target(self):
+        self.notification_to_load = [
+            ('1', '\ntarget = extension=adblockplus\n'),
+            ('2', '\ntarget = extensionVersion=1.2.3\n'),
+            ('3', '\ntarget = extensionVersion>=1.2.3\n'),
+            ('4', '\ntarget = extensionVersion<=1.2.3\n'),
+            ('5', '\ntarget = application=chrome\n'),
+            ('6', '\ntarget = applicationVersion=1.2.3\n'),
+            ('7', '\ntarget = applicationVersion>=1.2.3\n'),
+            ('8', '\ntarget = applicationVersion<=1.2.3\n'),
+            ('9', '\ntarget = platform=chromium\n'),
+            ('10', '\ntarget = platformVersion=1.2.3\n'),
+            ('11', '\ntarget = platformVersion>=1.2.3\n'),
+            ('12', '\ntarget = platformVersion<=1.2.3\n'),
+            ('13', '\ntarget = blockedTotal=10\n'),
+            ('14', '\ntarget = blockedTotal>=10\n'),
+            ('15', '\ntarget = blockedTotal<=10\n'),
+            ('16', '\ntarget = locales=en-US\n'),
+            ('17', '\ntarget = locales=en-US,de-DE\n'),
+        ]
+
+        notifications = parser.load_notifications()
+
+        assert len(notifications) == 17
+        assert notifications[0]['targets'] == [{'extension': 'adblockplus'}]
+        assert notifications[1]['targets'] == [{
+            'extensionMinVersion': '1.2.3',
+            'extensionMaxVersion': '1.2.3'}]
+        assert notifications[2]['targets'] == [
+            {'extensionMinVersion': '1.2.3'}]
+        assert notifications[3]['targets'] == [{
+            'extensionMaxVersion': '1.2.3'}]
+        assert notifications[4]['targets'] == [{'application': 'chrome'}]
+        assert notifications[5]['targets'] == [{
+            'applicationMinVersion': '1.2.3',
+            'applicationMaxVersion': '1.2.3'}]
+        assert notifications[6]['targets'] == [{
+            'applicationMinVersion': '1.2.3'}]
+        assert notifications[7]['targets'] == [{
+            'applicationMaxVersion': '1.2.3'}]
+        assert notifications[8]['targets'] == [{'platform': 'chromium'}]
+        assert notifications[9]['targets'] == [{
+            'platformMinVersion': '1.2.3',
+            'platformMaxVersion': '1.2.3'}]
+        assert notifications[10]['targets'] == [{
+            'platformMinVersion': '1.2.3'}]
+        assert notifications[11]['targets'] == [{
+            'platformMaxVersion': '1.2.3'}]
+        assert notifications[12]['targets'] == [{
+            'blockedTotalMin': 10,
+            'blockedTotalMax': 10}]
+        assert notifications[13]['targets'] == [{'blockedTotalMin': 10}]
+        assert notifications[14]['targets'] == [{'blockedTotalMax': 10}]
+        assert notifications[15]['targets'] == [{'locales': ['en-US']}]
+        assert notifications[16]['targets'] == [{
+            'locales': ['en-US', 'de-DE']}]
+
 
 if __name__ == '__main__':
     unittest.main()

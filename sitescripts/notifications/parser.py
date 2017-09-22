@@ -27,23 +27,40 @@ from sitescripts.utils import get_config
 
 def _parse_targetspec(value, name):
     target = {}
-    for spec in value.split():
-        known = False
-        for parameter in ('extension', 'application', 'platform'):
-            if spec.startswith(parameter + '='):
-                target[parameter] = spec[len(parameter + '='):]
-                known = True
-            elif spec.startswith(parameter + 'Version>='):
-                target[parameter + 'MinVersion'] = spec[len(parameter + 'Version>='):]
-                known = True
-            elif spec.startswith(parameter + 'Version<='):
-                target[parameter + 'MaxVersion'] = spec[len(parameter + 'Version<='):]
-                known = True
-            elif spec.startswith(parameter + 'Version='):
-                target[parameter + 'MinVersion'] = target[parameter + 'MaxVersion'] = spec[len(parameter + 'Version='):]
-                known = True
-        if not known:
-            raise Exception("Unknown target specifier '%s' in file '%s'" % (spec, name))
+
+    items = [
+        (r'^(extension|application|platform)(=)(.+)$', {
+            '=': (lambda k, v: {k: v}),
+        }),
+        (r'^(extension|application|platform)Version(=|\>=|\<=)(.+)$', {
+            '>=': (lambda k, v: {k + 'MinVersion': v}),
+            '<=': (lambda k, v: {k + 'MaxVersion': v}),
+            '=': (lambda k, v: {k + 'MinVersion': v, k + 'MaxVersion': v}),
+        }),
+        (r'^(blockedTotal)(=|\>=|\<=)(\d+)$', {
+            '>=': (lambda k, v: {k + 'Min': int(v)}),
+            '<=': (lambda k, v: {k + 'Max': int(v)}),
+            '=': (lambda k, v: {k + 'Min': int(v), k + 'Max': int(v)}),
+        }),
+        (r'^(locales)(=)([\w\-,]+)$', {
+            '=': (lambda k, v: {k: v.split(',')}),
+        }),
+    ]
+
+    try:
+        for spec in value.split():
+            for regx, ops in items:
+                m = re.search(regx, spec)
+                if m:
+                    key, op, value = m.groups()
+                    target.update(ops[op](key, value))
+                    break
+            else:
+                raise ValueError
+    except (KeyError, ValueError):
+        raise Exception(
+            "Unknown target specifier '{}' in file '{}'".format(spec, name))
+
     return target
 
 
