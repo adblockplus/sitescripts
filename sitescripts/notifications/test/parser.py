@@ -154,6 +154,19 @@ end = %s
         self.assertEqual(notifications[2]['severity'], 'normal')
         self.assertEqual(notifications[3]['severity'], 'relentless')
 
+    def test_urls(self):
+        self.notification_to_load = [
+            ('1', '\nurls = adblockplus.org\n'),
+            ('1', '\nurls = adblockplus.org eyeo.com\n'),
+        ]
+        notifications = parser.load_notifications()
+
+        assert len(notifications) == 2
+        assert notifications[0]['urlFilters'] == ['ADBLOCKPLUS.ORG^$document']
+        assert notifications[1]['urlFilters'] == [
+            'ADBLOCKPLUS.ORG^$document',
+            'EYEO.COM^$document']
+
 
 if __name__ == '__main__':
     unittest.main()

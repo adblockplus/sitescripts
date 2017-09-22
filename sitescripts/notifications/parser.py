@@ -92,6 +92,11 @@ def _parse_notification(data, name):
             current[key] = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M')
         elif key == 'interval':
             current[key] = int(value)
+        elif key == 'urls':
+            current['urlFilters'] = [
+                v.upper() + '^$document'
+                for v in value.split()
+            ]
         else:
             raise Exception("Unknown parameter '%s' in file '%s'" % (key, name))
 
