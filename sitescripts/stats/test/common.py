@@ -44,5 +44,6 @@ class Test(unittest.TestCase):
             else:
                 self.assertEqual(common.filename_decode(path), name, "Encoding and decoding '%s' should produce the original string" % name)
 
+
 if __name__ == '__main__':
     unittest.main()

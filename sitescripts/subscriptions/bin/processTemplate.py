@@ -25,6 +25,7 @@ def writeSubscriptions(templateName, outputFile=None):
         outputFile = get_config().get('subscriptions', templateName + 'File')
     template.stream({'subscriptions': subscriptions}).dump(outputFile, encoding='utf-8')
 
+
 if __name__ == '__main__':
     setupStderr()
 

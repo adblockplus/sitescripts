@@ -370,5 +370,6 @@ class TestNotification(unittest.TestCase):
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 0)
 
+
 if __name__ == '__main__':
     unittest.main()

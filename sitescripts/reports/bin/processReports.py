@@ -46,6 +46,7 @@ def processReports():
         if 'screenshot' in reportData:
             saveReport(guid, reportData)
 
+
 if __name__ == '__main__':
     setupStderr()
     processReports()

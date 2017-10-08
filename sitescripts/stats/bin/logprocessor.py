@@ -584,6 +584,7 @@ def parse_sources(sources, factor=1, verbose=False):
     finally:
         pool.close()
 
+
 if __name__ == '__main__':
     setupStderr()
 

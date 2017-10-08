@@ -24,6 +24,7 @@ def removeOldReports(days=30):
     for report in cursor:
         removeReport(report['guid'])
 
+
 if __name__ == '__main__':
     setupStderr()
     removeOldReports()

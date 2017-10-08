@@ -85,6 +85,7 @@ def generate_docs(projects, config):
         run_generation_command(data['command'], sources_dir, output_dir)
         replace_dir(output_dir, data['target_directory'])
 
+
 if __name__ == '__main__':
     config = get_config()
     projects = read_projects(config)

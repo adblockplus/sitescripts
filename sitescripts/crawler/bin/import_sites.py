@@ -63,6 +63,7 @@ def _insert_sites(site_urls):
         cursor.execute('INSERT IGNORE INTO crawler_sites (url) VALUES (%s)', url)
     _get_db().commit()
 
+
 if __name__ == '__main__':
     easylist_dir = get_config().get('crawler', 'easylist_repository')
     site_urls = _extract_sites(easylist_dir)

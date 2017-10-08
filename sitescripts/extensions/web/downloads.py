@@ -57,6 +57,7 @@ def _update_links():
             traceback.print_exc()
         time.sleep(UPDATE_INTERVAL)
 
+
 t = threading.Thread(target=_update_links)
 t.daemon = True
 t.start()

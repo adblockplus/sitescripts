@@ -740,5 +740,6 @@ class Test(unittest.TestCase):
             logprocessor.add_record(info, section, ignored_fields)
             self.assertEqual(section, expected_result)
 
+
 if __name__ == '__main__':
     unittest.main()

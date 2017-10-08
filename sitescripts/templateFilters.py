@@ -187,6 +187,7 @@ def formatbytes(value):
 def toJSON(value, **args):
     return re.sub(r'</script>', r'<\/script>', json.dumps(value, **args))
 
+
 filters = {
     'formattime': formattime,
     'timerelative': formatrelativetime,

@@ -90,6 +90,7 @@ def checkSubscriptions():
             })
     return result
 
+
 if __name__ == '__main__':
     setupStderr()
 

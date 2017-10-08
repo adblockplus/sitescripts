@@ -44,5 +44,6 @@ def update_recommendations():
     finally:
         rmtree(tempdir)
 
+
 if __name__ == '__main__':
     update_recommendations()

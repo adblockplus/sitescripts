@@ -142,6 +142,7 @@ def encode_email_address(email):
         return '%s@%s' % (match.group(1).encode('ascii'),
                           match.group(2).encode('idna'))
 
+
 _template_cache = {}
 
 

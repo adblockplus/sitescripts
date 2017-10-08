@@ -121,6 +121,7 @@ def readSyncSettings():
             result[name][setting] = get_config().get('filesync', option)
     return result
 
+
 if __name__ == '__main__':
     setupStderr()
 

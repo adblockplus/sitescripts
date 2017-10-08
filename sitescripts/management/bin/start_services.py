@@ -39,6 +39,7 @@ def _process_running(pid):
     except OSError:
         return False
 
+
 if __name__ == '__main__':
     services = _get_services()
     for service in services.keys():

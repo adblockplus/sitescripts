@@ -103,6 +103,7 @@ def getSubscriptionInfo(subscription):
     }
     return sub
 
+
 if __name__ == '__main__':
     setupStderr()
     currentTime = time()

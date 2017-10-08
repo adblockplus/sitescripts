@@ -22,6 +22,7 @@ def removeOldUsers(months=4):
     executeQuery(cursor, 'DELETE FROM #PFX#users WHERE ADDDATE(mtime, INTERVAL %s MONTH) < NOW()', months)
     get_db().commit()
 
+
 if __name__ == '__main__':
     setupStderr()
     removeOldUsers()

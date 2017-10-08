@@ -283,6 +283,7 @@ def validateData(data, path=None):
                 data[key] = data[key][0:limit] + u'\u2026'
                 reportData['warnings'][keyPath] = 'Field %s exceeded length limit and was truncated' % keyPath
 
+
 if __name__ == '__main__':
     setupStderr()
     scanReports(get_config().get('reports', 'dataPath'))

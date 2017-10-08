@@ -127,6 +127,7 @@ def multiplex(environ, start_response):
 
     return handler(environ, start_response)
 
+
 for module in set(get_config().options('multiplexer')) - set(get_config().defaults()):
     module_path = get_config().get('multiplexer', module)
     if module_path:

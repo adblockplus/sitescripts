@@ -45,6 +45,7 @@ class MercurialSource:
             if '/' not in filename:
                 yield filename
 
+
 if __name__ == '__main__':
     setupStderr()
 

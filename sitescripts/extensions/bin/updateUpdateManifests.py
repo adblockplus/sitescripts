@@ -136,5 +136,6 @@ def updateUpdateManifests():
     getDownloadLinks(parser)
     writeUpdateManifest(parser)
 
+
 if __name__ == '__main__':
     updateUpdateManifests()

@@ -94,6 +94,7 @@ def _get_db():
         return MySQLdb.connect(user=dbuser, passwd=dbpasswd, db=database,
                                use_unicode=True, charset='utf8')
 
+
 if __name__ == '__main__':
     setupStderr()
 

@@ -180,6 +180,7 @@ def generate_pages(datadir, outputdir):
         outputfile = os.path.join(outputdir, common.filename_encode(server_type), 'index.html')
         generate_main_page(outputfile, current_month, baseURL, monthdata)
 
+
 if __name__ == '__main__':
     setupStderr()
 

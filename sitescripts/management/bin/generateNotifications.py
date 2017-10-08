@@ -34,6 +34,7 @@ def generate_notifications(path):
         json.dump(output, file, ensure_ascii=False, indent=2,
                   separators=(',', ': '), sort_keys=True)
 
+
 if __name__ == '__main__':
     setupStderr()
     output = get_config().get('notifications', 'output')

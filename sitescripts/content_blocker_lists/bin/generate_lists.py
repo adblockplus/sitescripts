@@ -83,6 +83,7 @@ def write_block_list(filter_lists, path, expires):
     with open(path, 'wb') as destination_file:
         json.dump(block_list, destination_file, indent=2, separators=(',', ': '))
 
+
 if __name__ == '__main__':
     update_abp2blocklist()
 

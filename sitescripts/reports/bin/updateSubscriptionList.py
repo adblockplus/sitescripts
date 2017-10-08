@@ -39,6 +39,7 @@ def updateSubscriptionList():
         executeQuery(cursor, 'DELETE FROM #PFX#subscriptions WHERE id = %s', subids[url])
     get_db().commit()
 
+
 if __name__ == '__main__':
     setupStderr()
     updateSubscriptionList()

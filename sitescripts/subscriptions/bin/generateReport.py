@@ -88,6 +88,7 @@ def loadSubscriptions(counts):
 
     return (redirects, gone, unaccounted)
 
+
 if __name__ == '__main__':
     setupStderr()
 

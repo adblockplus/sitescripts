@@ -98,5 +98,6 @@ def hook(ui=None, repo=None, **kwargs):
         for s in result:
             file.write(s)
 
+
 if __name__ == '__main__':
     hook()

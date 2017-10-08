@@ -40,6 +40,7 @@ def filename_decode(path):
     path = re.sub(r'-([0-9a-f]{4})', lambda match: unichr(int(match.group(1), 16)), path)
     return path
 
+
 basic_fields = [
     {
         'name': 'day',

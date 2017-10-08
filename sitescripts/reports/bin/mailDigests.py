@@ -165,6 +165,7 @@ def calculateReportWeight(report, subscriptions):
     weight += (report['ctime'] - startTime) / (currentTime - startTime) * 0.2
     return weight
 
+
 if __name__ == '__main__':
     setupStderr()
 
