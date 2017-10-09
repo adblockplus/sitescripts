@@ -132,7 +132,7 @@ class NightlyBuild(object):
           Create a repository copy in a temporary directory
         """
         self.tempdir = tempfile.mkdtemp(prefix=self.config.repositoryName)
-        command = ['hg', 'clone', '-q', self.config.repository,  '-u',
+        command = ['hg', 'clone', '-q', self.config.repository, '-u',
                    self.config.revision, self.tempdir]
         subprocess.check_call(command)
 
