@@ -350,6 +350,20 @@ class TestNotification(unittest.TestCase):
         self.assertEqual(len(result['notifications']), 0)
         self.assertRegexpMatches(result['version'], r'-a/0')
 
+    def test_stays_in_group_when_notification_inactive_assign_new_group(self):
+        # See: https://issues.adblockplus.org/ticket/5827
+        self.load_notifications_mock.return_value = [
+            {'id': '1', 'inactive': True},
+            {'id': '2', 'variants': [
+                {'sample': 1, 'title': {'en-US': '2.1'}, 'message': {'en-US': '2.1'}},
+            ]},
+        ]
+        result = json.loads(notification.notification({
+            'QUERY_STRING': 'lastVersion=197001010000-1/0'
+        }, lambda *args: None))
+        self.assertEqual(len(result['notifications']), 1)
+        self.assertRegexpMatches(result['version'], r'-1/0-2/1')
+
     def test_inactive_notifications_not_returned(self):
         self.load_notifications_mock.return_value = [
             {'id': 'a', 'title': {'en-US': ''}, 'message': {'en-US': ''}, 'inactive': True},

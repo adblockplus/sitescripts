@@ -34,12 +34,13 @@ def _determine_groups(version, notifications):
     return groups
 
 
-def _assign_groups(notifications):
-    groups = []
+def _assign_groups(groups, notifications):
     selection = random.random()
     start = 0
     for notification in notifications:
         if 'variants' not in notification:
+            continue
+        if notification['id'] in [g['id'] for g in groups]:
             continue
         group = {'id': notification['id'], 'variant': 0}
         groups.append(group)
@@ -51,7 +52,6 @@ def _assign_groups(notifications):
             if selected:
                 group['variant'] = i + 1
                 break
-    return groups
 
 
 def _get_active_variant(notifications, groups):
@@ -111,8 +111,7 @@ def notification(environ, start_response):
     notifications = load_notifications()
     groups = _determine_groups(version, notifications)
     notifications = [x for x in notifications if not x.get('inactive', False)]
-    if not groups:
-        groups = _assign_groups(notifications)
+    _assign_groups(groups, notifications)
     response = _create_response(notifications, groups)
     response_headers = [('Content-Type', 'application/json; charset=utf-8'),
                         ('ABP-Notification-Version', response['version'])]
