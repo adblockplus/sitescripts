@@ -23,10 +23,10 @@
   {% if knownIssues -%}
   <p><strong>%KNOWNISSUE%</strong>
     {%- for issue in knownIssues -%}
-      <br /><a href="{{issue}}">{{issue}}</a>
+      <br /><a target="_top" href="{{issue}}">{{issue}}</a>
     {%- endfor -%}
   </p>
   {%- endif %}
-  <p>%CONFIRMATION% <a id="link" href="{{url}}">{{url}}</a></p>
+  <p>%CONFIRMATION% <a id="link" target="_top" href="{{url}}">{{url}}</a></p>
 </body>
 </html>
