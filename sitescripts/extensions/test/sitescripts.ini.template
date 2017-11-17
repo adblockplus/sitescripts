@@ -23,13 +23,11 @@ adblockplusandroid_type=android
 downloadsRepo=%(hgroot)s/downloads
 downloadsURL=https://downloads.adblockplus.org/
 
-geckoUpdateManifestPath=%(wwwdir)s/updates.json
 androidUpdateManifestPath=%(wwwdir)s/androidupdates.xml
 androidNewUpdateManifestPath=%(wwwdir)s/androidupdates.json
 safariUpdateManifestPath=%(wwwdir)s/updates.plist
 ieUpdateManifestPath=%(wwwdir)s/ieupdate.json
 
-geckoUpdateManifest=extensions/template/updates.json
 chromeUpdateManifest=extensions/template/updates.xml
 androidUpdateManifest=extensions/template/androidupdates.xml
 safariUpdateManifest=extensions/template/updates.plist

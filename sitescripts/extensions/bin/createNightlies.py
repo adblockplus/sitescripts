@@ -175,17 +175,6 @@ class NightlyBuild(object):
         self.version = packager.getBuildVersion(self.tempdir, metadata, False,
                                                 self.buildNum)
         self.basename = metadata.get('general', 'basename')
-        self.compat = []
-        for key, value in packager.KNOWN_APPS.iteritems():
-            if metadata.has_option('compat', key):
-                minVersion, maxVersion = metadata.get('compat', key).split('/')
-                self.compat.append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
-
-        if metadata.has_option('compat', 'gecko'):
-            self.compat.append({
-                'id': 'gecko',
-                'minVersion': metadata.get('compat', 'gecko')
-            })
 
     def readAndroidMetadata(self):
         """
@@ -269,10 +258,6 @@ class NightlyBuild(object):
             manifestPath = os.path.join(baseDir, 'updates.xml')
             templateName = 'androidUpdateManifest'
             autoescape = True
-        elif self.config.type == 'gecko-webext':
-            manifestPath = os.path.join(baseDir, 'updates.json')
-            templateName = 'geckoUpdateManifest'
-            autoescape = False
         else:
             return
 
@@ -682,8 +667,7 @@ class NightlyBuild(object):
                 self.writeChangelog(self.getChanges())
 
                 # write update manifest
-                if self.config.type != 'gecko':
-                    self.writeUpdateManifest()
+                self.writeUpdateManifest()
 
             # retire old builds
             versions = self.retireBuilds()

@@ -27,7 +27,6 @@ import subprocess
 import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser
 
-from buildtools.packagerGecko import KNOWN_APPS
 from buildtools.packagerSafari import get_developer_identifier
 from buildtools.xarfile import read_certificates_and_key
 
@@ -71,18 +70,6 @@ def readMetadata(repo, version):
             'basename': metadata.get('general', 'basename'),
             'updatedFromGallery': True
         }
-    elif repo.type == 'gecko':
-        metadata = repo.readMetadata(version)
-        result = {
-            'extensionID': metadata.get('general', 'id'),
-            'version': version,
-            'compat': []
-        }
-        for key, value in KNOWN_APPS.iteritems():
-            if metadata.has_option('compat', key):
-                minVersion, maxVersion = metadata.get('compat', key).split('/')
-                result['compat'].append({'id': value, 'minVersion': minVersion, 'maxVersion': maxVersion})
-        return result
     elif repo.type == 'ie':
         return {
             'version': version,
@@ -97,7 +84,7 @@ def writeUpdateManifest(links):
     writes an update manifest for all extensions and Android apps
     """
 
-    extensions = {'gecko': [], 'android': [], 'safari': [], 'ie': []}
+    extensions = {'android': [], 'safari': [], 'ie': []}
     for repo in Configuration.getRepositoryConfigurations():
         if repo.type not in extensions or not links.has_section(repo.repositoryName):
             continue

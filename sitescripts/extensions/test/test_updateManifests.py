@@ -35,7 +35,7 @@ def test_update_manifests(config_ini, hg_dir, tmpdir, oracle):
     cmd = ['python', '-m', 'sitescripts.extensions.bin.updateUpdateManifests']
     subprocess.check_call(cmd, env=env)
     for filename in ['androidupdates.json', 'androidupdates.xml',
-                     'ieupdate.json', 'updates.json', 'updates.plist']:
+                     'ieupdate.json', 'updates.plist']:
         got = tmpdir.join(filename).read().strip()
         expect = oracle(filename)
         if filename.endswith('.json'):
