@@ -28,7 +28,7 @@
 
   {%if config.galleryID or config.downloadPage -%}
   Latest <em>stable {{config.name}} release</em> can be downloaded from
-  {% if config.type in ['gecko', 'gecko-webext'] and config.galleryID -%}
+  {% if config.type == 'gecko' and config.galleryID -%}
     <a href="https://addons.mozilla.org/addon/{{config.galleryID}}/">Mozilla Add-ons</a>
   {%- elif config.type == 'chrome' and config.galleryID -%}
     <a href="https://chrome.google.com/webstore/detail/{{config.galleryID}}">Chrome Web Store</a>

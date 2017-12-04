@@ -4,7 +4,7 @@ wwwdir={out_dir}
 keysdir={keys_dir}
 
 [extensions]
-adblockplusfirefox_repository=%(hgroot)s/adblockplus
+adblockplusfirefox_repository=%(hgroot)s/adblockpluschrome
 adblockplusfirefox_type=gecko
 
 adblockplusie_repository=%(hgroot)s/adblockplusie

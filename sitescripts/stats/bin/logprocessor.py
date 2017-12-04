@@ -38,7 +38,20 @@ import sitescripts.stats.common as common
 from sitescripts.utils import get_config, setupStderr
 
 log_regexp = None
-gecko_apps = None
+KNOWN_APPS = {
+    '{55aba3ac-94d3-41a8-9e25-5c21fe874539}': 'adblockbrowser',
+    '{a79fe89b-6662-4ff4-8e88-09950ad4dfde}': 'conkeror',
+    'dlm@emusic.com': 'emusic',
+    '{a23983c0-fd0e-11dc-95ff-0800200c9a66}': 'fennec',
+    '{aa3c5121-dab2-40e2-81ca-7ea25febc110}': 'fennec2',
+    '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}': 'firefox',
+    '{aa5ca914-c309-495d-91cf-3141bbb04115}': 'midbrowser',
+    'prism@developer.mozilla.org': 'prism',
+    '{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}': 'seamonkey',
+    'songbird@songbirdnest.com': 'songbird',
+    '{3550f703-e582-4d05-9a08-453d09bdfdc6}': 'thunderbird',
+    'toolkit@mozilla.org': 'toolkit',
+}
 
 
 class StatsFile:
@@ -372,13 +385,9 @@ def parse_gecko_query(query):
 
     version = params.get('version', ['unknown'])[0]
 
-    global gecko_apps
-    if gecko_apps == None:
-        from buildtools.packagerGecko import KNOWN_APPS
-        gecko_apps = {v: k for k, v in KNOWN_APPS.iteritems()}
     appID = params.get('appID', ['unknown'])[0]
 
-    application = gecko_apps.get(appID, 'unknown')
+    application = KNOWN_APPS.get(appID, 'unknown')
     applicationVersion = params.get('appVersion', ['unknown'])[0]
 
     # Only leave the major and minor release number for application

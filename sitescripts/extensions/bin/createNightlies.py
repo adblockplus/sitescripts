@@ -51,6 +51,7 @@ from sitescripts.extensions.utils import (
     writeAndroidUpdateManifest
 )
 from sitescripts.utils import get_config, get_template
+from sitescripts.extensions.bin.legacy import xarfile
 
 MAX_BUILDS = 50
 
@@ -105,7 +106,7 @@ class NightlyBuild(object):
         """
         command = ['hg', 'id', '-n', '--config', 'defaults.id=', self.tempdir]
         build = subprocess.check_output(command).strip()
-        if self.config.type in {'gecko', 'gecko-webext'}:
+        if self.config.type == 'gecko':
             build += 'beta'
         return build
 
@@ -169,7 +170,7 @@ class NightlyBuild(object):
           and parse id, version, basename and the compat section
           out of the file
         """
-        import buildtools.packagerGecko as packager
+        import buildtools.packagerChrome as packager
         metadata = packager.readMetadata(self.tempdir, self.config.type)
         self.extensionID = metadata.get('general', 'id')
         self.version = packager.getBuildVersion(self.tempdir, metadata, False,
@@ -220,8 +221,7 @@ class NightlyBuild(object):
             self.compat.append({'id': 'chrome', 'minVersion': metadata.get('compat', 'chrome')})
 
     def readSafariMetadata(self):
-        import buildtools.packagerSafari as packager
-        from buildtools import xarfile
+        import sitescripts.extensions.bin.legacy.packagerSafari as packager
         metadata = packager.readMetadata(self.tempdir, self.config.type)
         certs = xarfile.read_certificates_and_key(self.config.keyFile)[0]
 
@@ -347,7 +347,7 @@ class NightlyBuild(object):
 
             command = [os.path.join(self.tempdir, 'build.py'),
                        '-t', self.config.type, 'build', '-b', self.buildNum]
-            if self.config.type not in {'gecko', 'gecko-webext', 'edge'}:
+            if self.config.type not in {'gecko', 'edge'}:
                 command.extend(['-k', self.config.keyFile])
             command.append(self.path)
             subprocess.check_call(command, env=env)
@@ -653,7 +653,7 @@ class NightlyBuild(object):
                     self.readChromeMetadata()
                 elif self.config.type == 'safari':
                     self.readSafariMetadata()
-                elif self.config.type in {'gecko', 'gecko-webext'}:
+                elif self.config.type == 'gecko':
                     self.readGeckoMetadata()
                 elif self.config.type == 'edge':
                     self.read_edge_metadata()
@@ -681,7 +681,7 @@ class NightlyBuild(object):
             # update nightlies config
             self.config.latestRevision = self.revision
 
-            if (self.config.type in {'gecko', 'gecko-webext'} and
+            if (self.config.type == 'gecko' and
                     self.config.galleryID and
                     get_config().has_option('extensions', 'amo_key')):
                 self.uploadToMozillaAddons()

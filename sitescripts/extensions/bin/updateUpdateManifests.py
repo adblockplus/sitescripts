@@ -27,8 +27,8 @@ import subprocess
 import xml.dom.minidom as dom
 from ConfigParser import SafeConfigParser
 
-from buildtools.packagerSafari import get_developer_identifier
-from buildtools.xarfile import read_certificates_and_key
+from sitescripts.extensions.bin.legacy.packagerSafari import get_developer_identifier
+from sitescripts.extensions.bin.legacy.xarfile import read_certificates_and_key
 
 from sitescripts.utils import get_config, get_template
 from sitescripts.extensions.utils import (
