@@ -31,6 +31,7 @@ from xml.parsers.expat import ExpatError
 
 PACKAGE_SUFFIXES = {
     'gecko': '.xpi',
+    'gecko-webext': '.xpi',
     'chrome': '.crx',
     'safari': '.safariextz',
     'ie': '.exe',

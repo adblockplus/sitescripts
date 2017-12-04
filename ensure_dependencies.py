@@ -14,7 +14,6 @@ import logging
 import subprocess
 import urlparse
 import argparse
-import json
 
 from collections import OrderedDict
 from ConfigParser import RawConfigParser
@@ -43,8 +42,6 @@ A dependencies file should look like this:
 SKIP_DEPENDENCY_UPDATES = os.environ.get(
     'SKIP_DEPENDENCY_UPDATES', ''
 ).lower() not in ('', '0', 'false')
-
-NPM_LOCKFILE = '.npm_install_lock'
 
 
 class Mercurial():
@@ -137,7 +134,6 @@ class Git():
         if '@' in url and ':' in url and not urlparse.urlsplit(url).scheme:
             return 'ssh://' + url.replace(':', '/', 1)
         return url
-
 
 repo_types = OrderedDict((
     ('hg', Mercurial()),
@@ -249,60 +245,14 @@ def get_repo_type(repo):
     return 'hg'
 
 
-def resolve_npm_dependencies(target, vcs):
-    """Install Node.js production-only dependencies if necessary and desired.
-
-    When the target dependency has additional Node.js dependencies declared
-    run "npm install --only=production --loglevel=warn" to resolve the declared
-    dependencies.
-
-    Additionally, make sure that any VCS will ignore the installed files.
-
-    Requires Node.js to be installed locally.
-    """
-    try:
-        with open(os.path.join(target, 'package.json'), 'r') as fp:
-            package_data = json.load(fp)
-
-        # In case a package.json does not exist at all or if there are no
-        # production dependencies declared, we don't need to run npm and can
-        # bail out early.
-        if not package_data.get('dependencies', False):
-            return
-    except IOError:
-        return
-
-    try:
-        # Create an empty file, which gets deleted after successfully
-        # installing Node.js dependencies.
-        lockfile_path = os.path.join(target, NPM_LOCKFILE)
-        open(lockfile_path, 'a').close()
-
-        cmd = ['npm', 'install', '--only=production', '--loglevel=warn',
-               '--no-package-lock', '--no-optional']
-        subprocess.check_output(cmd, cwd=target)
-
-        repo_types[vcs].ignore(os.path.join(target, NPM_LOCKFILE), target)
-        repo_types[vcs].ignore(os.path.join(target, 'node_modules'), target)
-
-        os.remove(lockfile_path)
-    except OSError as e:
-        import errno
-        if e.errno == errno.ENOENT:
-            logging.error('Failed to install Node.js dependencies for %s,'
-                          ' please ensure Node.js is installed.', target)
-        else:
-            raise
-
-
 def ensure_repo(parentrepo, parenttype, target, type, root, sourcename):
     if os.path.exists(target):
-        return False
+        return
 
     if SKIP_DEPENDENCY_UPDATES:
         logging.warning('SKIP_DEPENDENCY_UPDATES environment variable set, '
                         '%s not cloned', target)
-        return False
+        return
 
     postprocess_url = repo_types[type].postprocess_url
     root = postprocess_url(root)
@@ -316,7 +266,6 @@ def ensure_repo(parentrepo, parenttype, target, type, root, sourcename):
     logging.info('Cloning repository %s into %s' % (url, target))
     repo_types[type].clone(url, target)
     repo_types[parenttype].ignore(target, parentrepo)
-    return True
 
 
 def update_repo(target, type, revision):
@@ -327,7 +276,7 @@ def update_repo(target, type, revision):
         if SKIP_DEPENDENCY_UPDATES:
             logging.warning('SKIP_DEPENDENCY_UPDATES environment variable set, '
                             '%s not checked out to %s', target, revision)
-            return False
+            return
 
         if not resolved_revision:
             logging.info('Revision %s is unknown, downloading remote changes' % revision)
@@ -338,8 +287,6 @@ def update_repo(target, type, revision):
 
         logging.info('Updating repository %s to revision %s' % (target, resolved_revision))
         repo_types[type].update(target, resolved_revision, revision)
-        return True
-    return False
 
 
 def resolve_deps(repodir, level=0, self_update=True, overrideroots=None, skipdependencies=set()):
@@ -355,7 +302,7 @@ def resolve_deps(repodir, level=0, self_update=True, overrideroots=None, skipdep
     if overrideroots is not None:
         config['_root'] = overrideroots
 
-    for dir, sources in sorted(config.iteritems()):
+    for dir, sources in config.iteritems():
         if (dir.startswith('_') or
             skipdependencies.intersection([s[0] for s in sources if s[0]])):
             continue
@@ -373,12 +320,8 @@ def resolve_deps(repodir, level=0, self_update=True, overrideroots=None, skipdep
             logging.warning('No valid source / revision found to create %s' % target)
             continue
 
-        repo_cloned = ensure_repo(repodir, parenttype, target, vcs,
-                                  _root.get(vcs, ''), source)
-        repo_updated = update_repo(target, vcs, rev)
-        recent_npm_failed = os.path.exists(os.path.join(target, NPM_LOCKFILE))
-        if repo_cloned or repo_updated or recent_npm_failed:
-            resolve_npm_dependencies(target, vcs)
+        ensure_repo(repodir, parenttype, target, vcs, _root.get(vcs, ''), source)
+        update_repo(target, vcs, rev)
         resolve_deps(target, level + 1, self_update=False,
                      overrideroots=overrideroots, skipdependencies=skipdependencies)
 
@@ -418,7 +361,6 @@ def _ensure_line_exists(path, pattern):
             f.truncate()
             for l in file_content:
                 print >>f, l
-
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
