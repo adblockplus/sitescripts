@@ -346,7 +346,7 @@ class NightlyBuild(object):
                 env = dict(env, SPIDERMONKEY_BINARY=spiderMonkeyBinary)
 
             command = [os.path.join(self.tempdir, 'build.py'),
-                       '-t', self.config.type, 'build', '-b', self.buildNum]
+                       'build', '-t', self.config.type, '-b', self.buildNum]
             if self.config.type not in {'gecko', 'gecko-webext', 'edge'}:
                 command.extend(['-k', self.config.keyFile])
             command.append(self.path)
