@@ -66,7 +66,7 @@ def updateDigests(dir):
                 subscriptionID = subscription.get('url', 'unknown')
                 # Send false negatives to all subscription authors, false positives
                 # only to subscriptions with matching filters
-                if subscriptionID in subscriptions and (dbreport['type'] == 'false negative' or subscription.get('hasmatches', 0) > 0):
+                if subscriptionID in subscriptions:
                     name, email = parseaddr(subscriptions[subscriptionID].email)
                     if email and not email in recipients:
                         recipients.add(email)
