@@ -111,7 +111,7 @@ def sendNotifications(reports):
                 groups[report['site']] = {'name': report['site'], 'reports': [report], 'weight': report['weight'], 'dumpAll': False}
 
         miscGroup = {'name': 'Misc', 'reports': [], 'weight': None, 'dumpAll': True}
-        for (site, group) in groups.items():
+        for site, group in groups.items():
             if len(group['reports']) == 1:
                 miscGroup['reports'].append(group['reports'][0])
                 del groups[site]
@@ -173,7 +173,7 @@ if __name__ == '__main__':
         raise Exception('No interval specified')
 
     interval = sys.argv[1]
-    if not (interval in ['all', 'week', 'day']):
+    if interval not in ['all', 'week', 'day']:
         raise Exception('Invalid interval')
 
     if interval == 'week' and len(sys.argv) < 3:

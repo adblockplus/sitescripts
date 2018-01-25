@@ -78,10 +78,10 @@ def _get_db():
 
 def _get_domain_id(db, domain):
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT id FROM domains WHERE domain = %s', (domain))
+    cursor.execute('SELECT id FROM domains WHERE domain = %s', domain)
     result = cursor.fetchone()
     if result == None:
-        cursor.execute('INSERT INTO domains(domain) VALUES (%s)', (domain))
+        cursor.execute('INSERT INTO domains(domain) VALUES (%s)', domain)
         return db.insert_id()
     else:
         return result['id']

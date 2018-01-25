@@ -124,7 +124,7 @@ def make_handler(name, config):
         get_template(template, autoescape=False)
     except (KeyError, AttributeError):
         raise Exception('No template configured for form handler: ' + name)
-    except (jinja2.TemplateNotFound):
+    except jinja2.TemplateNotFound:
         raise Exception('Template not found at: ' + template)
     try:
         fields = config['fields']

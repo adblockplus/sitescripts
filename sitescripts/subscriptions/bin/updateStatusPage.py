@@ -55,15 +55,15 @@ def checkSubscriptions():
             url = getattr(subscription, key)
             if url != None:
                 urls[url] = True
-        for (title, url, complete) in subscription.variants:
+        for title, url, complete in subscription.variants:
             urls[url] = True
 
     pool = eventlet.GreenPool()
-    for (url, result) in pool.imap(checkURL, urls.iterkeys()):
+    for url, result in pool.imap(checkURL, urls.iterkeys()):
         urls[url] = result
         if result is False:
             sites[urlparse(url).netloc] = True
-    for (site, result) in pool.imap(checkSite, sites.iterkeys()):
+    for site, result in pool.imap(checkSite, sites.iterkeys()):
         sites[site] = result
 
     result = []
@@ -80,7 +80,7 @@ def checkSubscriptions():
                     'result': urls[url],
                     'siteResult': site in sites and sites[site],
                 })
-        for (title, url, complete) in subscription.variants:
+        for title, url, complete in subscription.variants:
             site = urlparse(url).netloc
             s['links'].append({
                 'url': url,

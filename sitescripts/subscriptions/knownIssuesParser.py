@@ -186,7 +186,7 @@ def getRules():
             if line.find('=') < 0:
                 print >>sys.stderr, 'Unrecognized line %s' % line
                 continue
-            (key, value) = line.split('=', 1)
+            key, value = line.split('=', 1)
             key = key.rstrip()
             value = value.lstrip()
             if key == 'url':
@@ -199,7 +199,7 @@ def getRules():
 def findMatches(it, lang):
     global supportedKeys
 
-    (rules, rulesets) = getRules()
+    rules, rulesets = getRules()
 
     for line in it:
         match = re.search(r'<([\w\-]+)\s*(.*?)\s*/?>([^<>]*)', line)
@@ -216,9 +216,9 @@ def findMatches(it, lang):
 
         for key, t in supportedKeys.iteritems():
             if len(t) == 3:
-                (requiredTag, requiredAttrs, requiredValue) = t
+                requiredTag, requiredAttrs, requiredValue = t
             else:
-                (requiredTag, requiredAttrs) = t
+                requiredTag, requiredAttrs = t
                 requiredValue = None
             requiredAttrs = requiredAttrs.split(' ')
             if requiredTag != tag:

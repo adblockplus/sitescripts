@@ -333,7 +333,7 @@ def getDownloadLinks(result):
     """
     for repo in Configuration.getRepositoryConfigurations():
         try:
-            (downloadURL, version) = _getDownloadLink(repo)
+            downloadURL, version = _getDownloadLink(repo)
             if downloadURL is None:
                 raise Exception('No download link found for repo: ' +
                                 repo.repositoryName)

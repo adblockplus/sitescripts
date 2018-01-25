@@ -40,7 +40,7 @@ def handleRequest(environ, start_response):
 
     try:
         request_body_size = int(environ.get('CONTENT_LENGTH', 0))
-    except (ValueError):
+    except ValueError:
         return showError('No content', start_response)
 
     dir = get_config().get('crashes', 'dataPath')

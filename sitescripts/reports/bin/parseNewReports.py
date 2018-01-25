@@ -146,7 +146,7 @@ def processElementStart(name, attributes):
             'location': attributes.get('location', ''),
             'type': attributes.get('type', 'unknown'),
             'docDomain': attributes.get('docDomain', 'unknown'),
-            'thirdParty': (attributes.get('thirdParty', 'false') == 'true'),
+            'thirdParty': attributes.get('thirdParty', 'false') == 'true',
             'size': attributes.get('size', ''),
             'filter': attributes.get('filter', ''),
             'count': requestCount,

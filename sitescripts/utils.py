@@ -114,7 +114,7 @@ def sendMail(template, data):
     mail = template.render(data)
     config = get_config()
     if config.has_option('DEFAULT', 'mailerDebug') and config.get('DEFAULT', 'mailerDebug') == 'yes':
-        (handle, path) = mkstemp(prefix='mail_', suffix='.eml', dir='.')
+        handle, path = mkstemp(prefix='mail_', suffix='.eml', dir='.')
         os.close(handle)
         f = codecs.open(path, 'wb', encoding='utf-8')
         print >>f, mail

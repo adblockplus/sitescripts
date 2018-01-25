@@ -27,7 +27,7 @@ import sitescripts.subscriptions.subscriptionParser as subscriptionParser
 def handleSubscriptionFallbackRequest(environ, start_response):
     setupStderr(environ['wsgi.errors'])
 
-    (redirects, gone) = getData()
+    redirects, gone = getData()
 
     start_response('200 OK', [('Content-Type', 'text/plain')])
 
@@ -48,7 +48,7 @@ def handleSubscriptionFallbackRequest(environ, start_response):
 def getData():
     processed = set()
 
-    (redirectData, goneData) = subscriptionParser.getFallbackData()
+    redirectData, goneData = subscriptionParser.getFallbackData()
     redirects = processData(redirectData, processed, {})
     gone = processData(goneData, processed, set())
 

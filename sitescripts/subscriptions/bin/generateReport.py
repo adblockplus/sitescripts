@@ -73,7 +73,7 @@ def loadSubscriptions(counts):
         for title, url, complete in subscription.variants:
             knownURLs[url] = True
 
-    (redirectData, goneData) = subscriptionParser.getFallbackData()
+    redirectData, goneData = subscriptionParser.getFallbackData()
     redirects = processFile(redirectData, counts)
     gone = processFile(goneData, counts)
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         logPath = os.path.join(get_config().get('logs', 'dataPath'), get_config().get('logs', 'fileName') % i)
         countSubscriptionRequests(logPath, counts)
 
-    (redirects, gone, unaccounted) = loadSubscriptions(counts)
+    redirects, gone, unaccounted = loadSubscriptions(counts)
 
     sendMail(get_config().get('subscriptions', 'reportTemplate'), {
         'redirects': redirects,

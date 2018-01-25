@@ -30,20 +30,20 @@ def _parse_targetspec(value, name):
 
     items = [
         (r'^(extension|application|platform)(=)(.+)$', {
-            '=': (lambda k, v: {k: v}),
+            '=': lambda k, v: {k: v},
         }),
         (r'^(extension|application|platform)Version(=|\>=|\<=)(.+)$', {
-            '>=': (lambda k, v: {k + 'MinVersion': v}),
-            '<=': (lambda k, v: {k + 'MaxVersion': v}),
-            '=': (lambda k, v: {k + 'MinVersion': v, k + 'MaxVersion': v}),
+            '>=': lambda k, v: {k + 'MinVersion': v},
+            '<=': lambda k, v: {k + 'MaxVersion': v},
+            '=': lambda k, v: {k + 'MinVersion': v, k + 'MaxVersion': v},
         }),
         (r'^(blockedTotal)(=|\>=|\<=)(\d+)$', {
-            '>=': (lambda k, v: {k + 'Min': int(v)}),
-            '<=': (lambda k, v: {k + 'Max': int(v)}),
-            '=': (lambda k, v: {k + 'Min': int(v), k + 'Max': int(v)}),
+            '>=': lambda k, v: {k + 'Min': int(v)},
+            '<=': lambda k, v: {k + 'Max': int(v)},
+            '=': lambda k, v: {k + 'Min': int(v), k + 'Max': int(v)},
         }),
         (r'^(locales)(=)([\w\-,]+)$', {
-            '=': (lambda k, v: {k: v.split(',')}),
+            '=': lambda k, v: {k: v.split(',')},
         }),
     ]
 

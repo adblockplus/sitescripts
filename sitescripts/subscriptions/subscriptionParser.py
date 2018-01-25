@@ -152,13 +152,13 @@ class Subscription(object):
                                 keywords[keyword] = True
                             else:
                                 warn('Unknown keyword %s given for attribute %s in %s' % (keyword, key, path))
-                    (name, url) = (self.name, value)
+                    name, url = self.name, value
                     if key == 'variant':
                         match = re.search(r'(.+?)\s+(\S+)$', value)
                         if match:
-                            (name, url) = (match.group(1), match.group(2))
+                            name, url = match.group(1), match.group(2)
                         else:
-                            warn('Invalid variant format in %s, no name given?' % (path))
+                            warn('Invalid variant format in %s, no name given?' % path)
                     if not _validate_URL(url):
                         warn('Invalid list URL %s given in %s' % (url, path))
                     self.variants.append([name, url, keywords['complete']])
@@ -199,21 +199,21 @@ class Subscription(object):
                 warn('None of the attributes %s present in %s' % (str, path))
 
         if len(self.variants) == 0:
-            warn('No list locations given in %s' % (path))
+            warn('No list locations given in %s' % path)
         if self.type not in ('ads', 'anti-adblock', 'other', 'malware', 'social', 'privacy'):
-            warn('Unknown type given in %s' % (path))
+            warn('Unknown type given in %s' % path)
         if self.digest != 'daily' and self.digest != 'weekly':
-            warn('Unknown digest frequency given in %s' % (path))
+            warn('Unknown digest frequency given in %s' % path)
         if not self.digestDay[0:3].lower() in weekdays:
-            warn('Unknown digest day given in %s' % (path))
+            warn('Unknown digest day given in %s' % path)
             self.digestDay = 'wed'
         self.digestDay = weekdays[self.digestDay[0:3].lower()]
         if self.recommendation is not None and self.type == 'ads' and not (self.languages and self.languages.strip()):
-            warn('Recommendation without languages in %s' % (path))
+            warn('Recommendation without languages in %s' % path)
         if len(self.supplements) == 0:
             for [name, url, complete] in self.variants:
                 if complete:
-                    warn('Variant marked as complete for non-supplemental subscription in %s' % (path))
+                    warn('Variant marked as complete for non-supplemental subscription in %s' % path)
                     break
 
         self.variants.sort(key=lambda variant: (self.recommendation == variant) * 2 + variant[2], reverse=True)
@@ -255,7 +255,7 @@ def readSubscriptions():
                 continue
 
             if filedata.name in result:
-                warn('Name %s is claimed by multiple files' % (filedata.name))
+                warn('Name %s is claimed by multiple files' % filedata.name)
             result[filedata.name] = filedata
 
     calculate_supplemented(result)
