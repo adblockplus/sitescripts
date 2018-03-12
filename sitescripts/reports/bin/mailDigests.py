@@ -68,10 +68,6 @@ def scanReports():
                     # only to subscriptions with matching filters
                     if dbreport['type'] == 'false negative' or subscription.get('hasmatches', 0) > 0:
                         recipients.append(subscriptions[subscriptionID])
-        elif interval != 'week':
-            # Send type "other" to fake subscription - daily reports
-            recipients.append(fakeSubscription)
-            subscriptionID = fakeSubscription.get('url', 'unknown')
 
         if len(recipients) == 0:
             continue
