@@ -31,7 +31,7 @@ def form_data():
         'name': 'John Doe',
         'email': 'john_doe@gmail.com',
         'subject': 'Hello there!',
-        'message': 'Once upon a time\nthere lived a king.'
+        'message': 'Once upon a time\nthere lived a king.',
     }
 
 

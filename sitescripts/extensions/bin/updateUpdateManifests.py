@@ -57,7 +57,7 @@ def readMetadata(repo, version):
             'revision': revision,
             'version': version,
             'minSdkVersion': get_min_sdk_version(repo, version),
-            'basename': os.path.basename(repo.repository)
+            'basename': os.path.basename(repo.repository),
         }
     elif repo.type == 'safari':
         metadata = repo.readMetadata(version)
@@ -68,12 +68,12 @@ def readMetadata(repo, version):
             'version': version,
             'shortVersion': version,
             'basename': metadata.get('general', 'basename'),
-            'updatedFromGallery': True
+            'updatedFromGallery': True,
         }
     elif repo.type == 'ie':
         return {
             'version': version,
-            'basename': os.path.basename(repo.repository)
+            'basename': os.path.basename(repo.repository),
         }
     else:
         raise Exception('unknown repository type %r' % repo.type)

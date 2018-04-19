@@ -52,7 +52,7 @@ class StatsFile:
                 'ssh', '-q', '-o', 'NumberOfPasswordPrompts 0', '-T', '-k',
                 '-l', parseresult.username,
                 parseresult.hostname,
-                parseresult.path.lstrip('/')
+                parseresult.path.lstrip('/'),
             ]
             if parseresult.port:
                 command[1:1] = ['-P', str(parseresult.port)]

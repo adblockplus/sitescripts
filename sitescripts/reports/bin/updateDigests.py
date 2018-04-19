@@ -99,7 +99,7 @@ def updateDigests(dir):
 def getSubscriptionInfo(subscription):
     sub = {
         'name': subscription.name,
-        'type': subscription.type
+        'type': subscription.type,
     }
     return sub
 

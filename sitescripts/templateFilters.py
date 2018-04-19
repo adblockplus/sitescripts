@@ -129,14 +129,14 @@ def subscriptionSort(value, prioritizeRecommended=True):
                 cmp(a.deprecated, b.deprecated) or
                 cmp(b.catchall, a.catchall) or
                 cmp(b.recommendation != None, a.recommendation != None) or
-                cmp(a.name.lower(), b.name.lower())
+                cmp(a.name.lower(), b.name.lower()),
         )
     else:
         value.sort(
             lambda a, b:
                 cmp(a.type, b.type) or
                 cmp(a.deprecated, b.deprecated) or
-                cmp(a.name.lower(), b.name.lower())
+                cmp(a.name.lower(), b.name.lower()),
         )
     return value
 

@@ -27,19 +27,19 @@ def update_recommendations():
     tempdir = mkdtemp(prefix='adblockplus')
     try:
         subprocess.check_call([
-            'hg', 'clone', '-q', '-U', repository, tempdir
+            'hg', 'clone', '-q', '-U', repository, tempdir,
         ])
         subprocess.check_call([
-            'hg', 'up', '-q', '-R', tempdir, '-r', 'master'
+            'hg', 'up', '-q', '-R', tempdir, '-r', 'master',
         ])
         writeSubscriptions('recommendations', os.path.join(tempdir, *path))
         if subprocess.check_output(['hg', 'stat', '-R', tempdir]) != '':
             subprocess.check_call([
                 'hg', 'commit', '-q', '-R', tempdir, '-u', 'hgbot',
-                '-m', 'Noissue - Updated list of recommended subscriptions'
+                '-m', 'Noissue - Updated list of recommended subscriptions',
             ])
             subprocess.check_call([
-                'hg', 'push', '-q', '-R', tempdir, '-r', 'master'
+                'hg', 'push', '-q', '-R', tempdir, '-r', 'master',
             ])
     finally:
         rmtree(tempdir)

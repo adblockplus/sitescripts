@@ -49,7 +49,7 @@ def submit_email(environ, start_response, data):
     except ValueError:
         return send_simple_response(
             start_response, 400,
-            'Please enter a valid email address.'
+            'Please enter a valid email address.',
         )
 
     params = [('email', email), ('signature', sign(config, email)), ('product', product)]
@@ -63,15 +63,15 @@ def submit_email(environ, start_response, data):
             'recipient': email,
             'verification_url': '%s?%s' % (
                 urljoin(wsgiref.util.application_uri(environ), VERIFICATION_PATH),
-                urlencode(params)
-            )
-        }
+                urlencode(params),
+            ),
+        },
     )
 
     return send_simple_response(
         start_response, 200,
         'A confirmation email has been sent. Please check '
-        'your email and click the confirmation link.'
+        'your email and click the confirmation link.',
     )
 
 
@@ -90,7 +90,7 @@ def verify_email(environ, start_response):
     if sign(config, email) != signature:
         return send_simple_response(
             start_response, 403,
-            'Invalid signature in verification request.'
+            'Invalid signature in verification request.',
         )
 
     with open(filename, 'ab', 0) as file:

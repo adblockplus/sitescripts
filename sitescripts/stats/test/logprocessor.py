@@ -253,7 +253,7 @@ class Test(unittest.TestCase):
                 'unknown/unknown',
                 'unknown',
                 'unknown',
-                ''
+                '',
             ),
         ]
         for time, file, query, clientid, expected_addon, expected_application, expected_platform, expected_interval, expected_previous, expected_flags in tests:
@@ -284,15 +284,15 @@ class Test(unittest.TestCase):
         tests = [
             (
                 'reqVersion=2&id={d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}&version=2.3.1.3707&maxAppVersion=25.0&status=userEnabled&appID={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&appVersion=22.0&appOS=Darwin&appABI=x86_64-gcc3&locale=en-US&currentAppVersion=22.0&updateType=112',
-                '2.3.1.3707', 'firefox', '22.0'
+                '2.3.1.3707', 'firefox', '22.0',
             ),
             (
                 'reqVersion=2&id=customization@adblockplus.org&version=1.0.4a.74&maxAppVersion=26.0&status=userEnabled&appID={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&appVersion=25.0a1&appOS=WINNT&appABI=x86_64-msvc&locale=en-US&currentAppVersion=25.0a1&updateType=97',
-                '1.0.4a.74', 'firefox', '25.0'
+                '1.0.4a.74', 'firefox', '25.0',
             ),
             (
                 'reqVersion=2&id={d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}&version=1.3a.20100925&maxAppVersion=2.1b1&status=userEnabled,incompatible&appID={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}&appVersion=2.19&appOS=WINNT&appABI=x86-msvc&locale=en-US&currentAppVersion=2.19&updateType=112',
-                '1.3a.20100925', 'seamonkey', '2.19'
+                '1.3a.20100925', 'seamonkey', '2.19',
             ),
         ]
         for query, expected_version, expected_application, expected_applicationversion in tests:
@@ -302,15 +302,15 @@ class Test(unittest.TestCase):
         tests = [
             (
                 'os=win&arch=x86&nacl_arch=x86-64&prod=chromecrx&prodchannel=stable&prodversion=28.0.1500.72&x=id%3Dldcecbkkoecffmfljeihcmifjjdoepkn%26v%3D1.5.3.977%26uc',
-                '1.5.3.977', 'chrome', '28.0'
+                '1.5.3.977', 'chrome', '28.0',
             ),
             (
                 'x=id%3Dldcecbkkoecffmfljeihcmifjjdoepkn%26v%3D1.5.3.977%26uc',
-                '1.5.3.977', 'unknown', 'unknown'
+                '1.5.3.977', 'unknown', 'unknown',
             ),
             (
                 'api=15&build=256&locale=ru_ru&device=LGE%20LG-P990',
-                'unknown', 'unknown', 'unknown'
+                'unknown', 'unknown', 'unknown',
             ),
         ]
         for query, expected_version, expected_application, expected_applicationversion in tests:
@@ -357,11 +357,11 @@ class Test(unittest.TestCase):
                     'application': 'chrome',
                     'applicationVersion': '28.0',
                     'fullApplication': 'chrome 28.0',
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/abpcustomization/update.rdf?reqVersion=2&id=customization@adblockplus.org&version=1.0.4a.74&maxAppVersion=26.0&status=userEnabled&appID={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&appVersion=25.0a1&appOS=WINNT&appABI=x86_64-msvc&locale=en-US&currentAppVersion=25.0a1&updateType=97 HTTP/1.1" 404 867 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20130730 Firefox/25.0" "-" https" "en-US" "downloads.adblockplus.org" "-"',
-                None
+                None,
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/abpcustomization/update.rdf?reqVersion=2&id=customization@adblockplus.org&version=1.0.4a.74&maxAppVersion=26.0&status=userEnabled&appID={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&appVersion=25.0a1&appOS=WINNT&appABI=x86_64-msvc&locale=en-US&currentAppVersion=25.0a1&updateType=97 HTTP/1.1" 301 867 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20130730 Firefox/25.0" "-" https" "en-US" "downloads.adblockplus.org" "-"',
@@ -388,7 +388,7 @@ class Test(unittest.TestCase):
                     'application': 'firefox',
                     'applicationVersion': '25.0',
                     'fullApplication': 'firefox 25.0',
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/abpcustomization/update.rdf?reqVersion=2&id=customization@adblockplus.org&version=1.0.4a.74&maxAppVersion=26.0&status=userEnabled&appID={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&appVersion=25.0a1&appOS=WINNT&appABI=x86_64-msvc&locale=en-US&currentAppVersion=25.0a1&updateType=97 HTTP/1.1" 302 867 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20130730 Firefox/25.0" "-" https" "en-US" "downloads.adblockplus.org" "-"',
@@ -415,15 +415,15 @@ class Test(unittest.TestCase):
                     'application': 'firefox',
                     'applicationVersion': '25.0',
                     'fullApplication': 'firefox 25.0',
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/abpcustomization/update.unknown?reqVersion=2&id=customization@adblockplus.org&version=1.0.4a.74&maxAppVersion=26.0&status=userEnabled&appID={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&appVersion=25.0a1&appOS=WINNT&appABI=x86_64-msvc&locale=en-US&currentAppVersion=25.0a1&updateType=97 HTTP/1.1" 200 867 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20130730 Firefox/25.0" "-" https" "en-US" "downloads.adblockplus.org" "-"',
-                None
+                None,
             ),
             (
                 '1.2.3.4 corrupted',
-                None
+                None,
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/abpcustomization/update.rdf?reqVersion=2&id=customization@adblockplus.org&version=1.0.4a.74&maxAppVersion=26.0&status=userEnabled&appID={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&appVersion=25.0a1&appOS=WINNT&appABI=x86_64-msvc&locale=en-US&currentAppVersion=25.0a1&updateType=97 HTTP/1.1" 200 867 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20130730 Firefox/25.0" "-" https" "en-US" "downloads.adblockplus.org" "-"',
@@ -450,7 +450,7 @@ class Test(unittest.TestCase):
                     'application': 'firefox',
                     'applicationVersion': '25.0',
                     'fullApplication': 'firefox 25.0',
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/adblockplusie/update.json?addonName=adblockplusie&addonVersion=2.0&application=msie64&applicationVersion=10.0&platform=libadblockplus&platformVersion=1.0&lastVersion=0 HTTP/1.1" 200 867 "-" "Adblock Plus" "-" https" "en-US" "downloads.adblockplus.org" "-"',
@@ -483,7 +483,7 @@ class Test(unittest.TestCase):
                     'downloadInterval': 'unknown',
                     'previousDownload': 'unknown',
                     'firstDownload': True,
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /adblockplusandroid-1.1.2.apk HTTP/1.1" 200 49152 "https://adblockplus.org/en/android-install" "Mozilla/5.0 (Linux; U; Android 4.1.2; es-es; GT-I9100 Build/JZO54K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30" "-" https "en-US" "downloads.adblockplus.org" "-"',
@@ -505,7 +505,7 @@ class Test(unittest.TestCase):
                     'fullua': 'Mobile Safari 4.0',
                     'clientid': '-',
                     'installType': 'install',
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /devbuilds/adblockplus/adblockplus-2.3.2.3712.xpi?update HTTP/1.1" 200 827261 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0" "-" https',
@@ -527,7 +527,7 @@ class Test(unittest.TestCase):
                     'fullua': 'Firefox 22.0',
                     'clientid': None,
                     'installType': 'update',
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /exceptionrules.txt?addonName=adblockplus&addonVersion=2.3.2&application=firefox&applicationVersion=22.0&platform=gecko&platformVersion=22.0&lastVersion=201307311503 HTTP/1.1" 200 14303 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:22.0) Gecko/20100101 Firefox/22.0" "-" https "en-US,en;q=0.5" "easylist-downloads.adblockplus.org" "-"',
@@ -559,7 +559,7 @@ class Test(unittest.TestCase):
                     'fullPlatform': 'gecko 22.0',
                     'downloadInterval': '2 hour(s)',
                     'previousDownload': 'same day',
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /easylist.txt?_=1375446528229 HTTP/1.1" 200 326120 "-" "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36" "-" https "nl-NL,nl;q=0.8,en-US;q=0.6,en;q=0.4" "easylist-downloads.adblockplus.org" "AdBlock/2.6.2"',
@@ -591,7 +591,7 @@ class Test(unittest.TestCase):
                     'fullPlatform': 'unknown unknown',
                     'downloadInterval': 'unknown',
                     'previousDownload': 'unknown',
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /easylistitaly.txt HTTP/1.1" 200 85879 "-" "-" "-" https "-" "easylist-downloads.adblockplus.org" "-"',
@@ -623,7 +623,7 @@ class Test(unittest.TestCase):
                     'fullPlatform': 'unknown unknown',
                     'downloadInterval': 'unknown',
                     'previousDownload': 'unknown',
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /easylistitaly.tpl HTTP/1.1" 200 85879 "-" "-" "-" https "-" "easylist-downloads.adblockplus.org" "-"',
@@ -644,7 +644,7 @@ class Test(unittest.TestCase):
                     'uaversion': '',
                     'fullua': 'Other ',
                     'clientid': '-',
-                }
+                },
             ),
             (
                 '1.2.3.4 - - [31/Jul/2013:12:03:08 -0530] "GET /notification.json?addonName=adblockpluschrome&addonVersion=1.5.3&application=chrome&applicationVersion=28.0.1500.72&platform=chromium&platformVersion=28.0.1500.72&lastVersion=201307292310 HTTP/1.1" 200 299 "-" "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36" "-" https',
@@ -677,7 +677,7 @@ class Test(unittest.TestCase):
                     'downloadInterval': '1 day(s)',
                     'previousDownload': '2 day(s)',
                     'firstInDay': True,
-                }
+                },
             ),
         ]
         for line, expected_record in tests:
@@ -722,7 +722,7 @@ class Test(unittest.TestCase):
                 {
                     'hits': 1, 'bandwidth': 200,
                     'ua': {'Foo': {'hits': 1, 'bandwidth': 200, 'addonName': {'bar': {'hits': 1, 'bandwidth': 200}}}},
-                    'addonName': {'bar': {'hits': 1, 'bandwidth': 200, 'ua': {'Foo': {'hits': 1, 'bandwidth': 200}}}}
+                    'addonName': {'bar': {'hits': 1, 'bandwidth': 200, 'ua': {'Foo': {'hits': 1, 'bandwidth': 200}}}},
                 },
             ),
             (
@@ -732,7 +732,7 @@ class Test(unittest.TestCase):
                 {
                     'hits': 1, 'bandwidth': 200,
                     'ua': {'Foo': {'hits': 1, 'bandwidth': 200}},
-                    'addonName': {'bar': {'hits': 1, 'bandwidth': 200}}
+                    'addonName': {'bar': {'hits': 1, 'bandwidth': 200}},
                 },
             ),
         ]

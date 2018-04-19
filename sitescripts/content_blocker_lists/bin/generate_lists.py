@@ -55,7 +55,7 @@ def generate_metadata(filter_lists, expires):
     metadata = OrderedDict((
         ('version', time.strftime('%Y%m%d%H%M', time.gmtime())),
         ('expires', expires),
-        ('sources', [])
+        ('sources', []),
     ))
     for body, url, version in filter_lists:
         metadata['sources'].append({'url': url, 'version': version})

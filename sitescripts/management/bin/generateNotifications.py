@@ -28,7 +28,7 @@ def generate_notifications(path):
     notifications = [x for x in notifications if 'variants' in x]
     output = {
         'notifications': notifications,
-        'version': time.strftime('%Y%m%d%H%M', time.gmtime())
+        'version': time.strftime('%Y%m%d%H%M', time.gmtime()),
     }
     with codecs.open(path, 'wb', encoding='utf-8') as file:
         json.dump(output, file, ensure_ascii=False, indent=2,

@@ -24,14 +24,16 @@ from sitescripts.web import url_handler, request_path
 @url_handler('/sitekey-frame')
 def sitekey_frame(environ, start_response):
     template_path, template_file = os.path.split(
-        get_config().get('testpages', 'sitekeyFrameTemplate')
+        get_config().get('testpages', 'sitekeyFrameTemplate'),
     )
     template = get_template(template_file, template_path=template_path)
 
     key = M2Crypto.EVP.load_key(get_config().get('testpages', 'sitekeyPath'))
     key.sign_init()
     key.sign_update('\x00'.join((
-        request_path(environ), environ['HTTP_HOST'], environ['HTTP_USER_AGENT']
+        request_path(environ),
+        environ['HTTP_HOST'],
+        environ['HTTP_USER_AGENT'],
     )))
 
     public_key = base64.b64encode(key.as_der())

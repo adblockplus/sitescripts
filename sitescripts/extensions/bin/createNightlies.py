@@ -48,7 +48,7 @@ from xml.dom.minidom import parse as parseXml
 
 from sitescripts.extensions.utils import (
     compareVersions, Configuration,
-    writeAndroidUpdateManifest
+    writeAndroidUpdateManifest,
 )
 from sitescripts.utils import get_config, get_template
 
@@ -95,7 +95,7 @@ class NightlyBuild(object):
         """
         command = [
             'hg', 'id', '-i', '-r', self.config.revision, '--config',
-            'defaults.id=', self.config.repository
+            'defaults.id=', self.config.repository,
         ]
         return subprocess.check_output(command).strip()
 
@@ -118,7 +118,7 @@ class NightlyBuild(object):
             'reverse(ancestors({}))'.format(self.config.revision), '-l', '50',
             '--encoding', 'utf-8', '--template',
             '{date|isodate}\\0{author|person}\\0{rev}\\0{desc}\\0\\0',
-            '--config', 'defaults.log='
+            '--config', 'defaults.log=',
         ]
         result = subprocess.check_output(command).decode('utf-8')
 
@@ -272,7 +272,7 @@ class NightlyBuild(object):
             writeAndroidUpdateManifest(newManifestPath, [{
                 'basename': self.basename,
                 'version': self.version,
-                'updateURL': self.updateURL
+                'updateURL': self.updateURL,
             }])
 
         template = get_template(get_config().get('extensions', templateName),
@@ -296,7 +296,7 @@ class NightlyBuild(object):
         doWrite(manifestPath, [{
             'basename': self.basename,
             'version': version,
-            'updateURL': updateURL
+            'updateURL': updateURL,
         }])
 
         for suffix in ['-x86.msi', '-x64.msi', '-gpo-x86.msi', '-gpo-x64.msi']:
@@ -331,7 +331,7 @@ class NightlyBuild(object):
                 command = ['ssh', '-p', port, get_config().get('extensions', 'androidBuildHost')]
                 command.extend(map(pipes.quote, [
                     '/home/android/bin/makedebugbuild.py', '--revision',
-                    self.buildNum, '--version', self.version, '--stdout'
+                    self.buildNum, '--version', self.version, '--stdout',
                 ]))
                 subprocess.check_call(command, stdout=apkFile, close_fds=True)
             except:
@@ -406,7 +406,7 @@ class NightlyBuild(object):
                 'version': version,
                 'download': packageFile,
                 'mtime': os.path.getmtime(os.path.join(baseDir, packageFile)),
-                'size': os.path.getsize(os.path.join(baseDir, packageFile))
+                'size': os.path.getsize(os.path.join(baseDir, packageFile)),
             }
             if os.path.exists(os.path.join(baseDir, changelogFile)):
                 link['changelog'] = changelogFile
@@ -432,7 +432,7 @@ class NightlyBuild(object):
 
         input = '{}.{}'.format(
             base64.b64encode(json.dumps(header)),
-            base64.b64encode(json.dumps(payload))
+            base64.b64encode(json.dumps(payload)),
         )
 
         signature = hmac.new(get_config().get('extensions', 'amo_secret'),
@@ -448,8 +448,8 @@ class NightlyBuild(object):
                 'upload': (
                     os.path.basename(self.path),
                     file.read(),
-                    'application/x-xpinstall'
-                )
+                    'application/x-xpinstall',
+                ),
             })
 
         request = urllib2.Request(upload_url, data=data)
@@ -481,7 +481,7 @@ class NightlyBuild(object):
                 ('client_id', self.config.clientID),
                 ('client_secret', self.config.clientSecret),
                 ('grant_type', 'refresh_token'),
-            ])
+            ]),
         ))
 
         auth_token = '%s %s' % (response['token_type'], response['access_token'])
@@ -535,7 +535,7 @@ class NightlyBuild(object):
             ('client_id', self.config.clientID),
             ('client_secret', self.config.clientSecret),
             ('grant_type', 'refresh_token'),
-            ('resource', 'https://graph.windows.net')
+            ('resource', 'https://graph.windows.net'),
         ])
         request = urllib2.Request(token_path, post_data)
         with contextlib.closing(opener.open(request)) as response:
@@ -576,7 +576,7 @@ class NightlyBuild(object):
         # https://docs.microsoft.com/en-us/windows/uwp/monetize/get-an-app
         api_path = '{}/v1.0/my/applications/{}'.format(
             'https://manage.devcenter.microsoft.com',
-            self.config.devbuildGalleryID
+            self.config.devbuildGalleryID,
         )
 
         request = urllib2.Request(api_path, None, headers)

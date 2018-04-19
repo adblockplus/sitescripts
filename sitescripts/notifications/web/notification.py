@@ -100,7 +100,7 @@ def _get_notifications_to_send(notifications, groups):
 def _create_response(notifications, groups):
     return {
         'version': _generate_version(groups),
-        'notifications': _get_notifications_to_send(notifications, groups)
+        'notifications': _get_notifications_to_send(notifications, groups),
     }
 
 

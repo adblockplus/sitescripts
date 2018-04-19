@@ -26,7 +26,7 @@ def send_installation_link(environ, start_response, data):
     except ValueError:
         return send_simple_response(
             start_response, 400,
-            'Please enter a valid email address.'
+            'Please enter a valid email address.',
         )
 
     config = get_config()
@@ -36,5 +36,5 @@ def send_installation_link(environ, start_response, data):
     return send_simple_response(
         start_response, 200,
         'The app is on the way! '
-        'Please check your email on your smartphone or tablet.'
+        'Please check your email on your smartphone or tablet.',
     )

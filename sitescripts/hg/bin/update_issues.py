@@ -84,7 +84,7 @@ def _post_comments(ui, repo, config, refs):
         comment_text = template.render({
             'repository_name': repo_name,
             'changes': ref.commits,
-            'format_description': _format_description
+            'format_description': _format_description,
         })
         with _trac_proxy(ui, config, 'getting issue {}'.format(ref.id)) as tp:
             attrs = tp.ticket.get(ref.id)[3]
@@ -138,7 +138,7 @@ def _declare_fixed(ui, config, refs):
             attrs = tp.ticket.get(ref.id)[3]
             changes = {
                 '_ts': attrs['_ts'],
-                'action': 'leave'
+                'action': 'leave',
             }
             actions = tp.ticket.getActions(ref.id)
             if any(action[0] == 'resolve' for action in actions):

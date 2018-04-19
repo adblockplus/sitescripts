@@ -68,8 +68,8 @@ def _render_manifest(build=None, builds_url=None):
             'url': build_url,
             'hash_function': 'SHA512',
             'hash_value': hashlib.sha512(build_content).hexdigest(),
-            'size': len(build_content)
-        }
+            'size': len(build_content),
+        },
     })
 
 

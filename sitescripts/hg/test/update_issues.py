@@ -23,7 +23,7 @@ import sitescripts.hg.bin.update_issues as update_issues
 def _issue(component, milestone='', can_resolve=False):
     issue = {
         'attrs': {'_ts': 1, 'milestone': milestone, 'component': component},
-        'actions': [['leave', '', '', []]]
+        'actions': [['leave', '', '', []]],
     }
     if can_resolve:
         issue['actions'].append(['resolve', '', '', []])
@@ -35,13 +35,13 @@ ISSUES = {
     2448: _issue(component='two'),
     3559: _issue(component='one', milestone='other'),
     4670: _issue(component='three', can_resolve=True),
-    5781: _issue(component='four', can_resolve=True)
+    5781: _issue(component='four', can_resolve=True),
 }
 
 MILESTONES = {
     'completed': {'completed': True, 'name': 'completed'},
     'current': {'completed': None, 'name': 'current'},
-    'other': {'completed': None, 'name': 'other'}
+    'other': {'completed': None, 'name': 'other'},
 }
 
 
@@ -129,7 +129,7 @@ class TestChangegroupHook(_TestBase):
             'Issue 1337: Colon instead of dash',
             'Noissue no dash',
             'Issue 1337-No space around dash',
-            'Fixes 1337 no dash'
+            'Fixes 1337 no dash',
         ], warning_count=7)
 
     def test_noissue_commits_ignored(self):

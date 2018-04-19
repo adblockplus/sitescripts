@@ -113,7 +113,7 @@ def readSyncSettings():
                 'user': None,
                 'group': None,
                 'postsync': None,
-                'ignore': []
+                'ignore': [],
             }
         if isinstance(result[name][setting], list):
             result[name][setting] = get_config().get('filesync', option).split(' ')

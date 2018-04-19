@@ -145,7 +145,7 @@ def make_handler(name, config):
         time = datetime.datetime.now()
         template_args = {
             'time': time,
-            'fields': {field: params.get(field, '') for field in fields}
+            'fields': {field: params.get(field, '') for field in fields},
         }
         try:
             sendMail(template, template_args)

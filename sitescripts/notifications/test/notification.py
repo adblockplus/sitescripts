@@ -30,7 +30,7 @@ class TestNotification(unittest.TestCase):
 
     def test_no_group(self):
         self.load_notifications_mock.return_value = [
-            {'id': '1', 'title': {'en-US': ''}, 'message': {'en-US': ''}}
+            {'id': '1', 'title': {'en-US': ''}, 'message': {'en-US': ''}},
         ]
         result = json.loads(notification.notification({}, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
@@ -41,11 +41,11 @@ class TestNotification(unittest.TestCase):
         self.load_notifications_mock.return_value = [
             {'id': '1', 'title': {'en-US': ''}, 'message': {'en-US': ''}},
             {'id': 'a', 'variants': [
-                {'title': {'en-US': ''}, 'message': {'en-US': ''}}
-            ]}
+                {'title': {'en-US': ''}, 'message': {'en-US': ''}},
+            ]},
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-a/0'
+            'QUERY_STRING': 'lastVersion=197001010000-a/0',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
         self.assertEqual(result['notifications'][0]['id'], '1')
@@ -55,11 +55,11 @@ class TestNotification(unittest.TestCase):
         self.load_notifications_mock.return_value = [
             {'id': '1', 'title': {'en-US': ''}, 'message': {'en-US': ''}},
             {'id': 'a', 'variants': [
-                {'title': {'en-US': ''}, 'message': {'en-US': ''}}
-            ]}
+                {'title': {'en-US': ''}, 'message': {'en-US': ''}},
+            ]},
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-a/1'
+            'QUERY_STRING': 'lastVersion=197001010000-a/1',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
         self.assertEqual(result['notifications'][0]['id'], 'a')
@@ -69,17 +69,17 @@ class TestNotification(unittest.TestCase):
         self.load_notifications_mock.return_value = [
             {'id': '1', 'title': {'en-US': ''}, 'message': {'en-US': ''}},
             {'id': 'a', 'variants': [
-                {'title': {'en-US': ''}, 'message': {'en-US': ''}}
+                {'title': {'en-US': ''}, 'message': {'en-US': ''}},
             ]},
             {'id': 'b', 'variants': [
-                {'title': {'en-US': ''}, 'message': {'en-US': ''}}
+                {'title': {'en-US': ''}, 'message': {'en-US': ''}},
             ]},
             {'id': 'c', 'variants': [
-                {'title': {'en-US': ''}, 'message': {'en-US': ''}}
-            ]}
+                {'title': {'en-US': ''}, 'message': {'en-US': ''}},
+            ]},
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-a/0-b/0-c/0'
+            'QUERY_STRING': 'lastVersion=197001010000-a/0-b/0-c/0',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
         self.assertEqual(result['notifications'][0]['id'], '1')
@@ -89,17 +89,17 @@ class TestNotification(unittest.TestCase):
         self.load_notifications_mock.return_value = [
             {'id': '1', 'title': {'en-US': ''}, 'message': {'en-US': ''}},
             {'id': 'a', 'variants': [
-                {'title': {'en-US': ''}, 'message': {'en-US': ''}}
+                {'title': {'en-US': ''}, 'message': {'en-US': ''}},
             ]},
             {'id': 'b', 'variants': [
-                {'title': {'en-US': ''}, 'message': {'en-US': ''}}
+                {'title': {'en-US': ''}, 'message': {'en-US': ''}},
             ]},
             {'id': 'c', 'variants': [
-                {'title': {'en-US': ''}, 'message': {'en-US': ''}}
-            ]}
+                {'title': {'en-US': ''}, 'message': {'en-US': ''}},
+            ]},
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-a/0-b/1-c/0'
+            'QUERY_STRING': 'lastVersion=197001010000-a/0-b/1-c/0',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
         self.assertEqual(result['notifications'][0]['id'], 'b')
@@ -109,11 +109,11 @@ class TestNotification(unittest.TestCase):
         self.load_notifications_mock.return_value = [
             {'id': '1', 'title': {'en-US': ''}, 'message': {'en-US': ''}},
             {'id': 'a', 'variants': [
-                {'sample': 0, 'title': {'en-US': ''}, 'message': {'en-US': ''}}
-            ]}
+                {'sample': 0, 'title': {'en-US': ''}, 'message': {'en-US': ''}},
+            ]},
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000'
+            'QUERY_STRING': 'lastVersion=197001010000',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
         self.assertEqual(result['notifications'][0]['id'], '1')
@@ -123,11 +123,11 @@ class TestNotification(unittest.TestCase):
         self.load_notifications_mock.return_value = [
             {'id': '1', 'title': {'en-US': ''}, 'message': {'en-US': ''}},
             {'id': 'a', 'variants': [
-                {'sample': 1, 'title': {'en-US': ''}, 'message': {'en-US': ''}}
-            ]}
+                {'sample': 1, 'title': {'en-US': ''}, 'message': {'en-US': ''}},
+            ]},
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000'
+            'QUERY_STRING': 'lastVersion=197001010000',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
         self.assertEqual(result['notifications'][0]['id'], 'a')
@@ -140,9 +140,9 @@ class TestNotification(unittest.TestCase):
                 'title': {'en-US': 'default'},
                 'message': {'en-US': 'default'},
                 'variants': [
-                    {'sample': 1, 'message': {'en-US': 'variant'}}
-                ]
-            }
+                    {'sample': 1, 'message': {'en-US': 'variant'}},
+                ],
+            },
         ]
         result = json.loads(notification.notification({}, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
@@ -154,7 +154,7 @@ class TestNotification(unittest.TestCase):
 
     def test_no_variant_no_notifications(self):
         self.load_notifications_mock.return_value = [
-            {'id': 'a', 'variants': [{'sample': 0}]}
+            {'id': 'a', 'variants': [{'sample': 0}]},
         ]
         result = json.loads(notification.notification({}, lambda *args: None))
         self.assertEqual(len(result['notifications']), 0)
@@ -167,9 +167,9 @@ class TestNotification(unittest.TestCase):
                 'variants': [
                     {'sample': 0.5, 'title': {'en-US': '1'}, 'message': {'en-US': ''}},
                     {'sample': 0.25, 'title': {'en-US': '2'}, 'message': {'en-US': ''}},
-                    {'sample': 0.25, 'title': {'en-US': '3'}, 'message': {'en-US': ''}}
-                ]
-            }
+                    {'sample': 0.25, 'title': {'en-US': '3'}, 'message': {'en-US': ''}},
+                ],
+            },
         ]
         random_call.return_value = 0
         result = json.loads(notification.notification({}, lambda *args: None))
@@ -209,16 +209,16 @@ class TestNotification(unittest.TestCase):
                 'id': 'a',
                 'variants': [
                     {'sample': 0.25, 'title': {'en-US': '1'}, 'message': {'en-US': ''}},
-                    {'sample': 0.25, 'title': {'en-US': '2'}, 'message': {'en-US': ''}}
-                ]
+                    {'sample': 0.25, 'title': {'en-US': '2'}, 'message': {'en-US': ''}},
+                ],
             },
             {
                 'id': 'b',
                 'variants': [
                     {'sample': 0.25, 'title': {'en-US': '1'}, 'message': {'en-US': ''}},
-                    {'sample': 0.25, 'title': {'en-US': '2'}, 'message': {'en-US': ''}}
-                ]
-            }
+                    {'sample': 0.25, 'title': {'en-US': '2'}, 'message': {'en-US': ''}},
+                ],
+            },
         ]
         random_call.return_value = 0
         result = json.loads(notification.notification({}, lambda *args: None))
@@ -258,7 +258,7 @@ class TestNotification(unittest.TestCase):
 
     def test_version_header_present(self):
         self.load_notifications_mock.return_value = [
-            {'id': '1', 'title': {'en-US': ''}, 'message': {'en-US': ''}}
+            {'id': '1', 'title': {'en-US': ''}, 'message': {'en-US': ''}},
         ]
         response_header_map = {}
 
@@ -277,12 +277,12 @@ class TestNotification(unittest.TestCase):
                 'title': {'en-US': '0'},
                 'message': {'en-US': '0'},
                 'variants': [
-                    {'title': {'en-US': '1'}, 'message': {'en-US': '1'}}
-                ]
-            }
+                    {'title': {'en-US': '1'}, 'message': {'en-US': '1'}},
+                ],
+            },
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-a/0'
+            'QUERY_STRING': 'lastVersion=197001010000-a/0',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 2)
         self.assertEqual(result['notifications'][0]['id'], '1')
@@ -298,12 +298,12 @@ class TestNotification(unittest.TestCase):
                 'id': 'a',
                 'title': {'en-US': '0'},
                 'variants': [
-                    {'title': {'en-US': '1'}, 'message': {'en-US': '1'}}
-                ]
-            }
+                    {'title': {'en-US': '1'}, 'message': {'en-US': '1'}},
+                ],
+            },
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-a/0'
+            'QUERY_STRING': 'lastVersion=197001010000-a/0',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
         self.assertEqual(result['notifications'][0]['id'], '1')
@@ -316,7 +316,7 @@ class TestNotification(unittest.TestCase):
             {'id': '3', 'title': {}, 'message': {'en-US': ''}},
             {'id': '4', 'title': {}},
             {'id': '5', 'message': {}},
-            {'id': '6'}
+            {'id': '6'},
         ]
         result = json.loads(notification.notification({}, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
@@ -324,10 +324,10 @@ class TestNotification(unittest.TestCase):
 
     def test_stays_in_group_when_notification_present(self):
         self.load_notifications_mock.return_value = [
-            {'id': 'a'}
+            {'id': 'a'},
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-a/0-b/1'
+            'QUERY_STRING': 'lastVersion=197001010000-a/0-b/1',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 0)
         self.assertRegexpMatches(result['version'], r'-a/0')
@@ -335,17 +335,17 @@ class TestNotification(unittest.TestCase):
     def test_leaves_group_when_notification_absent(self):
         self.load_notifications_mock.return_value = []
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-a/0-b/1'
+            'QUERY_STRING': 'lastVersion=197001010000-a/0-b/1',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 0)
         self.assertRegexpMatches(result['version'], r'[^-]*')
 
     def test_stays_in_group_when_notification_inactive(self):
         self.load_notifications_mock.return_value = [
-            {'id': 'a', 'inactive': True}
+            {'id': 'a', 'inactive': True},
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-a/0-b/1'
+            'QUERY_STRING': 'lastVersion=197001010000-a/0-b/1',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 0)
         self.assertRegexpMatches(result['version'], r'-a/0')
@@ -359,7 +359,7 @@ class TestNotification(unittest.TestCase):
             ]},
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-1/0'
+            'QUERY_STRING': 'lastVersion=197001010000-1/0',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 1)
         self.assertRegexpMatches(result['version'], r'-1/0-2/1')
@@ -368,7 +368,7 @@ class TestNotification(unittest.TestCase):
         self.load_notifications_mock.return_value = [
             {'id': 'a', 'title': {'en-US': ''}, 'message': {'en-US': ''}, 'inactive': True},
             {'id': 'b', 'title': {'en-US': ''}, 'message': {'en-US': ''}, 'inactive': False},
-            {'id': 'c', 'title': {'en-US': ''}, 'message': {'en-US': ''}}
+            {'id': 'c', 'title': {'en-US': ''}, 'message': {'en-US': ''}},
         ]
         result = json.loads(notification.notification({}, lambda *args: None))
         self.assertEqual(len(result['notifications']), 2)
@@ -377,10 +377,10 @@ class TestNotification(unittest.TestCase):
 
     def test_inactive_notification_variant_not_returned(self):
         self.load_notifications_mock.return_value = [
-            {'id': 'a', 'inactive': True}
+            {'id': 'a', 'inactive': True},
         ]
         result = json.loads(notification.notification({
-            'QUERY_STRING': 'lastVersion=197001010000-a/1'
+            'QUERY_STRING': 'lastVersion=197001010000-a/1',
         }, lambda *args: None))
         self.assertEqual(len(result['notifications']), 0)
 

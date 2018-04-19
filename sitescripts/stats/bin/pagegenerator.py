@@ -89,7 +89,7 @@ def generate_file_stats(outputfile, month, url, overview_url, data, filter=None,
         'data': data,
         'fields': common.fields,
         'filter': filter,
-        'filtered_urls': filtered_urls
+        'filtered_urls': filtered_urls,
     }).dump(outputfile, encoding='utf-8')
 
 
@@ -98,7 +98,7 @@ def generate_file_overview(outputfile, url, data):
     get_file_overview_template().stream({
         'now': time.time(),
         'url': url,
-        'data': data
+        'data': data,
     }).dump(outputfile, encoding='utf-8')
 
 

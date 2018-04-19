@@ -47,7 +47,7 @@ def generate_data(repo):
                     'keytype': 'rsa',
                     'disabled': False,
                     'trusted': False,
-                    'repos': []
+                    'repos': [],
                 }
                 for option in options:
                     if option == 'dsa':
@@ -84,7 +84,7 @@ def generate_data(repo):
             user['name'] if not user['trusted'] else '',
             ' '.join(user['repos']),
             'ssh-rsa' if user['keytype'] == 'rsa' else 'ssh-dss',
-            user['key']
+            user['key'],
         )
 
 
