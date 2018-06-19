@@ -200,7 +200,8 @@ class Subscription(object):
 
         if len(self.variants) == 0:
             warn('No list locations given in %s' % path)
-        if self.type not in ('ads', 'anti-adblock', 'other', 'malware', 'social', 'privacy'):
+        if self.type not in ('ads', 'anti-adblock', 'circumvention', 'other',
+                             'malware', 'social', 'privacy'):
             warn('Unknown type given in %s' % path)
         if self.digest != 'daily' and self.digest != 'weekly':
             warn('Unknown digest frequency given in %s' % path)
