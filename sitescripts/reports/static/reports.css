@@ -233,3 +233,8 @@ td.requestThirdParty, td.subscriptionAutoDownload
 {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAD1JREFUeNpiXLty1n8gYMAHmGwdHBiBAKcCkDwTSIGdoyNWVSBxJiYmBiaYgL2TEyO6ApgNTNgk0J0AEGAA9sYMDTSB5q8AAAAASUVORK5CYII%3D);
 }
+
+#screenshotBox img
+{
+  max-width: 800px;
+}
