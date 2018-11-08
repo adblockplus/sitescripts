@@ -129,23 +129,6 @@ nightlyIndexPage=extensions/template/nightlies.html
 amo_key=user:543210:23
 amo_secret=your-api-secret
 
-[stats]
-geoip_db=%(root)s/data/GeoIP.dat
-geoipv6_db=%(root)s/data/GeoIPv6.dat
-
-mirror_foo=subscription ssh://stats@foo.example.com/access_log.subscriptions.1.gz
-mirror_bar=subscription ssh://stats@bar.example.com/access_log.subscriptions.1.gz
-mirror_bas=download ssh://stats@bas.example.com/access_log.downloads.1.gz
-
-baseURL_subscription=https://easylist-downloads.adblockplus.org/
-baseURL_download=https://download.adblockplus.org/
-
-dataDirectory=%(root)s/data/stats
-outputDirectory=%(root)s/www/stats
-mainPageTemplate=stats/template/main.html
-fileOverviewTemplate=stats/template/fileOverview.html
-filePageTemplate=stats/template/fileStats.html
-
 [subscriptionDownloads]
 easylist_repository=%(root)s/hg/easylist
 easylistgermany_repository=%(root)s/hg/easylistgermany
