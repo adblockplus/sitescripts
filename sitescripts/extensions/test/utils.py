@@ -13,9 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Contains fixtures that are useful across test scripts for the extensions module
-"""
+"""Fixtures that are useful across test scripts for the extensions module."""
 
 import subprocess
 
