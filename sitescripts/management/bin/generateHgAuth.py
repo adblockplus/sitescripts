@@ -35,7 +35,7 @@ def generate_data(repo):
                 name = name[2:]
 
             if fileinfo.type == tarfile.REGTYPE and name.startswith('users/'):
-                name = os.path.basename(name).lower()
+                name = os.path.basename(name)
                 options = []
                 match = re.search(r'^(.*)\[(.*)\]$', name)
                 if match:
