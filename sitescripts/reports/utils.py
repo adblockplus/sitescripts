@@ -278,4 +278,7 @@ def get_db():
 def executeQuery(cursor, query, args=None):
     tablePrefix = get_config().get('reports', 'dbprefix')
     query = re.sub(r'#PFX#', tablePrefix, query)
+    cursor.execute('SET NAMES utf8mb4')
+    cursor.execute('SET CHARACTER SET utf8mb4')
+    cursor.execute('SET character_set_connection=utf8mb4')
     cursor.execute(query, args)

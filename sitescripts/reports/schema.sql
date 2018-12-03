@@ -4,7 +4,7 @@ CREATE TABLE `subscriptions` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `url` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -15,7 +15,7 @@ CREATE TABLE `users` (
   `negative` int(10) unsigned NOT NULL DEFAULT '0',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -34,7 +34,7 @@ CREATE TABLE `reports` (
   KEY `reports_ctime` (`ctime`),
   KEY `reports_contract` (`contact`),
   CONSTRAINT `reports_contract` FOREIGN KEY (`contact`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -46,5 +46,5 @@ CREATE TABLE `sublists` (
   KEY `sublists_report` (`report`),
   CONSTRAINT `sublists_report` FOREIGN KEY (`report`) REFERENCES `reports` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `sublists_list` FOREIGN KEY (`list`) REFERENCES `subscriptions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
