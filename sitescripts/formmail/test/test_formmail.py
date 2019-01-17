@@ -101,7 +101,7 @@ def test_config_errors(key, message, form_config):
     del form_config[key]
     with pytest.raises(Exception) as error:
         formmail.make_handler('test', form_config)[1]
-    assert error.value.message == message
+    assert str(error.value) == message
 
 
 @pytest.mark.parametrize('field,message', [
@@ -152,14 +152,14 @@ def test_config_field_errors(form_config):
     form_config['fields'] = {}
     with pytest.raises(Exception) as error:
         formmail.make_handler('test', form_config)[1]
-    assert error.value.message == 'No fields configured for form handler: test'
+    assert str(error.value) == 'No fields configured for form handler: test'
 
 
 def test_config_template_errors(form_config):
     form_config['template'].value = 'no'
     with pytest.raises(Exception) as error:
         formmail.make_handler('test', form_config)[1]
-    assert error.value.message == 'Template not found at: no'
+    assert str(error.value) == 'Template not found at: no'
 
 
 def test_config_parse(form_config):
