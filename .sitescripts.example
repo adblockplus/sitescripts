@@ -13,7 +13,6 @@ sitescripts.reports.web.updateReport =
 sitescripts.reports.web.showDigest =
 sitescripts.reports.web.showUser =
 sitescripts.formmail.web.formmail =
-sitescripts.formmail.web.formmail2 =
 sitescripts.submit_email.web.submit_email =
 sitescripts.send_installation_link.web.send_installation_link =
 sitescripts.crawler.web.crawler =
@@ -152,9 +151,6 @@ Platform=adblock-plus(-[\d\.]+)?-for-chrome-opera-safari(-next)?
 Adblock-Plus-for-Firefox=adblock-plus(-[\d\.]+)?-for-firefox(-next)?
 
 [formmail]
-template=formmail/template/eyeo.mail
-
-[formmail2]
 test.csv_log = /var/log/something.csv_log
 test.url=test/apply/submit
 test.template=formmail/test/template/test.mail

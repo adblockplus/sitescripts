@@ -5,6 +5,7 @@ syntax: glob
 .tox
 .cache
 .sitescripts.test
-.coverage
+.coverage*
 htmlcov/
+.pytest_cache/
 .DS_Store
