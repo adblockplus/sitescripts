@@ -42,7 +42,7 @@ The CSV file into which all submissions will be saved (optional):
 
 The Jinja2 template for the email. This is where the recipient email addresses
 are entered.
-[(See an example email template here.)](formmail/test/template/test.mail)
+[(See an example email template here.)](test/template/test.mail)
 
     handler1.template = formmail/handler1/mail-template.tmpl
 
