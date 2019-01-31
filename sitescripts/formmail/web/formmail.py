@@ -100,8 +100,8 @@ def validate_fields(fields, params):
     errors = []
     for field, spec in fields.items():
         if 'mandatory' in spec.value and field not in params:
-                errors.append(make_error(spec, 'mandatory',
-                                         'No {} entered'.format(field)))
+            errors.append(make_error(spec, 'mandatory',
+                                     'No {} entered'.format(field)))
         if 'email' in spec.value and field in params:
             try:
                 params[field] = encode_email_address(params[field])
