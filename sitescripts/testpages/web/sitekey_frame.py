@@ -28,19 +28,24 @@ def sitekey_frame(environ, start_response):
     )
     template = get_template(template_file, template_path=template_path)
 
+    http_path = request_path(environ)
+    http_host = environ['HTTP_HOST']
+    http_ua = environ['HTTP_USER_AGENT']
+
     key = M2Crypto.EVP.load_key(get_config().get('testpages', 'sitekeyPath'))
     key.sign_init()
-    key.sign_update('\x00'.join((
-        request_path(environ),
-        environ['HTTP_HOST'],
-        environ['HTTP_USER_AGENT'],
-    )))
-
+    key.sign_update('\x00'.join([http_path, http_host, http_ua]))
     public_key = base64.b64encode(key.as_der())
     signature = base64.b64encode(key.final())
 
-    start_response('200 OK',
-                   [('Content-Type', 'text/html; charset=utf-8'),
-                    ('X-Adblock-Key', '%s_%s' % (public_key, signature))])
-    return [template.render({'public_key': public_key,
-                             'signature': signature}).encode('utf-8')]
+    start_response('200 OK', [
+        ('Content-Type', 'text/html; charset=utf-8'),
+        ('X-Adblock-Key', '%s_%s' % (public_key, signature)),
+    ])
+    return [template.render({
+        'public_key': public_key,
+        'signature': signature,
+        'http_path': http_path,
+        'http_host': http_host,
+        'http_ua': http_ua,
+    }).encode('utf-8')]
