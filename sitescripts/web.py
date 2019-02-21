@@ -39,11 +39,9 @@ def registerUrlHandler(url, func):
         raise Exception('A handler for url %s is already registered' % url)
     handlers[url] = func
 
-# https://www.python.org/dev/peps/pep-0333/#url-reconstruction
-
 
 def request_path(environ, include_query=True):
-    path = urllib.quote(environ.get('SCRIPT_NAME', '') +
+    path = urllib.quote(environ.get('SCRIPT_NAME', '') or
                         environ.get('PATH_INFO', ''))
     query_string = environ.get('QUERY_STRING', '')
     if query_string and include_query:
